@@ -29,7 +29,7 @@ namespace Overworld.Script {
             character => character.Value.Id
           )) {
             Data.Character character = program.GetCharacter(characterId);
-            SetLocalVariableForCharacter(program, character, (String)@params[0], @params[1]);
+            SetLocalVariableForCharacter(program, executor, character, (String)@params[0], @params[1]);
           }
 
           return null;

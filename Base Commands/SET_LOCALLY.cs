@@ -23,7 +23,7 @@ namespace Overworld.Script {
         public override Func<Program, Data.Character, IList<IParameter>, Variable> Execute {
           get;
         } = (program, executor, @params) => {
-          SetLocalVariableForCharacter(program, executor, (String)@params[0], @params[1]);
+          SetLocalVariableForCharacter(program, executor, executor, (String)@params[0], @params[1]);
 
           return null;
         };

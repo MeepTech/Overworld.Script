@@ -101,6 +101,7 @@ namespace Overworld.Script {
 
       /// <summary>
       /// Execute this program as a specific character
+      /// Runs should be wrapped in an object.
       /// </summary>
       public void ExecuteAs(Data.Character character)
         => _executeAllStartingAtLine(StartLine, character, null);

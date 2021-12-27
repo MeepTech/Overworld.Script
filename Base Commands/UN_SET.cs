@@ -36,7 +36,7 @@ namespace Overworld.Script {
           get;
         } = (program, executor, @params) => {
           if(_globalVariablesByCharacter.TryGetValue(executor.Id, out var characterVariables)) {
-            characterVariables.Remove(((String)@params[0]).Value);
+            characterVariables.Remove(((String)@params[0].GetUltimateVariableFor(executor)).Value);
             if(!characterVariables.Any()) {
               _globalVariablesByCharacter.Remove(executor.Id);
             }

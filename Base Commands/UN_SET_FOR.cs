@@ -25,12 +25,12 @@ namespace Overworld.Script {
         public override Func<Program, Data.Character, IList<IParameter>, Variable> Execute {
           get;
         } = (program, executor, @params) => {
-          foreach(string characterId in (@params[0] as Collection<Character>).Value.Select(
+          foreach(string characterId in (@params[0].GetUltimateVariableFor(executor) as Collection<Character>).Value.Select(
             character => character.Value.Id
           )) {
             Data.Character character = program.GetCharacter(characterId);
             if(_globalVariablesByCharacter.TryGetValue(character.Id, out var characterVariables)) {
-              characterVariables.Remove(((String)@params[1]).Value);
+              characterVariables.Remove(((String)@params[1].GetUltimateVariableFor(executor)).Value);
               if(!characterVariables.Any()) {
                 _globalVariablesByCharacter.Remove(character.Id);
               }

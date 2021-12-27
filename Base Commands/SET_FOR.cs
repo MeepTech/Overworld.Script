@@ -39,7 +39,7 @@ namespace Overworld.Script {
             character => character.Value.Id
           )) {
             Data.Character character = program.GetCharacter(characterId);
-            SetGlobalVariableForCharacter(program, character, (String)@params[0], @params[1]);
+            SetGlobalVariableForCharacter(program, executor, character, (String)@params[0], @params[1]);
           }
 
           return null;

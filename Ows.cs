@@ -113,5 +113,10 @@ namespace Overworld.Script {
     /// Phrase used to set items to variables
     /// </summary>
     public const char SetToSymbol = '=';
+
+    /// <summary>
+    /// Forces a line to end. Try not to abuse this it can make debugging harder
+    /// </summary>
+    public const char LineEndAlternateSymbol = ';';
   }
 }

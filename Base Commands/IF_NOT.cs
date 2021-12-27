@@ -26,8 +26,7 @@ namespace Overworld.Script {
           get;
         } = (program, executor, @params) => {
           if(((IConditional)@params.First()).ComputeFor(executor).Not.Value) {
-            (@params[1] as Command)
-              .ExecuteFor(executor);
+            return (@params[1] as Command).ExecuteUltimateCommandFor(executor);
           }
 
           return null;

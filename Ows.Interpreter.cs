@@ -10,7 +10,11 @@ namespace Overworld.Script {
 
   public static partial class Ows {
 
-    public class Interpreter {
+    /// <summary>
+    /// A factory for building programs from a provided context and lines of text.
+    /// NOT-THREAD-SAFE
+    /// </summary>
+    public partial class Interpreter {
 
       /// <summary>
       /// The the program that was/is being built
@@ -24,7 +28,12 @@ namespace Overworld.Script {
       /// Join together several .ows files.
       /// </summary>
       public static IEnumerable<string> JoinOwsFiles(IEnumerable<(string filename, string contents)> rawFiles)
-        => rawFiles.OrderBy(raw => raw.filename).SelectMany(raw => raw.contents.Split(Environment.NewLine));
+        => rawFiles.OrderBy(raw => raw.filename)
+          .SelectMany(raw => raw.contents
+          // TODO: make this an extension method for here and below uses
+            .Split(Environment.NewLine)
+              .SelectMany(line => line
+                .Split(LineEndAlternateSymbol, StringSplitOptions.RemoveEmptyEntries)));
 
       /// <summary>
       /// Join together several .ows files into a program
@@ -43,10 +52,13 @@ namespace Overworld.Script {
       /// <summary>
       /// Build a new program from a bunch of files and return it's interpreter 
       /// </summary>
-      public static Interpreter Build(Program.ContextData context, IEnumerable<(string filename, string contents)> rawFiles) {
+      /// <param name="context">The context for the interpreter to use when building a Program</param>
+      /// <param name="unorderedRawFiles">File contents and file names for the files you want compiled into one program. Files will be sorted alphabeticaly.
+      ///   Lines of code in files with names that begin with '_' will be set as "pre initial lines" and will be placed before the default entry point of the program</param>
+      public static Interpreter Build(Program.ContextData context, IEnumerable<(string filename, string contents)> unorderedRawFiles) {
         List<(string filename, string contents)> rawLines = new();
         List<(string filename, string contents)> rawPreInitLines = new();
-        foreach(var (filename, contents) in rawFiles.OrderBy(file => file.filename)) {
+        foreach(var (filename, contents) in unorderedRawFiles.OrderBy(file => file.filename)) {
           if(System.IO.Path.GetFileName(filename).StartsWith("_")) {
             rawPreInitLines.Add((filename, contents));
           } else
@@ -54,7 +66,7 @@ namespace Overworld.Script {
         }
 
         Interpreter @return = new(context);
-        @return.Build(JoinOwsFiles(rawFiles), JoinOwsFiles(rawPreInitLines));
+        @return.Build(JoinOwsFiles(unorderedRawFiles), JoinOwsFiles(rawPreInitLines));
         return @return;
       }
 
@@ -69,8 +81,17 @@ namespace Overworld.Script {
       /// <summary>
       /// Build a new program from a bunch of files
       /// </summary>
+      /// <param name="rawLines">The raw lines of program text, starting from the initial entry point</param>
+      /// <param name="preInitialLines">Lines that are placed before the default start point of the compiled program. These are useful for adding dependencies and such to a Program that you don't want run by default.</param>
       public Program Build([NotNull] string rawLines, string preInitialLines = null)
-        => Build(rawLines.Split(Environment.NewLine), preInitialLines?.Split(Environment.NewLine));
+        => Build(rawLines
+            .Split(Environment.NewLine)
+              .SelectMany(line => line
+                .Split(LineEndAlternateSymbol, StringSplitOptions.RemoveEmptyEntries)),
+        preInitialLines?
+            .Split(Environment.NewLine)
+              .SelectMany(line => line
+                .Split(LineEndAlternateSymbol, StringSplitOptions.RemoveEmptyEntries)));
 
       /// <summary>
       /// Build a new program from a bunch of files
@@ -81,17 +102,22 @@ namespace Overworld.Script {
         /// save the raw text
         preInitialLines ??= Enumerable.Empty<string>();
         Program.PreStartRawText =
-          string.Join(Environment.NewLine, preInitialLines)
-            .Trim()
+          string.Join(Environment.NewLine, preInitialLines.SelectMany(
+            line => line.Split(
+              LineEndAlternateSymbol, 
+              StringSplitOptions.RemoveEmptyEntries
+            ))).Trim()
             .ToUpper();
 
-        Program.PostStartRawText ??= string.Join(Environment.NewLine, rawLines)
-          .Trim()
+        Program.PostStartRawText ??= string.Join(Environment.NewLine, rawLines
+          .SelectMany(line => line
+            .Split(LineEndAlternateSymbol, StringSplitOptions.RemoveEmptyEntries))
+          ).Trim()
           .ToUpper();
 
         Program.RawText ??= string.Join(
           Environment.NewLine,
-          new[] { Program.PreStartRawText, Program.PostStartRawText }
+          rawLines.Concat(preInitialLines)
         );
 
         int lineNumber = 0;
@@ -104,7 +130,7 @@ namespace Overworld.Script {
           // if there's a label, store it
           if(currentCommandText.Trim().FirstOrDefault() == LabelStartSymbol) {
             Program._labelsByLineNumber.Add(
-              new string(currentCommandText.Trim().Substring(1).Until(LabelEndSymbol)).Trim().ToUpper(),
+              new string(currentCommandText.Trim()[1..].Until(LabelEndSymbol)).Trim().ToUpper(),
               lineNumber
             );
             currentCommandText = currentCommandText.After(FunctionSeperatorSymbol);
@@ -114,7 +140,7 @@ namespace Overworld.Script {
           if(preCompiledLines.Length > preCompiledLineIndex + 1) {
             // TODO: make the ... a const
             while(preCompiledLines[preCompiledLineIndex + 1].Trim().StartsWith("...")) {
-              currentCommandText += preCompiledLines[preCompiledLineIndex + 1].Substring(3);
+              currentCommandText += preCompiledLines[preCompiledLineIndex + 1].Trim()[3..] + " ";
               preCompiledLineIndex++;
               if(preCompiledLines.Length <= preCompiledLineIndex) {
                 break;
@@ -150,7 +176,8 @@ namespace Overworld.Script {
       /// <summary>
       /// Process the given command
       Command _parseCommand(ref string remainingCommandText, int lineNumber) {
-        string currentFunctionName = remainingCommandText.Until(FunctionSeperatorSymbol).Trim();
+        string currentFunctionName = remainingCommandText.Trim(FunctionSeperatorSymbol, ' ')
+          .Until(FunctionSeperatorSymbol).Trim();
         remainingCommandText = remainingCommandText.After(FunctionSeperatorSymbol).Trim();
 
         // make sure it's a recognized command
@@ -238,6 +265,7 @@ namespace Overworld.Script {
                 lineNumber
               )
             );
+            remainingCommandText = remainingCommandText.Trim(FunctionSeperatorSymbol, ' ');
           }
           return commandType.Make(Program, parameters);
         } else
@@ -263,7 +291,7 @@ namespace Overworld.Script {
         }
 
         // if we expect a collection of somekind, it could be a collection of strings, or entities.
-        if(expectedParamReturnType.IsAssignableToGeneric(typeof(Collection<>))) {
+        if(expectedParamReturnType.IsAssignableToGeneric(typeof(Collection<>)) || firstParamStub.StartsWith(CollectionStartSymbol)) {
           return _parseCollection(ref fullRemaininglineText, expectedParamReturnType, lineNumber);
         }
 
@@ -272,13 +300,24 @@ namespace Overworld.Script {
           fullRemaininglineText = fullRemaininglineText.Substring(firstParamStub.Length).Trim();
           return new Boolean(Program, true);
         }
-        if(firstParamStub.StartsWith("FALSE", true, null) && firstParamStub.Length == 4) {
+        if(firstParamStub.StartsWith("FALSE", true, null) && firstParamStub.Length == 5) {
           fullRemaininglineText = fullRemaininglineText.Substring(firstParamStub.Length).Trim();
           return new Boolean(Program, false);
         }
 
+        /// RESERVED Loop index Keyword
+        if(firstParamStub.StartsWith("LOOP-INDEX", true, null) && firstParamStub.Length == "LOOP-INDEX".Length) {
+          fullRemaininglineText = fullRemaininglineText.Substring(firstParamStub.Length).Trim();
+          return new PlaceholderIndex(Program);
+        }
+
         // check if it's a conditional that's expected.
         if(expectedParamReturnType.Equals(typeof(IConditional))) {
+          return _parseCondition(ref fullRemaininglineText, lineNumber);
+        }
+
+        // IF we've exausted most options and it begins with a not, try to make this a condition
+        if(fullRemaininglineText.StartsWith((char)Comparitors.NOT) || fullRemaininglineText.StartsWith(Comparitors.NOT.ToString() + "-")) {
           return _parseCondition(ref fullRemaininglineText, lineNumber);
         }
 
@@ -333,10 +372,28 @@ namespace Overworld.Script {
           return new Number(Program, double.Parse(value));
         }
 
-        // IF we've exausted most options and it begins with a not, try to make this a condition
-        if(fullRemaininglineText.StartsWith(Comparitors.NOT.ToString() + "-")) {
-          return _parseCondition(ref fullRemaininglineText, lineNumber);
+        /// TODO: check if there's any spaces, or special characters in the potential variable or function name.
+        /// If there are, then we should check which and send it to either conditional or opperation
+        firstParamStub.UntilAny(
+            // TODO: cache this whole thing in a static
+            // symbols
+            ComparitorSymbols.Select(ch => ch.ToString()).ToList().Except(new[] { "!" })
+              // phrases
+              .Concat(ComparitorPhrases.Except(new[] { "NOT" }).Select(phrase => $" {phrase} "))
+              .Append(LogicStartSymbol.ToString())
+              .Append(" "),
+            out string foundSeperator
+        );
+        if(foundSeperator != null) {
+          if(foundSeperator != FunctionSeperatorSymbol.ToString()) {
+            // TODO: also check for opperators when we impliment those
+            return _parseCondition(ref fullRemaininglineText, lineNumber);
+          }
+          if(foundSeperator == " ") {
+            throw new ArgumentException($"Unexpected space at:\n>{firstParamStub}");
+          }
         }
+        
 
         // check if it's a command by chance that returns what we want
         if(Program.Context.Commands.ContainsKey(firstParamStub)) {
@@ -353,23 +410,22 @@ namespace Overworld.Script {
 
       IParameter _parseCondition(ref string fullRemainingLineText, int lineNumber) {
         string preparsed = fullRemainingLineText.Trim();
-        //int skipUntilSubCollectionEndCount = 0;
-        //int parsedCharacterCount = 0;
-        //bool firstCharacter = true;
+        string parsed = "";
         IParameter identityCondition = null;
-        //IParameter conditionRight = null;
         Comparitors? comparitor = null;
         int conditionLogicContainerDepth = 0;
 
-        char endCharacter = FunctionSeperatorSymbol;
         if(fullRemainingLineText[0].Equals(LogicStartSymbol)) {
+          conditionLogicContainerDepth++;
+          parsed += fullRemainingLineText[0];
           fullRemainingLineText = fullRemainingLineText.Substring(1).Trim();
-          endCharacter = LogicEndSymbol;
         }
 
         string leftConditionText = null;
+        bool finishedClosure;
         do {
-          leftConditionText = (leftConditionText ?? "") + fullRemainingLineText.UntilAny(
+          finishedClosure = false;
+          leftConditionText = fullRemainingLineText.UntilAny(
             // TODO: cache this whole thing in a static
             // symbols
             ComparitorSymbols.Select(ch => ch.ToString()).ToList().Except(new []{"!" })
@@ -377,13 +433,13 @@ namespace Overworld.Script {
               .Concat(ComparitorPhrases.Except(new []{"NOT"}).Select(phrase => $" {phrase} "))
               .Append(LogicStartSymbol.ToString())
               .Append(LogicEndSymbol.ToString()),
-            out string foundEnding
+            out string foundConditionOrEnding
           );
 
+          parsed += leftConditionText;
           fullRemainingLineText = fullRemainingLineText.Substring(leftConditionText.Length);
-
-          if(foundEnding is null) {
-            if(endCharacter.Equals(LogicEndSymbol)) {
+          if(foundConditionOrEnding is null) {
+            if(conditionLogicContainerDepth > 0) {
               throw new ArgumentException($"Condition closure not closed. Add a ')'");
             } else if(fullRemainingLineText.StartsWith("NOT-")) {
               comparitor = Comparitors.NOT;
@@ -391,35 +447,55 @@ namespace Overworld.Script {
               comparitor = Comparitors.IDENTITY;
             }
 
-            identityCondition = (IParameter)_parseParam(ref leftConditionText, typeof(Token), lineNumber);
+            identityCondition = _parseParam(ref parsed, typeof(Token), lineNumber);
             fullRemainingLineText = leftConditionText;
           } else {
-            fullRemainingLineText = fullRemainingLineText.Substring(foundEnding.Length);
+            leftConditionText = string.IsNullOrWhiteSpace(leftConditionText) 
+              ? parsed
+              : leftConditionText;
+            parsed += fullRemainingLineText.Substring(0, foundConditionOrEnding.Length);
+            fullRemainingLineText = fullRemainingLineText.Substring(foundConditionOrEnding.Length);
+
             // )
-            if(endCharacter.Equals(LogicEndSymbol)) {
+            if(foundConditionOrEnding.Equals(LogicEndSymbol.ToString())) {
               // we found an existing container end:
               if(conditionLogicContainerDepth > 0) {
                 conditionLogicContainerDepth--;
-              } else if(leftConditionText.Length == fullRemainingLineText.Length) {
+                // if there's nothing else to parse, lets see if we have an identity
+                if(!string.IsNullOrWhiteSpace(fullRemainingLineText)) {
+                  finishedClosure = true;
+                  continue;
+                }
+              }
+
+
+              if(parsed.Trim().Length == preparsed.Trim().Length) {
                 if(fullRemainingLineText.StartsWith("NOT-")) {
                   comparitor = Comparitors.NOT;
                 } else {
                   comparitor = Comparitors.IDENTITY;
                 }
-                // we found the end of our initial closure without anything, it's an identity.
-                identityCondition = (IParameter)_parseParam(ref leftConditionText, typeof(Token), lineNumber);
-              } else
-                throw new ArgumentException($"Unexpected character {LogicEndSymbol} in condition.");
 
-            } // (
-            else if(foundEnding.Equals(LogicStartSymbol.ToString())) {
+                // we found the end of our initial closure without anything, it's an identity.
+                parsed = parsed.Trim(' ', LogicStartSymbol, LogicEndSymbol);
+                identityCondition = _parseParam(ref parsed, typeof(IConditional), lineNumber);
+              } // this means we closed a bracket on the left, and should pass the whole thing without brackets as the left condition. 
+            }
+
+            if(conditionLogicContainerDepth > 0) {
+              continue;
+            }
+            
+            
+            // (
+            if(foundConditionOrEnding.Equals(LogicStartSymbol.ToString())) {
               conditionLogicContainerDepth++;
             }  // symbol
-            else if(foundEnding.Length == 1) {
-              comparitor = (Comparitors)foundEnding[0];
+            else if(foundConditionOrEnding.Length == 1) {
+              comparitor = (Comparitors)foundConditionOrEnding[0];
             } // word
             else {
-              comparitor = Enum.Parse<Comparitors>(foundEnding.Trim());
+              comparitor = Enum.Parse<Comparitors>(foundConditionOrEnding.Trim());
             }
           }
 
@@ -431,100 +507,7 @@ namespace Overworld.Script {
               _parseParam(ref fullRemainingLineText, typeof(IConditional), lineNumber)
             }, comparitor);
           }
-        } while(conditionLogicContainerDepth > 0);
-
-        /// parse each char
-       /* foreach(char character in fullRemainingLineText) {
-
-          /// after checking for the all syntax:
-          // add a sub collection count
-          if(character.Equals(LogicStartSymbol)) {
-            if(!firstCharacter) {
-              skipUntilSubCollectionEndCount++;
-            }
-          }
-
-          // skip sub collections
-          if(skipUntilSubCollectionEndCount > 0) {
-            if(character.Equals(LabelEndSymbol)) {
-              skipUntilSubCollectionEndCount--;
-            }
-            parsedCharacterCount++;
-            continue;
-          }
-
-          // AND or END found
-          string remainingConditionText = fullRemainingLineText.Substring(parsedCharacterCount);
-          bool usesSymbol;
-          bool comparitorSymbol = false;
-          string phrase = null;
-          if((usesSymbol = character.Equals(LogicEndSymbol))
-            || (usesSymbol = character.Equals(LogicStartSymbol))
-            || (usesSymbol = character.Equals(FunctionSeperatorSymbol))
-            || (usesSymbol = comparitorSymbol = CollectionItemSeperatorSymbols.Contains(character))
-            || (character.Equals(' ')
-              && (phrase = ComparitorPhrases.FirstOrDefault(
-                comparitorPhrase => {
-                  return  remainingConditionText.StartsWith($" {comparitorPhrase} ");
-                })) != null)
-
-          ) {
-            if(usesSymbol) {
-              if(comparitorSymbol) {
-                comparitor = (Comparitors)character;
-              }
-              remainingConditionText = remainingConditionText.Substring(1).Trim();
-              parsedCharacterCount++;
-            } else {
-              comparitor = (Comparitors)
-                Enum.Parse(typeof(Comparitors), phrase.Replace('-', '_'));
-              parsedCharacterCount += phrase.Length + 2;
-            }
-
-            if(conditionLeft is null) {
-              /// if we parsed characters, the first half must be a plain token
-              if(parsedCharacterCount > 0) {
-                if ()
-                var leftsideParse = fullRemainingLineText.Substring(0, parsedCharacterCount - (usesSymbol ? 1 : phrase.Length + 2));
-                conditionLeft =
-                    _parseParam(ref leftsideParse, typeof(Token)) as IParameter;
-                fullRemainingLineText = leftsideParse.Trim();
-
-                continue;
-              } // if there are no characters but we found a NOT identity, what follows must be only the left half of a param behind a NOT
-              else if(comparitor == Comparitors.NOT) {
-                if(conditionLeft != null) {
-                  throw new ArgumentException($"Having a Not- Syntax right after an identity indicates incorrect syntax. Use a Comparitor to compare them!");
-                }
-                fullRemainingLineText = fullRemainingLineText.Until('-');
-                Boolean conditionLeftBool
-                  = _parseParam(ref fullRemainingLineText, typeof(Boolean)) as Boolean;
-                conditionLeft = conditionLeftBool.Not;
-
-                continue;
-              }
-            } else {
-              conditionRight = (IParameter)_parseParam(ref fullRemainingLineText, typeof(IConditional));
-
-              return Archetypes<Condition.Type>._.Make(Program, new Token[] {
-                  (Token)conditionLeft,
-                  (Token)conditionRight
-                }, comparitor);
-            }
-
-            // if this is the end
-            if(character.Equals(CollectionEndSymbol) || character.Equals(FunctionSeperatorSymbol)) {
-              parsedCharacterCount++;
-              break;
-            }
-
-            continue;
-          }
-
-          // add char to parsed
-          parsedCharacterCount++;
-          firstCharacter = false;
-        }*/
+        } while(conditionLogicContainerDepth > 0 || finishedClosure);
 
         throw new ArgumentException($"Could not parse condtion: \n{preparsed}");
       }
@@ -555,6 +538,10 @@ namespace Overworld.Script {
         fullRemaininglineText = ((string)fullRemaininglineText.Skip(firstParamStub.Length + 2)).Trim();
         return new String(Program, value);
       }
+
+      /*Variable __parseCollection(ref string fullRemainingLineText, Type expectedType, int lineNumber) {
+
+      }*/
 
       Collection _parseCollection(ref string fullRemaininglineText, Type expectedType, int lineNumber) {
 
@@ -587,6 +574,20 @@ namespace Overworld.Script {
         else {
           // trim off the start symbol
           fullRemaininglineText = fullRemaininglineText.Substring(1).Trim();
+
+          /*string potentialInitialCommand = fullRemaininglineText.UntilAny(new string[] {
+            FunctionSeperatorSymbol.ToString(),
+            ((char)Comparitors.AND).ToString(),
+            $" {Comparitors.AND} ",
+          }, out string seperator);
+
+          if(seperator != null) {
+            if(Program.Context.Commands.ContainsKey(potentialInitialCommand.Trim())) {
+
+            } else if (seperator = ) {
+
+            }
+          }*/
 
           string potentialAnd = string.Empty;
           string parsedSubLine = string.Empty;

@@ -24,9 +24,7 @@ namespace Overworld.Script {
           get;
         } = (program, executor, @params) => {
           program._globals[((String)@params[0]).Value]
-            = @params[1] is Command command
-              ? command.ExecuteFor(executor)
-              : (Variable)@params[1];
+            = @params[1].GetUltimateVariableFor(executor);
 
           return null;
         };

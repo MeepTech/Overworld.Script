@@ -4,7 +4,7 @@ namespace Overworld.Script {
   public static partial class Ows {
 
     /// <summary>
-    /// A container around variables that need a character
+    /// A container around variables that need a character to fetch their true value
     /// </summary>
     public class CharacterSpecificVariable : Variable {
 

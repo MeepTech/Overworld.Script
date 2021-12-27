@@ -43,8 +43,8 @@ namespace Overworld.Script {
       IEnumerable<char> endInitialCharactes = enders.Select(e => e[0]);
       foreach(char character in @string) {
         if(endInitialCharactes.Contains(character)) {
-          string @found = ((string)@string).Substring(@return.Length);
-          if((foundEnding = enders.FirstOrDefault(e => @found.StartsWith(e))) != null) {
+          string remainder = ((string)@string).Substring(@return.Length);
+          if((foundEnding = enders.FirstOrDefault(e => remainder.StartsWith(e))) != null) {
             return @return;
           }
         }

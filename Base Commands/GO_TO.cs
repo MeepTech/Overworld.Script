@@ -26,18 +26,18 @@ namespace Overworld.Script {
         public override Func<Program, Data.Character, IList<IParameter>, Variable> Execute {
           get;
         } = (program, executor, @params) => {
-          string labelText = (@params.First() as String).Value;
+          string labelText = (@params.First().GetUltimateVariableFor(executor) as String).Value;
           if(program._labelsByLineNumber.ContainsKey(labelText)) {
             return program._executeAllStartingAtLine(
               program._labelsByLineNumber[labelText],
               executor,
-              ((Number)@params[1]).IntValue
+              ((Number)@params[1].GetUltimateVariableFor(executor)).IntValue
             );
           } else
             return program._executeAllStartingAtLine(
               program._labelsByLineNumber[((String)program.TryToGetVariableByName(labelText)).Value],
               executor,
-              ((Number)@params[1]).IntValue
+              ((Number)@params[1].GetUltimateVariableFor(executor)).IntValue
             );
         };
       }

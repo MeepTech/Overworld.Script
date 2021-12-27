@@ -79,17 +79,47 @@ namespace Overworld.Script {
       /// <summary>
       /// Execute this command for the given character
       /// </summary>
-      public virtual Variable ExecuteFor(Data.Character executor)
-        => _executeWithExtraParams(executor, Parameters);
+      public Variable ExecuteFor(Data.Character executor)
+        => _executeFor(executor, Enumerable.Empty<IParameter>());
+
+      /// <summary>
+      /// Executes this and all commands that it returns until the return is no longer a command
+      /// This leaves the last command unexecuted.
+      /// </summary>
+      public Variable ExecuteUltimateCommandFor(Data.Character character) {
+        IParameter current = this;
+
+        // while executable returned, reduce it
+        while(current is Command command) {
+          current = command.ExecuteFor(character);
+        }
+
+        // return the ultimate value
+        return (Variable)current;
+      }
+
+      /// <summary>
+      /// Execute this command for the given character
+      /// </summary>
+      protected virtual Variable _executeFor(Data.Character executor, IEnumerable<IParameter> extraParams, Index indexReplacement = null)
+        => _executeWithExtraParams(executor, extraParams, indexReplacement);
 
       /// <summary>
       /// Execute this command for the given character with som eextra provided commands
       /// </summary>
-      protected internal Variable _executeWithExtraParams(Data.Character executor, IEnumerable<IParameter> extraParams)
-        => Archetype.Execute(Program, executor, _parameters.Concat(extraParams).Select(param => param is CharacterSpecificVariable characterSpecific
-          // get the character specific variable if there's one
-          ? characterSpecific.GetFor(executor)
-          : param).ToList());
+      protected internal Variable _executeWithExtraParams(Data.Character executor, IEnumerable<IParameter> extraParams, Index indexReplacement = null) {
+        IList<IParameter> parameters = _parameters.Concat(extraParams).Select(
+          param => param is PlaceholderIndex index
+            ? indexReplacement is null
+              ? throw new ArgumentException($"Index provided as an argument but no replacement provided to the execute for function")
+              : indexReplacement
+            : param is CharacterSpecificVariable characterSpecific
+              ? characterSpecific.GetFor(executor)
+              : param
+        ).ToList();
+
+        return Archetype.Execute(Program, executor, parameters);
+      }
     }
   }
 }

@@ -1,5 +1,6 @@
 ﻿using Meep.Tech.Data;
 using System;
+using System.Collections.Generic;
 using System.Linq;
 
 namespace Overworld.Script {
@@ -74,9 +75,9 @@ namespace Overworld.Script {
       /// <summary>
       /// <inheritdoc/>
       /// </summary>
-      public override Variable ExecuteFor(Data.Character executor) {
+      protected override Variable _executeFor(Data.Character executor, IEnumerable<IParameter> extraParams, Index indexReplacement = null) {
         // add the extra param of "this" to the end
-        return _executeWithExtraParams(executor, new IParameter[] { this});
+        return base._executeFor(executor, extraParams.Append(this), indexReplacement);
       }
 
       /// <summary>
