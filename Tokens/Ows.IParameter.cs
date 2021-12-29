@@ -34,6 +34,21 @@ namespace Overworld.Script {
         // return the ultimate value
         return (Variable)current;
       }
+
+      /// <summary>
+      /// Get the ultimate variable from a parameter
+      /// </summary>
+      public TVariable GetUltimateVariableAs<TVariable>(Data.Character character)
+        where TVariable : Variable{
+        IParameter current = this;
+        // while executable returned, reduce it
+        while(current is Command command) {
+          current = command.ExecuteFor(character);
+        }
+
+        // return the ultimate value
+        return (TVariable)current;
+      }
     }
   }
 }

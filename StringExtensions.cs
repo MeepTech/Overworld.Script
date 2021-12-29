@@ -23,6 +23,42 @@ namespace Overworld.Script {
     /// <summary>
     /// Get a string until a characher appears
     /// </summary>
+    public static bool StartsWith(this string @string, IEnumerable<string> anyPrefix, out string foundPrefix) {
+      foreach(string prefix in anyPrefix) {
+        if(@string.StartsWith(prefix)) {
+          foundPrefix = prefix;
+          return true;
+        }
+      }
+
+      foundPrefix = null;
+      return false;
+    }
+
+    /// <summary>
+    /// Converts all lines to upercase, except in string literals on the same line
+    /// </summary>
+    public static IEnumerable<string> ToUpperExeptStringLiterals(this IEnumerable<string> @string) {
+      return @string.Select(@string => {
+        string[] chunks = @string.Split(Ows.StringQuotesSymbol);
+        bool isString = true;
+
+        chunks = chunks.Select(chunk => {
+          isString = !isString;
+          if(isString) {
+            return chunk;
+          } else {
+            return chunk.ToUpper();
+          }
+        }).ToArray();
+
+        return string.Join(Ows.StringQuotesSymbol, chunks);
+      });
+    }
+
+    /// <summary>
+    /// Get a string until a characher appears
+    /// </summary>
     public static string UntilAny(this IEnumerable<char> @string, params char[] end) {
       var @return = "";
       foreach(char character in @string) {
@@ -58,7 +94,7 @@ namespace Overworld.Script {
     /// <summary>
     /// Get a string until a characher appears
     /// </summary>
-    public static string Until(this IEnumerable<char> @string, Func<char, bool> untilFalse) {
+    public static string UntilNot(this IEnumerable<char> @string, Func<char, bool> untilFalse) {
       var @return = "";
       foreach(char character in @string) {
         if(!untilFalse(character)) {

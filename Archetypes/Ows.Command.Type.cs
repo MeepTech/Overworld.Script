@@ -42,6 +42,14 @@ namespace Overworld.Script {
         #region Initialization and Configuration
 
         /// <summary>
+        /// A command Id
+        /// </summary>
+        public new class Identity : Archetype<Command, Type>.Identity {
+          public Identity(string name, string keyPrefixEndingAdditions = null) 
+            : base(name, keyPrefixEndingAdditions) {}
+        }
+
+        /// <summary>
         /// Make a new command
         /// </summary>
         protected Type(Identity id, IEnumerable<System.Type> paramTypes)

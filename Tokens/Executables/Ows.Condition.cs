@@ -17,6 +17,10 @@ namespace Overworld.Script {
       LESS_THAN = '<'
     }
 
+    public static string NotPrefixPhrase {
+      get;
+    } = Comparitors.NOT.ToString() + "-";
+
     public static string[] ComparitorPhrases {
       get;
     } = ((Comparitors[])Enum.GetValues(typeof(Comparitors)))

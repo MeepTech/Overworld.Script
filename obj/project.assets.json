@@ -328,6 +328,16 @@
           "bin/placeholder/Meep.Tech.ECSBAM.dll": {}
         }
       },
+      "NumericWordsConversion/2.0.0": {
+        "type": "project",
+        "framework": ".NETStandard,Version=v2.1",
+        "compile": {
+          "bin/placeholder/NumericWordsConversion.dll": {}
+        },
+        "runtime": {
+          "bin/placeholder/NumericWordsConversion.dll": {}
+        }
+      },
       "Overworld.Data/1.0.0": {
         "type": "project",
         "framework": ".NETStandard,Version=v2.1",
@@ -1041,6 +1051,11 @@
       "path": "../../../Meep.Tech.ECSBAMF/Meep.Tech.ECSBAM.csproj",
       "msbuildProject": "../../../Meep.Tech.ECSBAMF/Meep.Tech.ECSBAM.csproj"
     },
+    "NumericWordsConversion/2.0.0": {
+      "type": "project",
+      "path": "../_external/NumericWordsConversion/NumericWordsConversion/NumericWordsConversion.csproj",
+      "msbuildProject": "../_external/NumericWordsConversion/NumericWordsConversion/NumericWordsConversion.csproj"
+    },
     "Overworld.Data/1.0.0": {
       "type": "project",
       "path": "../Overworld.Data/Overworld.Data.csproj",
@@ -1050,6 +1065,7 @@
   "projectFileDependencyGroups": {
     ".NETStandard,Version=v2.1": [
       "Meep.Tech.ECSBAM >= 1.0.0",
+      "NumericWordsConversion >= 2.0.0",
       "Overworld.Data >= 1.0.0"
     ]
   },
@@ -1090,6 +1106,9 @@
             },
             "C:\\Users\\super\\Projects\\meep-tech\\libraries\\c-sharp\\_games\\Overworld\\Overworld.Data\\Overworld.Data.csproj": {
               "projectPath": "C:\\Users\\super\\Projects\\meep-tech\\libraries\\c-sharp\\_games\\Overworld\\Overworld.Data\\Overworld.Data.csproj"
+            },
+            "C:\\Users\\super\\Projects\\meep-tech\\libraries\\c-sharp\\_games\\Overworld\\_external\\NumericWordsConversion\\NumericWordsConversion\\NumericWordsConversion.csproj": {
+              "projectPath": "C:\\Users\\super\\Projects\\meep-tech\\libraries\\c-sharp\\_games\\Overworld\\_external\\NumericWordsConversion\\NumericWordsConversion\\NumericWordsConversion.csproj"
             }
           }
         }

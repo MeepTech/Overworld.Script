@@ -26,8 +26,8 @@ namespace Overworld.Script {
       Command.Types.Get<Command.UN_SET_FOR>(),
       Command.Types.Get<Command.UN_SET_LOCALLY_FOR>(),
       Command.Types.Get<Command.UNTIL>(),
-      Command.Types.Get<Command.WHILE>()//,
-      //Command.Types.Get<Command.FOR>(),
+      Command.Types.Get<Command.WHILE>(),
+      Command.Types.Get<Command.FOR>()
     }.ToDictionary(
       e => e.Id.Name,
       e => e
@@ -54,6 +54,22 @@ namespace Overworld.Script {
     /// Used to indicate "All" in some cases
     /// </summary>
     public const string CollectAllPhrase = "ALL";
+
+    /// <summary>
+    /// An extra phrase that can be used with concatination
+    /// </summary>
+    public const string ConcatPhrase = "WITH";
+
+    /// <summary>
+    /// An extra phrase that can be used with concatination
+    /// </summary>
+    public static readonly string AndConcatPhrase 
+      = Comparitors.AND.ToString();
+
+    /// <summary>
+    /// An extra phrase that can be used for the opposite of concatination
+    /// </summary>
+    public const string CollectionExclusionPhrase = "WITHOUT";
 
     /// <summary>
     /// The initial Symbol indicating the beginning of a collection
@@ -100,6 +116,11 @@ namespace Overworld.Script {
     public const char FunctionSeperatorSymbol = ':';
 
     /// <summary>
+    /// Used for decimals in numbers
+    /// </summary>
+    private const char DecimalSymbol = '.';
+
+    /// <summary>
     /// Symbol that is used to represent a string
     /// </summary>
     public const char StringQuotesSymbol = '"';
@@ -107,7 +128,7 @@ namespace Overworld.Script {
     /// <summary>
     /// Phrase used to set items to variables
     /// </summary>
-    public const string SetToPhrase = "TO";
+    public const string SetToPhrase = " TO ";
 
     /// <summary>
     /// Phrase used to set items to variables

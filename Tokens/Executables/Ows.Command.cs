@@ -12,14 +12,15 @@ namespace Overworld.Script {
       MINUS = '-',
       TIMES = '*', //checks for X too for numbers
       DIVIDED_BY = '/',
-      To_The_Power_Of = '^',
-      Squared = '`',
+      TO_THE_POWER_OF = '^',
+      SQUARED = '`',
+      MODULO = '%'
     }
 
     public static char[] NumberOpperatorChars {
       get;
     } = ((Opperators[])Enum.GetValues(typeof(Opperators))).Where(
-      v => v != Opperators.Squared
+      v => v != Opperators.SQUARED
     ).Select(v => ((char)v)).Append('X').ToArray();
 
     /// <summary>

@@ -270,9 +270,9 @@ namespace Overworld.Script {
 
         // TODO: Cache these and make these more modular
         if(collectionItemType.Equals(typeof(Character))) {
-          return new Collection<Character>(this, (IList<Character>)Context.Characters.Values.ToList());
+          return new Collection<Character>(this, Context.Characters.Values.ToList());
         } else if(collectionItemType.Equals(typeof(Entity))) {
-          return new Collection<Character>(this, (IList<Character>)Context.Characters.Values.ToList());
+          return new Collection<Character>(this, Context.Characters.Values.ToList());
         } else
           throw new NotSupportedException($"The ALL Syntax (*), can only be used with entities and characters atm");
       }

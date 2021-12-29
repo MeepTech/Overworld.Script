@@ -11,8 +11,10 @@
       /// <summary>
       /// <inheritdoc/>
       /// </summary>
-      public new string Value
-        => (string)base.Value;
+      public new string Value {
+        get => (string)base.Value;
+        internal set => base.Value = value;
+      }
 
       /// <summary>
       /// Make a new string variable
