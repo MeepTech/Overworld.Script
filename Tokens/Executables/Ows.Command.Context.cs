@@ -17,7 +17,10 @@ namespace Overworld.Script {
         /// <summary>
         /// The executed command
         /// </summary>
-        public readonly Command Command;
+        public Command Command {
+          get;
+          private set;
+        }
 
         /// <summary>
         /// The character who executed the command
@@ -45,26 +48,48 @@ namespace Overworld.Script {
         ) {
           Command = command;
           Executor = executor;
-          _extraParameters = extraParameters;
+          _extraParameters = extraParameters ?? Enumerable.Empty<IParameter>().ToList();
           _temporaryScopedVariables = scopedParameters;
           _indexReplacement = indexReplacement;
           _compiledParameters = null;
-          _compiledParameters = Command.Parameters?.Concat(_extraParameters ?? Enumerable.Empty<IParameter>())
-            .Select(param =>
-            param.Value is PlaceholderIndex index
-              ? indexReplacement is null
-                ? throw new ArgumentException($"Index provided as an argument but no replacement provided to the execute for function")
-                : (IParameter)indexReplacement
-              : param.Value is CharacterSpecificVariable characterSpecific
-                ? (IParameter)characterSpecific.GetFor(executor)
-                : param.Value is TempScopedVariable tempScopeVariable
-                  ? (IParameter)tempScopeVariable.GetFor(scopedParameters)
-                  : (IParameter)param.Value)?.ToList();
-          }
+          _compileParams();
+        }
+
+        void _compileParams() {
+          var indexReplacement = _indexReplacement;
+          var executor = Executor;
+          var scopedParameters = _temporaryScopedVariables;
+
+          _compiledParameters = Command.Parameters?.Concat(_extraParameters)
+            .Select(param => {
+              if(param is PlaceholderIndex index) {
+                if(indexReplacement is null) {
+                  throw new ArgumentException($"Index provided as an argument but no replacement provided to the execute for function");
+                }
+                else
+                  return (IParameter)indexReplacement;
+              }
+              else if(param is CharacterSpecificVariable characterSpecific) {
+                return (IParameter)characterSpecific.GetFor(executor);
+              }
+              else if(param is TempScopedVariable tempScopeVariable) {
+                return (IParameter)tempScopeVariable.GetFor(scopedParameters);
+              }
+              else
+                return (IParameter)param;
+            })?.ToList();
+        }
 
         internal Context _addExtraParameter(IParameter parameter) {
           _extraParameters.Add(parameter);
           _compiledParameters.Add(parameter);
+          return this;
+        }
+
+        internal Context _swapTo(Command command) {
+          Command = command;
+          _compileParams();
+
           return this;
         }
 

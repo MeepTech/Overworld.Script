@@ -92,7 +92,7 @@ namespace Overworld.Script {
 
         // while executable returned, reduce it
         while(current is Command command) {
-          current = command._executeWith(context);
+          current = command._executeWith(context._swapTo(command));
         }
 
         // return the ultimate value
