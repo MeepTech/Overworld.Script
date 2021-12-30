@@ -36,12 +36,6 @@ namespace Overworld.Script {
         public readonly IReadOnlyList<IParameter> OrderedParameters
           => _compiledParameters;
 
-        /// <summary>
-        /// The temp scoped params currently available to this command
-        /// </summary>
-        public readonly IReadOnlyDictionary<string, Variable> ScopedParams
-          => _temporaryScopedVariables.Value;
-
         internal Context(
           Command command,
           Data.Character executor,
@@ -54,6 +48,7 @@ namespace Overworld.Script {
           _extraParameters = extraParameters;
           _temporaryScopedVariables = scopedParameters;
           _indexReplacement = indexReplacement;
+          _compiledParameters = null;
           _compiledParameters = Command.Parameters?.Concat(_extraParameters ?? Enumerable.Empty<IParameter>())
             .Select(param =>
             param.Value is PlaceholderIndex index
@@ -62,8 +57,10 @@ namespace Overworld.Script {
                 : (IParameter)indexReplacement
               : param.Value is CharacterSpecificVariable characterSpecific
                 ? (IParameter)characterSpecific.GetFor(executor)
-                : (IParameter)param.Value)?.ToList();
-        }
+                : param.Value is TempScopedVariable tempScopeVariable
+                  ? (IParameter)tempScopeVariable.GetFor(scopedParameters)
+                  : (IParameter)param.Value)?.ToList();
+          }
 
         internal Context _addExtraParameter(IParameter parameter) {
           _extraParameters.Add(parameter);
@@ -79,11 +76,12 @@ namespace Overworld.Script {
 
         public Variable GetVariable(string name)
           => _temporaryScopedVariables.Value.TryGetValue(name, out var local)
-            ? local
+            ? local.GetUltimateVariableFor(this)
             : Command.Program.GetVariableByName(name);
 
         public Variable GetTempScopedVariable(string name)
-          => _temporaryScopedVariables.Value[name];
+          => _temporaryScopedVariables.Value[name]
+            .GetUltimateVariableFor(this);
 
         public Variable GetGlobalProgramVariable(string name)
           => Command.Program._globals[name];

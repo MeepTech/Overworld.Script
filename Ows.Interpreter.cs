@@ -4,7 +4,6 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
-using System.Text.RegularExpressions;
 
 namespace Overworld.Script {
 
@@ -223,7 +222,6 @@ namespace Overworld.Script {
           // goto is special:
           if(commandType is Command.GO_TO gotoCommand) {
             specialCommandFound = true;
-            // try to check if it's a string name of an existing label, and then if it's a variable with a string value
             parameters.Add(
               new String(Program, remainingCommandText.Trim())
             );
@@ -282,6 +280,34 @@ namespace Overworld.Script {
             );
             remainingCommandText = "";
           }
+          else
+
+          // DO is special too
+          if(commandType is Command.DO doCommand) {
+            specialCommandFound = true;
+            string[] parts = null;
+            string goToLabel = remainingCommandText.UntilNot(
+              c => char.IsLetterOrDigit(c) || (c == '_') || (c == '-'));
+            remainingCommandText = remainingCommandText[goToLabel.Length..];
+            parameters.Add(
+              new String(Program, goToLabel.Trim())
+            );
+            if(remainingCommandText.Contains(ConcatPhrase)) {
+              parts = remainingCommandText.Split(ConcatPhrase);
+              remainingCommandText = remainingCommandText[(parts.First().Length + ConcatPhrase.Length)..].Trim();
+              if(remainingCommandText[0] == ' ' || remainingCommandText[0] == CollectionStartSymbol) {
+                parameters.Add(
+                  _parseVariableMap(ref remainingCommandText, lineNumber)
+                );
+              } else throw new ArgumentException($"Improper with syntax. Make sure you have a space or ( before the values passed in.");
+            } // empty local scope:
+            else {
+              parameters.Add(null);
+            }
+            parameters.Add(
+              new Number(Program, lineNumber)
+            );
+          }
 
           if(specialCommandFound) {
             return commandType.Make(
@@ -314,6 +340,65 @@ namespace Overworld.Script {
           return commandType.Make(Program, parameters);
         } else
           throw new System.MissingMethodException(nameof(Ows), currentFunctionName);
+      }
+
+      VariableMap _parseVariableMap(ref string remainingCommandText, int lineNumber) {
+        VariableMap variableMap = new(Program, new Dictionary<string, Variable>());
+        bool inClosure = false;
+        if(remainingCommandText.StartsWith(CollectionStartSymbol)) {
+          inClosure = true;
+          remainingCommandText.Trim(CollectionStartSymbol, ' ');
+        }
+        else {
+          remainingCommandText.Trim();
+        }
+
+        bool finished = false;
+        do {
+          string potentialScopedVariable = remainingCommandText.UntilAny(
+            // TODO: cache this:
+            new string[] {
+              ((char)Comparitors.AND).ToString(),
+              ",",
+              $" {Comparitors.AND} ",
+              CollectionEndSymbol.ToString()
+            },
+            out string foundSplitter
+          );
+
+          if(foundSplitter != null) {
+            if(foundSplitter[0] == CollectionEndSymbol) {
+              if(!inClosure) {
+                throw new ArgumentException($"Improper with syntax. Make sure you close and start the list with [].");
+              }
+
+              finished = true;
+            }
+            remainingCommandText = remainingCommandText[(potentialScopedVariable.Length + foundSplitter.Length)..];
+            string scopedVarName = remainingCommandText.UntilAny(
+              // TODO: cache this:
+              new string[] {
+                ((char)Comparitors.EQUALS).ToString(),
+                $" {Comparitors.EQUALS} ",
+                $" {SetToPhrase} ",
+                $" IS ",
+                $" AS "
+              },
+              out string foundSetter
+            );
+            remainingCommandText = remainingCommandText[(scopedVarName.Length + foundSplitter.Length)..];
+            variableMap.Value.Add(scopedVarName.Trim(), _parseParam(ref remainingCommandText, typeof(Token), lineNumber));
+          }
+          else {
+            if(inClosure) {
+              throw new ArgumentException($"Improper with syntax. Make sure you close the list with a ].");
+            }
+
+            finished = true;
+          }
+        } while(!finished);
+
+        return variableMap;
       }
 
       /// <summary>

@@ -9,10 +9,10 @@ namespace Overworld.Script {
     /// </summary>
     internal class VariableMap : Variable {
 
-      public new Dictionary<string, Variable> Value {
+      public new Dictionary<string, IParameter> Value {
         get
-        => (Dictionary<string, Variable>)base.Value 
-          ?? new Dictionary<string, Variable>();
+        => (Dictionary<string, IParameter>)base.Value 
+          ?? new Dictionary<string, IParameter>();
         internal set 
           => base.Value = value;
       }
