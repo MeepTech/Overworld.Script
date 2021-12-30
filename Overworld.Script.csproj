@@ -8,7 +8,6 @@
   <ItemGroup>
     <ProjectReference Include="..\..\..\Meep.Tech.ECSBAMF\Meep.Tech.ECSBAM.csproj" />
     <ProjectReference Include="..\Overworld.Data\Overworld.Data.csproj" />
-    <ProjectReference Include="..\_external\NumericWordsConversion\NumericWordsConversion\NumericWordsConversion.csproj" />
   </ItemGroup>
 
 </Project>

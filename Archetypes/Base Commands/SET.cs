@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Meep.Tech.Data.Utility;
+using System;
 using System.Collections.Generic;
 
 namespace Overworld.Script {
@@ -31,10 +32,10 @@ namespace Overworld.Script {
             ) {
         }
 
-        public override Func<Program, Data.Character, IList<IParameter>, Variable> Execute {
+        public override Func<Context, Variable> Execute {
           get;
-        } = (program, executor, @params) => {
-          SetGlobalVariableForCharacter(program, executor, executor, (String)@params[0], @params[1]);
+        } = context => {
+          SetGlobalVariableForCharacter(context, context.Executor.Id, (String)context.OrderedParameters[0], context.OrderedParameters[1]);
 
           return null;
         };
@@ -42,32 +43,32 @@ namespace Overworld.Script {
         /// <summary>
         /// Helper function to get the variables for a character safely
         /// </summary>
-        protected static void SetLocalVariableForCharacter(Program program, Data.Character executor, Data.Character character, String variableName, IParameter value) {
-          var characterSpecificCollection =  program._variablesByCharacter.TryGetValue(character.Id, out var found)
+        protected static void SetLocalVariableForCharacter(Context context, string characterId, String variableName, IParameter value) {
+          var characterSpecificCollection = context.Command.Program._variablesByCharacter.TryGetValue(characterId, out var found)
             ? found
-            : (program._variablesByCharacter[character.Id] = new Dictionary<string, Variable>());
-          object valueToSet = value.GetUltimateValueFor(executor);
+            : (context.Command.Program._variablesByCharacter[characterId] = new Dictionary<string, Variable>());
+          object valueToSet = value.GetUltimateValueFor(context);
 
           if(characterSpecificCollection.TryGetValue(variableName.Value, out Variable current)) {
             current.Value = valueToSet;
           } else {
-            characterSpecificCollection[variableName.Value] = Variable.Make(program, variableName.Value, valueToSet);
+            characterSpecificCollection[variableName.Value] = Variable.Make(context.Command.Program, variableName.Value, valueToSet);
           }
         }
 
         /// <summary>
         /// Helper function to get the variables for a character safely
         /// </summary>
-        protected static void SetGlobalVariableForCharacter(Program program, Data.Character executor, Data.Character character, String variableName, IParameter value) {
-          var characterSpecificCollection =  _globalVariablesByCharacter.TryGetValue(character.Id, out var found)
+        protected static void SetGlobalVariableForCharacter(Context context, string characterId, String variableName, IParameter value) {
+          var characterSpecificCollection =  _globalVariablesByCharacter.TryGetValue(characterId, out var found)
             ? found
-            : (_globalVariablesByCharacter[character.Id] = new Dictionary<string, Variable>());
-          object valueToSet = value.GetUltimateValueFor(executor);
+            : (_globalVariablesByCharacter[characterId] = new Dictionary<string, Variable>());
+          object valueToSet = value.GetUltimateValueFor(context);
 
           if(characterSpecificCollection.TryGetValue(variableName.Value, out Variable current)) {
             current.Value = valueToSet;
           } else {
-            characterSpecificCollection[variableName.Value] = Variable.Make(program, variableName.Value, valueToSet);
+            characterSpecificCollection[variableName.Value] = Variable.Make(context.Command.Program, variableName.Value, valueToSet);
           }
         }
       }

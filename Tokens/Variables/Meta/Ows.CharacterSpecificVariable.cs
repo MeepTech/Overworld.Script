@@ -6,7 +6,7 @@ namespace Overworld.Script {
     /// <summary>
     /// A container around variables that need a character to fetch their true value
     /// </summary>
-    public class CharacterSpecificVariable : Variable {
+    internal class CharacterSpecificVariable : Variable {
 
       public override object Value
         => throw new System.Exception($"For Character Specific Variables use GetFor instead");
@@ -14,7 +14,7 @@ namespace Overworld.Script {
       internal Variable GetFor(Data.Character character)
         => Program.GetVariableByName(character, Name);
 
-      public CharacterSpecificVariable(Program program, string name)
+      internal CharacterSpecificVariable(Program program, string name)
         : base(program, null, name) {}
     }
   }

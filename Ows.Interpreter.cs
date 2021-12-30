@@ -1,5 +1,4 @@
 ﻿using Meep.Tech.Data;
-using NumericWordsConversion;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -24,12 +23,6 @@ namespace Overworld.Script {
         get;
         private set;
       }
-
-      readonly NumericWordsConverter numbericWordConverter 
-        = new();
-
-      readonly CurrencyWordsConverter currencyWordConverter 
-        = new();
 
       /// <summary>
       /// Join together several .ows files.
@@ -101,6 +94,34 @@ namespace Overworld.Script {
                 .Split(LineEndAlternateSymbol, StringSplitOptions.RemoveEmptyEntries)));
 
       /// <summary>
+      /// Build a new program from a single line of text
+      /// </summary>
+      /// <param name="rawLine">The single line of text to build from</param>
+      public Command BuildLine([NotNull] string rawLine)
+        => Build(rawLine
+            .Split(LineEndAlternateSymbol, StringSplitOptions.RemoveEmptyEntries))
+              ._commands.First().Value;
+
+      /// <summary>
+      /// Build a new program from a single line of text
+      /// </summary>
+      /// <param name="rawLine">The single line of text to build from</param>
+      /// <param name="label">The label of the line if there is one</param>
+      public Command BuildLine([NotNull] string rawLine, out string label) {
+        var program = Build(rawLine
+          .Split(LineEndAlternateSymbol, StringSplitOptions.RemoveEmptyEntries));
+        
+        var firstCommand = program._commands.First();
+        var firstLabel = program._labelsByLineNumber.FirstOrDefault();
+        if(firstLabel.Key != null && firstLabel.Value != firstCommand.Key) {
+          throw new System.InvalidOperationException($"Multi line command with label passed into BuildLine. Use Build instead");
+        }
+
+        label = firstLabel.Key;
+        return firstCommand.Value;
+      }
+
+      /// <summary>
       /// Build a new program from a bunch of files
       /// </summary>
       public Program Build(IEnumerable<string> rawLines, IEnumerable<string> preInitialLines = null) {
@@ -157,10 +178,17 @@ namespace Overworld.Script {
 
           if(!string.IsNullOrWhiteSpace(currentCommandText)) {
             try {
+              if(currentCommandText.Trim().StartsWith("ELSE")) {
+                if(Program._commands.TryGetValue(lineNumber - 1, out var prevCommand)) {
+                  if(prevCommand.Archetype is Command.IF || prevCommand.Archetype is Command.IF_NOT) {
+                    currentCommandText = currentCommandText.Trim()[4..].After(':');
+                  } else throw new ArgumentException($"Unexpected ELSE:");
+                } else throw new ArgumentException($"Unexpected ELSE:");
+              }
               /// Process the command
               Program._commands.Add(lineNumber,
                 _parseCommand(ref currentCommandText, lineNumber));
-            } catch(Exception e) {
+            } catch(System.Exception e) {
               throw new System.InvalidOperationException($"Error compiling OWS code on line {lineNumber}.", e);
             }
           }
@@ -203,7 +231,8 @@ namespace Overworld.Script {
               new Number(Program, lineNumber)
             );
             remainingCommandText = "";
-          } else
+          }
+          else
 
           // set is special
           if(commandType is Command.SET setCommand) {
@@ -211,7 +240,7 @@ namespace Overworld.Script {
             if(commandType is Command.SET_FOR) {
               Collection characters = (Collection)
                 _parseParam(
-                  ref remainingCommandText, 
+                  ref remainingCommandText,
                   typeof(Collection<Character>),
                   lineNumber
               );
@@ -221,7 +250,8 @@ namespace Overworld.Script {
             if(remainingCommandText.Contains(SetToSymbol)) {
               parts = remainingCommandText.Split(SetToSymbol);
               remainingCommandText = remainingCommandText[(parts.First().Length + 1)..].Trim();
-            } else if(remainingCommandText.Contains(SetToPhrase)) {
+            }
+            else if(remainingCommandText.Contains(SetToPhrase)) {
               parts = remainingCommandText.Split(SetToPhrase);
               remainingCommandText = remainingCommandText[(parts.First().Length + SetToPhrase.Length)..].Trim();
             }
@@ -232,13 +262,14 @@ namespace Overworld.Script {
             parameters.Add(
               _parseParam(ref remainingCommandText, typeof(Token), lineNumber)
             );
-          } else
+          }
+          else
 
           // unset is special too
           if(commandType is Command.UN_SET unSetCommand) {
             specialCommandFound = true;
             if(commandType is Command.UN_SET_FOR) {
-              Collection characters = 
+              Collection characters =
                 (Collection)_parseParam(
                   ref remainingCommandText,
                   typeof(Collection<Character>),
@@ -262,17 +293,22 @@ namespace Overworld.Script {
           /// normal commands:
           int commandParams = commandType.ParameterTypes.Count();
           for(int paramIndex = 0; paramIndex < commandParams; paramIndex++) {
-            if(string.IsNullOrWhiteSpace(remainingCommandText)) {
-              throw new ArgumentNullException($"Param #{paramIndex}", $"Command : {commandType} is missing an expected parameter.");
+            try {
+              if(string.IsNullOrWhiteSpace(remainingCommandText)) {
+                throw new ArgumentNullException($"Param #{paramIndex + 1} : {commandType.ParameterTypes[paramIndex]}", $"Command : {commandType} is missing an expected parameter.");
+              }
+
+              parameters.Add(
+                _parseParam(
+                  ref remainingCommandText,
+                  commandType.ParameterTypes[paramIndex],
+                  lineNumber
+                )
+              );
+            } catch(System.Exception e) {
+              throw new System.ArgumentException($"Failed to parse param for Command: {currentFunctionName}.", $"Prama #{paramIndex + 1}: {commandType.ParameterTypes[paramIndex].Name}");
             }
 
-            parameters.Add(
-              _parseParam(
-                ref remainingCommandText,
-                commandType.ParameterTypes[paramIndex],
-                lineNumber
-              )
-            );
             remainingCommandText = remainingCommandText.Trim(FunctionSeperatorSymbol, ' ');
           }
           return commandType.Make(Program, parameters);
@@ -333,25 +369,23 @@ namespace Overworld.Script {
           return collection;
         }
 
-        /// if it's a plain old bool/conditional
-        if(firstParamStub.StartsWith("TRUE", true, null) && firstParamStub.Length == 4) {
-          fullRemaininglineText = fullRemaininglineText[firstParamStub.Length..].Trim();
-          return new Boolean(Program, true);
-        }
-        if(firstParamStub.StartsWith("FALSE", true, null) && firstParamStub.Length == 5) {
-          fullRemaininglineText = fullRemaininglineText[firstParamStub.Length..].Trim();
-          return new Boolean(Program, false);
+        /// if it's a plain old bool/conditional 
+        // check if it's a conditional that's expected.
+        if(expectedParamReturnType.Equals(typeof(IConditional))
+          // check for true false text
+          || (firstParamStub.StartsWith(new string[] { "TRUE", "FALSE" }, out string initialBoolVal)
+            && ((initialBoolVal.Length == firstParamStub.Length)
+            || (!char.IsLetterOrDigit(firstParamStub[initialBoolVal.Length])
+              && firstParamStub[initialBoolVal.Length] != '-'
+              && firstParamStub[initialBoolVal.Length] != '_')))
+        ) {
+          return _parseCondition(ref fullRemaininglineText, lineNumber);
         }
 
         /// RESERVED Loop index Keyword
         if(firstParamStub.StartsWith("LOOP-INDEX", true, null) && firstParamStub.Length == "LOOP-INDEX".Length) {
           fullRemaininglineText = fullRemaininglineText[firstParamStub.Length..].Trim();
           return new PlaceholderIndex(Program);
-        }
-
-        // check if it's a conditional that's expected.
-        if(expectedParamReturnType.Equals(typeof(IConditional))) {
-          return _parseCondition(ref fullRemaininglineText, lineNumber);
         }
 
         // IF we've exausted most options and it begins with a not, try to make this a condition
@@ -376,6 +410,8 @@ namespace Overworld.Script {
             @string.Value += _parseString(ref fullRemaininglineText);
             fullRemaininglineText = fullRemaininglineText.Trim();
           }
+
+          return @string;
         }
 
         /// numbers
@@ -562,11 +598,11 @@ namespace Overworld.Script {
             } else if (foundSplitter[0] == CollectionStartSymbol) {
               parsed += fullRemainingLineText;
               list.Add(_parseCollection(ref fullRemainingLineText, collectionItemType, lineNumber));
-              parsed.Substring(0, fullRemainingLineText.Length);
+              parsed = parsed[..fullRemainingLineText.Length];
             } else {
               parsed += fullRemainingLineText;
               list.Add(_parseParam(ref fullRemainingLineText, collectionItemType, lineNumber));
-              parsed.Substring(0, fullRemainingLineText.Length);
+              parsed = parsed[..fullRemainingLineText.Length];
             }
           }
         } while(collectionDepth < 0);
@@ -605,21 +641,39 @@ namespace Overworld.Script {
           parsed += leftConditionText;
           fullRemainingLineText = fullRemainingLineText[leftConditionText.Length..];
           if(foundConditionOrEnding is null) {
+            string foundNot = null;
             if(conditionLogicContainerDepth > 0) {
               throw new ArgumentException($"Condition closure not closed. Add a ')'");
-            } else if(fullRemainingLineText.StartsWith("NOT-")) {
+            } else if(fullRemainingLineText.StartsWith(new string[] { "NOT-", "!" }, out foundNot)) {
               comparitor = Comparitors.NOT;
             } else {
               comparitor = Comparitors.IDENTITY;
             }
 
             fullRemainingLineText = preparsed.Trim('(', ' ');
-            identityCondition = _parseParam(ref fullRemainingLineText, typeof(Token), lineNumber);
+            if(foundNot != null) {
+              fullRemainingLineText = fullRemainingLineText[foundNot.Length..];
+            }
+
+            string remainingParamText = fullRemainingLineText.Until(':').Trim();
+            if(remainingParamText == "TRUE") {
+              identityCondition = new Boolean(Program, true);
+              fullRemainingLineText= fullRemainingLineText[remainingParamText.Length..];
+            }
+            else if(remainingParamText == "FALSE") {
+              identityCondition = new Boolean(Program, false);
+              fullRemainingLineText = fullRemainingLineText[remainingParamText.Length..];
+            } else
+              identityCondition = _parseParam(ref fullRemainingLineText, typeof(Token), lineNumber);
+
+            return Archetypes<Condition.Type>._.Make(Program, new IParameter[] {
+              identityCondition
+            }, comparitor);
           } else {
             leftConditionText = string.IsNullOrWhiteSpace(leftConditionText) 
               ? parsed
               : leftConditionText;
-            parsed += fullRemainingLineText.Substring(0, foundConditionOrEnding.Length);
+            parsed += fullRemainingLineText[..foundConditionOrEnding.Length];
             fullRemainingLineText = fullRemainingLineText[foundConditionOrEnding.Length..];
 
             // )

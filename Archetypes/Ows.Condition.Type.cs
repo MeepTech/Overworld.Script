@@ -1,4 +1,5 @@
 ﻿using Meep.Tech.Data;
+using Meep.Tech.Data.Utility;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -36,36 +37,38 @@ namespace Overworld.Script {
             (nameof(Condition.Comparitor), comparitor)
           );
 
-        public override Func<Program, Data.Character, IList<IParameter>, Variable> Execute {
+        public override Func<Context, Variable> Execute {
           get;
-        } = (program, executor, @params) => {
-          Condition condition = (Condition)@params.Last();
+        } = context => {
+          Condition condition = (Condition)context.OrderedParameters[2];
           switch(condition?.Comparitor) {
             case Comparitors.IDENTITY:
-              return ((IConditional)@params.First()).ComputeFor(executor);
+              return context.GetUltimateParameterVariable<Boolean>(0);
             case Comparitors.NOT:
-              return ((IConditional)@params.First()).ComputeFor(executor).Not;
+              return context.GetUltimateParameterVariable<Boolean>(0).Not;
             case Comparitors.AND:
-              return ((IConditional)@params.First()).ComputeFor(executor)
-                .And(((IConditional)@params[1]).ComputeFor(executor));
+              return context.GetUltimateParameterVariable<Boolean>(0).And(
+                context.GetUltimateParameterVariable<Boolean>(1));
             case Comparitors.OR:
-              return ((IConditional)@params.First()).ComputeFor(executor)
-                .Or(((IConditional)@params[1]).ComputeFor(executor));
+              return context.GetUltimateParameterVariable<Boolean>(0).Or(
+                context.GetUltimateParameterVariable<Boolean>(1));
             case Comparitors.EQUALS:
-              return new Boolean(program, @params[0].Value.Equals(@params[1].Value));
+              return new Boolean(context.Command.Program,
+                context.GetUltimateParameterVariable(0).Value 
+                  == context.GetUltimateParameterVariable(1).Value);
             case Comparitors.LESS_THAN:
-              if(@params[0] is Number && @params[1] is Number) {
+              if(context.OrderedParameters[0] is Number left && context.OrderedParameters[1] is Number right) {
                 return new Boolean(
-                  program,
-                  ((Number)@params[0]).RawValue < ((Number)@params[1]).RawValue
+                  context.Command.Program,
+                  left.RawValue < right.RawValue
                 );
               } else
                 throw new ArgumentException($"Condition of type {condition.Comparitor} requires two Number parameters");
             case Comparitors.GREATER_THAN:
-              if(@params[0] is Number && @params[1] is Number) {
+              if(context.OrderedParameters[0] is Number left1 && context.OrderedParameters[1] is Number right1) {
                 return new Boolean(
-                  program,
-                  ((Number)@params[0]).RawValue > ((Number)@params[1]).RawValue
+                  context.Command.Program,
+                  left1.RawValue > right1.RawValue
                 );
               } else
                 throw new ArgumentException($"Condition of type {condition.Comparitor} requires two Number parameters");

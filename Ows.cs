@@ -12,6 +12,7 @@ namespace Overworld.Script {
       get;
     } = new Command.Type[] {
       Command.Types.Get<Command.END>(),
+      Command.Types.Get<Command.RETURN>(),
       Command.Types.Get<Command.GO_BACK>(),
       Command.Types.Get<Command.GO_TO>(),
       Command.Types.Get<Command.IF>(),
@@ -27,7 +28,7 @@ namespace Overworld.Script {
       Command.Types.Get<Command.UN_SET_LOCALLY_FOR>(),
       Command.Types.Get<Command.UNTIL>(),
       Command.Types.Get<Command.WHILE>(),
-      Command.Types.Get<Command.FOR>()
+      Command.Types.Get<Command.COUNT_UP>()
     }.ToDictionary(
       e => e.Id.Name,
       e => e

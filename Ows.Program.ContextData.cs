@@ -62,15 +62,6 @@ namespace Overworld.Script {
         /// Create a context for a new program
         /// </summary>
         public ContextData(
-          params object[] components
-        ) : this() {
-          Components = components;
-        }
-
-        /// <summary>
-        /// Create a context for a new program
-        /// </summary>
-        public ContextData(
           Dictionary<string, Command.Type> commands = null, 
           Dictionary<string, Data.Entity> entities = null,
           Dictionary<string, Data.Character> characters = null

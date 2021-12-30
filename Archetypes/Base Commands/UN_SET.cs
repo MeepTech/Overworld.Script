@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using Meep.Tech.Data;
+using Meep.Tech.Data.Utility;
 
 namespace Overworld.Script {
 
@@ -32,13 +33,13 @@ namespace Overworld.Script {
             ) {
         }
 
-        public override Func<Program, Data.Character, IList<IParameter>, Variable> Execute {
+        public override Func<Context, Variable> Execute {
           get;
-        } = (program, executor, @params) => {
-          if(_globalVariablesByCharacter.TryGetValue(executor.Id, out var characterVariables)) {
-            characterVariables.Remove(((String)@params[0].GetUltimateVariableFor(executor)).Value);
+        } = context => {
+          if(_globalVariablesByCharacter.TryGetValue(context.Executor.Id, out var characterVariables)) {
+            characterVariables.Remove(((String)context.OrderedParameters[0]).Value);
             if(!characterVariables.Any()) {
-              _globalVariablesByCharacter.Remove(executor.Id);
+              _globalVariablesByCharacter.Remove(context.Executor.Id);
             }
           }
 

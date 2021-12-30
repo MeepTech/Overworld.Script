@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Meep.Tech.Data.Utility;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -12,6 +13,9 @@ namespace Overworld.Script {
       /// </summary>
       public class IF : Ows.Command.Type {
 
+        public override IEnumerable<System.Type> ExpectedReturnTypes
+          => new System.Type[] { typeof(Variable), null };
+
         IF()
           : base(
               new("IF"),
@@ -22,11 +26,11 @@ namespace Overworld.Script {
             ) {
         }
 
-        public override Func<Program, Data.Character, IList<IParameter>, Variable> Execute {
+        public override Func<Context, Variable> Execute {
           get;
-        } = (program, executor, @params) => {
-          if(((IConditional)@params.First()).ComputeFor(executor).Value) {
-            return (@params[1] as Command).ExecuteUltimateCommandFor(executor);
+        } = context => {
+          if(context.GetUltimateParameterVariable<Boolean>(0).Value) {
+            return (context.OrderedParameters[1] as Command).ExecuteUltimateCommandFor(context);
           }
 
           return null;

@@ -39,10 +39,10 @@ namespace Overworld.Script {
       /// <summary>
       /// Gets the compiled collection for the executor
       /// </summary>
-      Variable IParameter.GetUltimateVariableFor(Data.Character character)
+      Variable IParameter.GetUltimateVariableFor(Command.Context context)
         => new Collection<TValue>(Program, (IList)_value 
           ?? Value.Cast<IParameter>()
-              .Select(param => param.GetUltimateVariableFor(character))
+              .Select(param => param.GetUltimateVariableFor(context))
               .Cast<TValue>()
               .ToList());
 

@@ -1,4 +1,5 @@
 ﻿using Meep.Tech.Data;
+using Meep.Tech.Data.Utility;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -26,12 +27,11 @@ namespace Overworld.Script {
     /// <summary>
     /// An executable Ows command
     /// </summary>
-    public partial class Command 
+    public partial class Command
       : Token,
         IParameter,
         IModel<Command, Command.Type>,
-        IModel.IUseDefaultUniverse
-    {
+        IModel.IUseDefaultUniverse {
 
       /// <summary>
       /// All registered command types
@@ -81,18 +81,18 @@ namespace Overworld.Script {
       /// Execute this command for the given character
       /// </summary>
       public Variable ExecuteFor(Data.Character executor)
-        => _executeFor(executor, Enumerable.Empty<IParameter>());
+        => _executeWith(new Context(this, executor));
 
       /// <summary>
       /// Executes this and all commands that it returns until the return is no longer a command
       /// This leaves the last command unexecuted.
       /// </summary>
-      public Variable ExecuteUltimateCommandFor(Data.Character character) {
+      public Variable ExecuteUltimateCommandFor(Context context) {
         IParameter current = this;
 
         // while executable returned, reduce it
         while(current is Command command) {
-          current = command.ExecuteFor(character);
+          current = command._executeWith(context);
         }
 
         // return the ultimate value
@@ -102,25 +102,18 @@ namespace Overworld.Script {
       /// <summary>
       /// Execute this command for the given character
       /// </summary>
-      protected virtual Variable _executeFor(Data.Character executor, IEnumerable<IParameter> extraParams, Index indexReplacement = null)
-        => _executeWithExtraParams(executor, extraParams, indexReplacement);
+      internal Variable _executeWithExtraParams(
+          Data.Character executor,
+          IList<IParameter> extraParameters = null,
+          VariableMap scopedParameters = null,
+          Index indexReplacement = null)
+        => _executeWith(new Context(this, executor, extraParameters, scopedParameters, indexReplacement));
 
       /// <summary>
-      /// Execute this command for the given character with som eextra provided commands
+      /// Execute this command for the given character
       /// </summary>
-      protected internal Variable _executeWithExtraParams(Data.Character executor, IEnumerable<IParameter> extraParams, Index indexReplacement = null) {
-        IList<IParameter> parameters = _parameters.Concat(extraParams).Select(
-          param => param is PlaceholderIndex index
-            ? indexReplacement is null
-              ? throw new ArgumentException($"Index provided as an argument but no replacement provided to the execute for function")
-              : indexReplacement
-            : param is CharacterSpecificVariable characterSpecific
-              ? characterSpecific.GetFor(executor)
-              : param
-        ).ToList();
-
-        return Archetype.Execute(Program, executor, parameters);
-      }
+      protected internal virtual Variable _executeWith(Context context)
+        => Archetype.Execute(context);
     }
   }
 }

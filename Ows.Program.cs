@@ -89,7 +89,7 @@ namespace Overworld.Script {
       /// <summary>
       /// The commands by line
       /// </summary>
-      internal OrderdDictionary<double, Command> _commands
+      internal OrderedDictionary<double, Command> _commands
         = new();
 
       /// <summary>
@@ -101,9 +101,9 @@ namespace Overworld.Script {
 
       /// <summary>
       /// Execute this program as a specific character
-      /// Runs should be wrapped in an object.
+      /// TODO: Runs should be wrapped in an object.
       /// </summary>
-      public void ExecuteAs(Data.Character character)
+      public Variable ExecuteAs(Data.Character character)
         => _executeAllStartingAtLine(StartLine, character, null);
 
       /// <summary>
@@ -166,6 +166,20 @@ namespace Overworld.Script {
       }
 
       /// <summary>
+      /// Try to get a world or program level variable by name for this program
+      /// </summary>
+      public Variable GetVariableByName(string characterId, string variableName) {
+        try {
+          if(_globals.TryGetValue(variableName, out var foundGlobal)) {
+            return foundGlobal;
+          } else
+            return Ows._globalVariablesByCharacter[characterId][variableName];
+        } catch (Exception e) {
+          throw new KeyNotFoundException($"Variable with name {variableName}, not found for character: ID: {characterId}", e);
+        }
+      }
+
+      /// <summary>
       /// Try to get a character level varaible by name from the world or program 
       /// </summary>
       public bool TryToGetVariableByName(Data.Character @for, string variableName, out Variable variable) {
@@ -215,7 +229,6 @@ namespace Overworld.Script {
       /// </summary>
       internal Variable _executeAllStartingAtLine(int line, Data.Character character, int? fromLine = null) {
         while(line <= LineCount) {
-          /// END
           while(!_commands.Contains(line)) {
             line++;
             if(line > LineCount) {
@@ -228,6 +241,7 @@ namespace Overworld.Script {
 
           Command command = _commands[(double)line];
 
+          /// END
           if(command.Archetype is Command.END) {
             return null;
           }
@@ -246,8 +260,16 @@ namespace Overworld.Script {
               throw new ArgumentNullException($"No available From Line to go back to. GO-BACK should only work once.");
           }
 
-          Variable result = command.ExecuteFor(character);
+          Variable result 
+            = command.ExecuteFor(character);
+
+          /// RETURN
+          if(result is ReturnResult returnResult) {
+            return returnResult.Value;
+          }
+
           // break if we came back from a goto
+          // TODO: this should return goto-result with a value.
           if(result is GoToResult) {
             break;
           }

@@ -79,9 +79,9 @@ namespace Overworld.Script {
       /// <summary>
       /// <inheritdoc/>
       /// </summary>
-      protected override Variable _executeFor(Data.Character executor, IEnumerable<IParameter> extraParams, Index indexReplacement = null) {
+      protected internal override Variable _executeWith(Context context) {
         // add the extra param of "this" to the end
-        return base._executeFor(executor, extraParams.Append(this), indexReplacement);
+        return base._executeWith(context.AddExtraParameter(this));
       }
 
       /// <summary>

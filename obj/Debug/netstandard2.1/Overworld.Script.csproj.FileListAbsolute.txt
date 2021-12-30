@@ -20,5 +20,3 @@ C:\Users\super\Projects\meep-tech\libraries\c-sharp\_games\Overworld\Overworld.S
 C:\Users\super\Projects\meep-tech\libraries\c-sharp\_games\Overworld\Overworld.Script\obj\Debug\netstandard2.1\Overworld.Script.csproj.CopyComplete
 C:\Users\super\Projects\meep-tech\libraries\c-sharp\_games\Overworld\Overworld.Script\obj\Debug\netstandard2.1\Overworld.Script.dll
 C:\Users\super\Projects\meep-tech\libraries\c-sharp\_games\Overworld\Overworld.Script\obj\Debug\netstandard2.1\Overworld.Script.pdb
-C:\Users\super\Projects\meep-tech\libraries\c-sharp\_games\Overworld\Overworld.Script\bin\Debug\netstandard2.1\NumericWordsConversion.dll
-C:\Users\super\Projects\meep-tech\libraries\c-sharp\_games\Overworld\Overworld.Script\bin\Debug\netstandard2.1\NumericWordsConversion.pdb

@@ -2,6 +2,7 @@
 namespace Overworld.Script {
 
   public static partial class Ows {
+
     /// <summary>
     /// These values can be parameters for Ows Program Commands
     /// </summary>
@@ -10,11 +11,11 @@ namespace Overworld.Script {
       /// <summary>
       /// Get the ultimate value from a parameter
       /// </summary>
-      public object GetUltimateValueFor(Data.Character character) {
+      public object GetUltimateValueFor(Command.Context context) {
         IParameter current = this;
         // while executable returned, reduce it
         while(current is Command command) {
-          current = command.ExecuteFor(character);
+          current = command._executeWith(context);
         }
 
         // return the ultimate value
@@ -24,11 +25,11 @@ namespace Overworld.Script {
       /// <summary>
       /// Get the ultimate variable from a parameter
       /// </summary>
-      public Variable GetUltimateVariableFor(Data.Character character) {
+      public Variable GetUltimateVariableFor(Command.Context context) {
         IParameter current = this;
         // while executable returned, reduce it
         while(current is Command command) {
-          current = command.ExecuteFor(character);
+          current = command._executeWith(context);
         }
 
         // return the ultimate value
@@ -38,12 +39,13 @@ namespace Overworld.Script {
       /// <summary>
       /// Get the ultimate variable from a parameter
       /// </summary>
-      public TVariable GetUltimateVariableAs<TVariable>(Data.Character character)
-        where TVariable : Variable{
+      public TVariable GetUltimateVariableAs<TVariable>(Command.Context context)
+        where TVariable : Variable
+      {
         IParameter current = this;
         // while executable returned, reduce it
         while(current is Command command) {
-          current = command.ExecuteFor(character);
+          current = command._executeWith(context);
         }
 
         // return the ultimate value

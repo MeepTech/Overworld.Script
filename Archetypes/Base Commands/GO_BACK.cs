@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Meep.Tech.Data.Utility;
+using System;
 using System.Collections.Generic;
 
 namespace Overworld.Script {
@@ -19,9 +20,9 @@ namespace Overworld.Script {
             ) {
         }
 
-        public override Func<Program, Data.Character, IList<IParameter>, Variable> Execute {
+        public override Func<Context, Variable> Execute {
           get;
-        } = (program, executor, @params)
+        } = context
              => throw new NotSupportedException();
       }
     }

@@ -1,4 +1,5 @@
 ﻿using Meep.Tech.Data;
+using Meep.Tech.Data.Utility;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -23,7 +24,7 @@ namespace Overworld.Script {
         /// <summary>
         /// The types of params that this command requires
         /// </summary>
-        public virtual IList<System.Type> ParameterTypes {
+        public IList<System.Type> ParameterTypes {
           get;
           internal set;
         }
@@ -31,13 +32,32 @@ namespace Overworld.Script {
         /// <summary>
         /// Execute logic for this command.
         /// Parameters: 
-        ///   The Program,
-        ///   The Character Executing the Command,
-        ///   The Ordered Parameters provided to the Command
+        ///   The Command context,
         /// </summary>
-        public virtual Func<Program, Data.Character, IList<IParameter>, Variable> Execute {
+        public abstract Func<Command.Context, Variable> Execute {
           get;
         }
+
+        /// Optional:
+
+        /// A type of token this command is expected to return
+        public virtual IEnumerable<System.Type> ExpectedReturnTypes {
+          get;
+        } = new[] { typeof(Token), null };
+
+        /// <summary>
+        /// A description of this command
+        /// </summary>
+        public virtual string Description {
+          get;
+        } = "A Command";
+
+        /// <summary>
+        /// Examples of command usage
+        /// </summary>
+        public virtual (string code, string summary)[] Examples {
+          get;
+        } = new (string code, string summary)[0];
 
         #region Initialization and Configuration
 
@@ -46,7 +66,8 @@ namespace Overworld.Script {
         /// </summary>
         public new class Identity : Archetype<Command, Type>.Identity {
           public Identity(string name, string keyPrefixEndingAdditions = null) 
-            : base(name, keyPrefixEndingAdditions) {}
+            : base(name, keyPrefixEndingAdditions) 
+          {}
         }
 
         /// <summary>
@@ -59,6 +80,13 @@ namespace Overworld.Script {
               ? paramType
               : throw new ArgumentException($"Param type must inherit from Ows.IParameter: {paramType.FullName}."))
             .ToList();
+          if(ExpectedReturnTypes is not null) {
+            foreach(System.Type expextedReturnType in ExpectedReturnTypes) {
+              if(expextedReturnType != null && !typeof(Token).IsAssignableFrom(expextedReturnType)) {
+                throw new ArgumentException($"Return type must be null or inherit from Token: {expextedReturnType.FullName}");
+              }
+            }
+          }
         }
 
         #endregion

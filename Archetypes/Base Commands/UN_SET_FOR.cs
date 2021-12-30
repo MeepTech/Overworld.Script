@@ -22,15 +22,15 @@ namespace Overworld.Script {
             ) {
         }
 
-        public override Func<Program, Data.Character, IList<IParameter>, Variable> Execute {
+        public override Func<Context, Variable> Execute {
           get;
-        } = (program, executor, @params) => {
-          foreach(string characterId in (@params[0].GetUltimateVariableFor(executor) as Collection<Character>).Value.Select(
+        } = context => {
+          foreach(string characterId in context.GetUltimateParameterVariable<Collection<Character>>(0).Value.Select(
             character => character.Value.Id
           )) {
-            Data.Character character = program.GetCharacter(characterId);
+            Data.Character character =  context.Command.Program.GetCharacter(characterId);
             if(_globalVariablesByCharacter.TryGetValue(character.Id, out var characterVariables)) {
-              characterVariables.Remove(((String)@params[1].GetUltimateVariableFor(executor)).Value);
+              characterVariables.Remove(((String)context.OrderedParameters[1]).Value);
               if(!characterVariables.Any()) {
                 _globalVariablesByCharacter.Remove(character.Id);
               }

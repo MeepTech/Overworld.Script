@@ -1,4 +1,5 @@
 ﻿using Meep.Tech.Data;
+using Meep.Tech.Data.Utility;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -13,6 +14,9 @@ namespace Overworld.Script {
       /// </summary>
       [Branch]
       public new class Type : Command.Type {
+
+        protected override Dictionary<string, object> DefaultTestParams 
+          => base.DefaultTestParams.Append(nameof(Opperator), Opperators.PLUS);
 
         protected Type(Identity id)
           : base(
@@ -35,37 +39,38 @@ namespace Overworld.Script {
             (nameof(MathOpperator.Opperator), opperator)
           );
 
-        public override Func<Program, Data.Character, IList<IParameter>, Variable> Execute {
+        public override Func<Context, Variable> Execute {
           get;
-        } = (program, executor, @params) => {
-          MathOpperator opperator = (MathOpperator)@params.Last();
+        } = context => {
+          MathOpperator opperator = context.GetParameter<MathOpperator>(2);
           switch(opperator?.Opperator) {
             case Opperators.SQUARED:
-              return new Number(program, Math.Pow(@params[0].GetUltimateVariableAs<Number>(executor).RawValue, 2));
+              return new Number(context.Command.Program, Math.Pow(
+                context.GetUltimateParameterVariable<Number>(0).RawValue, 2));
             case Opperators.DIVIDED_BY:
-              return new Number(program, 
-                @params[0].GetUltimateVariableAs<Number>(executor).RawValue
-                / @params[1].GetUltimateVariableAs<Number>(executor).RawValue);
+              return new Number(context.Command.Program, 
+                context.GetUltimateParameterVariable<Number>(0).RawValue
+                / context.GetUltimateParameterVariable<Number>(1).RawValue);
             case Opperators.PLUS:
-              return new Number(program, 
-                @params[0].GetUltimateVariableAs<Number>(executor).RawValue
-                + @params[1].GetUltimateVariableAs<Number>(executor).RawValue);
+              return new Number(context.Command.Program, 
+                context.GetUltimateParameterVariable<Number>(0).RawValue
+                + context.GetUltimateParameterVariable<Number>(1).RawValue);
             case Opperators.MINUS:
-              return new Number(program, 
-                @params[0].GetUltimateVariableAs<Number>(executor).RawValue
-                - @params[1].GetUltimateVariableAs<Number>(executor).RawValue);
+              return new Number(context.Command.Program, 
+                context.GetUltimateParameterVariable<Number>(0).RawValue
+                - context.GetUltimateParameterVariable<Number>(1).RawValue);
             case Opperators.MODULO:
-              return new Number(program, 
-                @params[0].GetUltimateVariableAs<Number>(executor).RawValue
-                % @params[1].GetUltimateVariableAs<Number>(executor).RawValue);
+              return new Number(context.Command.Program, 
+                context.GetUltimateParameterVariable<Number>(0).RawValue
+                % context.GetUltimateParameterVariable<Number>(1).RawValue);
             case Opperators.TIMES:
-              return new Number(program, 
-                @params[0].GetUltimateVariableAs<Number>(executor).RawValue
-                * @params[1].GetUltimateVariableAs<Number>(executor).RawValue);
+              return new Number(context.Command.Program, 
+                context.GetUltimateParameterVariable<Number>(0).RawValue
+                * context.GetUltimateParameterVariable<Number>(1).RawValue);
             case Opperators.TO_THE_POWER_OF:
-              return new Number(program, 
-                Math.Pow(@params[0].GetUltimateVariableAs<Number>(executor).RawValue,
-                 @params[1].GetUltimateVariableAs<Number>(executor).RawValue));
+              return new Number(context.Command.Program, 
+                Math.Pow(context.GetUltimateParameterVariable<Number>(0).RawValue,
+                 context.GetUltimateParameterVariable<Number>(1).RawValue));
             default:
               throw new ArgumentException($"No Conditional Type Provided.");
           };

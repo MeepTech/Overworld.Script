@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Meep.Tech.Data.Utility;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -6,6 +7,7 @@ namespace Overworld.Script {
 
   public partial class Ows {
     public partial class Command {
+
       /// <summary>
       /// Sets a value to a given key for the executing character
       /// </summary>
@@ -32,14 +34,14 @@ namespace Overworld.Script {
             ) {
         }
 
-        public override Func<Program, Data.Character, IList<IParameter>, Variable> Execute {
+        public override Func<Context, Variable> Execute {
           get;
-        } = (program, executor, @params) => {
-          foreach(string characterId in (@params[0].GetUltimateVariableFor(executor) as Collection<Character>).Value.Select(
+        } = context => {
+          foreach(string characterId in (context.GetUltimateParameterVariable<Collection<Character>>(0)).Value.Select(
             character => character.Value.Id
           )) {
-            Data.Character character = program.GetCharacter(characterId);
-            SetGlobalVariableForCharacter(program, executor, character, (String)@params[0], @params[1]);
+            Data.Character character = context.Command.Program.GetCharacter(characterId);
+            SetGlobalVariableForCharacter(context, character.Id, (String)context.OrderedParameters[0], context.OrderedParameters[1]);
           }
 
           return null;

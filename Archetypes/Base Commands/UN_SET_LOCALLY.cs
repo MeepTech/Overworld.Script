@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Meep.Tech.Data.Utility;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -20,13 +21,13 @@ namespace Overworld.Script {
             ) {
         }
 
-        public override Func<Program, Data.Character, IList<IParameter>, Variable> Execute {
+        public override Func<Context, Variable> Execute {
           get;
-        } = (program, executor, @params) => {
-          if(program._variablesByCharacter.TryGetValue(executor.Id, out var characterVariables)) {
-            characterVariables.Remove(((String)@params[0].GetUltimateVariableFor(executor)).Value);
+        } = context => {
+          if(context.Command.Program._variablesByCharacter.TryGetValue(context.Executor.Id, out var characterVariables)) {
+            characterVariables.Remove(context.GetUltimateParameterVariable<String>(0).Value);
             if(!characterVariables.Any()) {
-              program._variablesByCharacter.Remove(executor.Id);
+              context.Command.Program._variablesByCharacter.Remove(context.Executor.Id);
             }
           }
 

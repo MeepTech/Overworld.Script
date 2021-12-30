@@ -1048,7 +1048,7 @@
             Sets _assemblyTypesToBuild
             </summary>
         </member>
-        <member name="M:Meep.Tech.Data.Configuration.Loader._validateAssemblyCollectionExists(Meep.Tech.Data.Utility.OrderdDictionary{System.Reflection.Assembly,Meep.Tech.Data.Configuration.Loader.AssemblyBuildableTypesCollection},System.Reflection.Assembly)">
+        <member name="M:Meep.Tech.Data.Configuration.Loader._validateAssemblyCollectionExists(Meep.Tech.Data.Utility.OrderedDictionary{System.Reflection.Assembly,Meep.Tech.Data.Configuration.Loader.AssemblyBuildableTypesCollection},System.Reflection.Assembly)">
             <summary>
             Make sure the assembly collection exists for the given assmebly. Add a new one if it doesnt.
             </summary>
