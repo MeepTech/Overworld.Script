@@ -1,39 +1,8 @@
 ﻿using Meep.Tech.Data;
-using System;
-using System.Collections.Generic;
-using System.Linq;
 
 namespace Overworld.Script {
 
   public static partial class Ows {
-
-    public enum Comparitors {
-      IDENTITY = '$',
-      NOT = '!',
-      AND = '&',
-      OR = '|',
-      EQUALS = '=',
-      GREATER_THAN = '>',
-      LESS_THAN = '<'
-    }
-
-    public static string NotPrefixPhrase {
-      get;
-    } = Comparitors.NOT.ToString() + "-";
-
-    public static string[] ComparitorPhrases {
-      get;
-    } = ((Comparitors[])Enum.GetValues(typeof(Comparitors)))
-      .Select(e => e.ToString().Replace('_', '-')).ToArray();
-
-    public static char[] ComparitorPhraseStartChars {
-      get;
-    } = ComparitorPhrases.Select(v => v[0]).ToArray();
-
-    public static char[] ComparitorSymbols {
-      get;
-    } = ((Comparitors[])Enum.GetValues(typeof(Comparitors)))
-      .Select(e => (char)e).ToArray();
 
     /// <summary>
     /// Represents a parameter that can be equated to true or false

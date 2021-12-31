@@ -1,5 +1,4 @@
-﻿using Meep.Tech.Data.Utility;
-using System;
+﻿using System;
 using System.Collections.Generic;
 
 namespace Overworld.Script {
@@ -15,7 +14,7 @@ namespace Overworld.Script {
           => new System.Type[] { typeof(ReturnResult) };
 
         public override string Description 
-          => $"This Command ENDs the program, and provides a Return value back to the executor";
+          => $"This Command stops the program execution on the current line, and GO-BACK's to the line it last came from, providing a Return value back to the executor";
 
         public override (string code, string summary)[] Examples
           => new[] {
@@ -28,6 +27,14 @@ namespace Overworld.Script {
               RETURN 5
               SAY: ""This Will Not Be Said!""",
             "This program will end before running the second SAY command, and will Return 5 to the runner"),
+            (@"
+              SET VALUE TO 1
+              
+              COUNTDOWN:3:SET VALUE TO GOTO:double_value
+              RETURN VALUE
+
+              [double_value]:RETURN:VALUE+VALUE",
+            "This program double the value of Value 3 times and then return it from the program."),
             (@"
               SET VALUE TO TRUE
               RETURN: VALUE",

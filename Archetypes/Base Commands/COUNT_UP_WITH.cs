@@ -1,8 +1,5 @@
-﻿using Meep.Tech.Data;
-using Meep.Tech.Data.Utility;
-using System;
+﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 
 namespace Overworld.Script {
 
@@ -12,7 +9,7 @@ namespace Overworld.Script {
       /// <summary>
       /// Like Countdown, but it decrements the provided variable by reference instead of making a new index.
       /// </summary>
-      public class COUNT_UP_TO : Ows.Command.Type {
+      public class COUNT_UP_WITH : Ows.Command.Type {
 
         public override string Description 
           => "A command taking 3 Params;(Param1:Number, Param2:Number, and Param2:Command), allowing you to execute another command;(Param2), multiple times while counting up from Param1 to Param2. " +
@@ -37,9 +34,9 @@ namespace Overworld.Script {
         public override IEnumerable<System.Type> ExpectedReturnTypes 
           => new System.Type[0];
 
-        COUNT_UP_TO()
+        COUNT_UP_WITH()
           : base(
-              new("COUNT-UP-TO"),
+              new("COUNT-UP-WITH"),
               new[] {
                 typeof(Number),
                 typeof(Number),
@@ -55,7 +52,7 @@ namespace Overworld.Script {
           Number end = context.GetUltimateParameterVariable<Number>(1);
           while(index.IntValue < end.IntValue) {
             context.GetUltimateParameterVariable(2);
-            index.RawValue += 1;
+            index.IntValue += 1;
           }
 
           return null;

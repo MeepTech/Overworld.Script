@@ -1,5 +1,4 @@
 ﻿using Meep.Tech.Data;
-using Meep.Tech.Data.Utility;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -46,31 +45,31 @@ namespace Overworld.Script {
           switch(opperator?.Opperator) {
             case Opperators.SQUARED:
               return new Number(context.Command.Program, Math.Pow(
-                context.GetUltimateParameterVariable<Number>(0).RawValue, 2));
+                context.GetUltimateParameterVariable<Number>(0).DoubleValue, 2));
             case Opperators.DIVIDED_BY:
               return new Number(context.Command.Program, 
-                context.GetUltimateParameterVariable<Number>(0).RawValue
-                / context.GetUltimateParameterVariable<Number>(1).RawValue);
+                context.GetUltimateParameterVariable<Number>(0).DoubleValue
+                / context.GetUltimateParameterVariable<Number>(1).DoubleValue);
             case Opperators.PLUS:
               return new Number(context.Command.Program, 
-                context.GetUltimateParameterVariable<Number>(0).RawValue
-                + context.GetUltimateParameterVariable<Number>(1).RawValue);
+                context.GetUltimateParameterVariable<Number>(0).DoubleValue
+                + context.GetUltimateParameterVariable<Number>(1).DoubleValue);
             case Opperators.MINUS:
               return new Number(context.Command.Program, 
-                context.GetUltimateParameterVariable<Number>(0).RawValue
-                - context.GetUltimateParameterVariable<Number>(1).RawValue);
+                context.GetUltimateParameterVariable<Number>(0).DoubleValue
+                - context.GetUltimateParameterVariable<Number>(1).DoubleValue);
             case Opperators.MODULO:
               return new Number(context.Command.Program, 
-                context.GetUltimateParameterVariable<Number>(0).RawValue
-                % context.GetUltimateParameterVariable<Number>(1).RawValue);
+                context.GetUltimateParameterVariable<Number>(0).DoubleValue
+                % context.GetUltimateParameterVariable<Number>(1).DoubleValue);
             case Opperators.TIMES:
               return new Number(context.Command.Program, 
-                context.GetUltimateParameterVariable<Number>(0).RawValue
-                * context.GetUltimateParameterVariable<Number>(1).RawValue);
+                context.GetUltimateParameterVariable<Number>(0).DoubleValue
+                * context.GetUltimateParameterVariable<Number>(1).DoubleValue);
             case Opperators.TO_THE_POWER_OF:
               return new Number(context.Command.Program, 
-                Math.Pow(context.GetUltimateParameterVariable<Number>(0).RawValue,
-                 context.GetUltimateParameterVariable<Number>(1).RawValue));
+                Math.Pow(context.GetUltimateParameterVariable<Number>(0).DoubleValue,
+                 context.GetUltimateParameterVariable<Number>(1).DoubleValue));
             default:
               throw new ArgumentException($"No Conditional Type Provided.");
           };

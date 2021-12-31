@@ -1,5 +1,4 @@
 ﻿using Meep.Tech.Data;
-using Meep.Tech.Data.Utility;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -7,22 +6,6 @@ using System.Linq;
 namespace Overworld.Script {
 
   public static partial class Ows {
-
-    public enum Opperators {
-      PLUS = '+',
-      MINUS = '-',
-      TIMES = '*', //checks for X too for numbers
-      DIVIDED_BY = '/',
-      TO_THE_POWER_OF = '^',
-      SQUARED = '`',
-      MODULO = '%'
-    }
-
-    public static char[] NumberOpperatorChars {
-      get;
-    } = ((Opperators[])Enum.GetValues(typeof(Opperators))).Where(
-      v => v != Opperators.SQUARED
-    ).Select(v => ((char)v)).Append('X').ToArray();
 
     /// <summary>
     /// An executable Ows command

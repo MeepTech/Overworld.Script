@@ -1,5 +1,4 @@
 ﻿using Meep.Tech.Data;
-using Meep.Tech.Data.Utility;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -53,14 +52,17 @@ namespace Overworld.Script {
               return context.GetUltimateParameterVariable<Boolean>(0).Or(
                 context.GetUltimateParameterVariable<Boolean>(1));
             case Comparitors.EQUALS:
-              return new Boolean(context.Command.Program,
-                context.GetUltimateParameterVariable(0).Value 
-                  == context.GetUltimateParameterVariable(1).Value);
+              var left2 = context.GetUltimateParameterVariable(0).Value;
+              var right2 = context.GetUltimateParameterVariable(1).Value;
+              bool equality = left2 == right2;
+              bool equality1 = left2.Equals(right2);
+
+              return new Boolean(context.Command.Program, equality || equality1);
             case Comparitors.LESS_THAN:
               if(context.OrderedParameters[0] is Number left && context.OrderedParameters[1] is Number right) {
                 return new Boolean(
                   context.Command.Program,
-                  left.RawValue < right.RawValue
+                  left.DoubleValue < right.DoubleValue
                 );
               } else
                 throw new ArgumentException($"Condition of type {condition.Comparitor} requires two Number parameters");
@@ -68,7 +70,7 @@ namespace Overworld.Script {
               if(context.OrderedParameters[0] is Number left1 && context.OrderedParameters[1] is Number right1) {
                 return new Boolean(
                   context.Command.Program,
-                  left1.RawValue > right1.RawValue
+                  left1.DoubleValue > right1.DoubleValue
                 );
               } else
                 throw new ArgumentException($"Condition of type {condition.Comparitor} requires two Number parameters");

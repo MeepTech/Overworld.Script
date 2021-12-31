@@ -149,17 +149,31 @@ namespace Overworld.Script {
 
         int lineNumber = 0;
         Program.StartLine = preInitialLines?.Count() ?? Program.StartLine;
+        Program._labelsByLineNumber.Add(StartLabel, Program.StartLine);
         string[] preCompiledLines = preInitialLines.Concat(rawLines).ToArray();
+        bool startCommandFound=  false;
         for(int preCompiledLineIndex = 0; preCompiledLineIndex < preCompiledLines.Length; preCompiledLineIndex++) {
           string currentLine = preCompiledLines[preCompiledLineIndex];
           string currentCommandText = string.Copy(currentLine);
 
           // if there's a label, store it
           if(currentCommandText.Trim().FirstOrDefault() == LabelStartSymbol) {
-            Program._labelsByLineNumber.Add(
-              new string(currentCommandText.Trim()[1..].Until(LabelEndSymbol)).Trim(),
-              lineNumber
-            );
+            /// START label is special
+            string labelName = currentCommandText.Trim()[1..].Until(LabelEndSymbol).Trim();
+            if(labelName.ToUpper() == StartLabel) {
+              if(startCommandFound) {
+                throw new ArgumentException($"Multiple START lables detected. Only one START label is allowed per compiled program.");
+              }
+              Program._labelsByLineNumber[StartLabel] = lineNumber;
+              Program.StartLine = lineNumber;
+              startCommandFound = true;
+            }
+            else {
+              Program._labelsByLineNumber.Add(
+                labelName,
+                lineNumber
+              );
+            }
             currentCommandText = currentCommandText.After(FunctionSeperatorSymbol);
           }
 
@@ -177,13 +191,6 @@ namespace Overworld.Script {
 
           if(!string.IsNullOrWhiteSpace(currentCommandText)) {
             try {
-              if(currentCommandText.Trim().StartsWith("ELSE")) {
-                if(Program._commands.TryGetValue(lineNumber - 1, out var prevCommand)) {
-                  if(prevCommand.Archetype is Command.IF || prevCommand.Archetype is Command.IF_NOT) {
-                    currentCommandText = currentCommandText.Trim()[4..].After(':');
-                  } else throw new ArgumentException($"Unexpected ELSE:");
-                } else throw new ArgumentException($"Unexpected ELSE:");
-              }
               /// Process the command
               Program._commands.Add(lineNumber,
                 _parseCommand(ref currentCommandText, lineNumber));
@@ -229,30 +236,51 @@ namespace Overworld.Script {
               new Number(Program, lineNumber)
             );
             remainingCommandText = "";
-          }
-          else
+          } else
 
           // set is special
           if(commandType is Command.SET setCommand) {
             specialCommandFound = true;
             if(commandType is Command.SET_FOR) {
-              Collection characters = (Collection)
-                _parseParam(
+              // if it's a special set_for:
+              if(remainingCommandText.Trim().StartsWith(new string[] {
+                WorldPhrase,
+                ProgramPhrase,
+                ProgramSymbol.ToString(),
+                WorldSymbol.ToString()
+              }, out string foundSpecialSelector)) {
+                if(foundSpecialSelector[0] == WorldSymbol || foundSpecialSelector == WorldPhrase) {
+                  commandType = Command.Types.Get<Command.SET_FOR_WORLD>();
+                  remainingCommandText = remainingCommandText.After(FunctionSeperatorSymbol).Trim();
+                }
+                if(foundSpecialSelector[0] == ProgramSymbol || foundSpecialSelector == ProgramPhrase) {
+                  commandType = Command.Types.Get<Command.SET_FOR_WORLD>();
+                  remainingCommandText = remainingCommandText.After(FunctionSeperatorSymbol).Trim();
+                }
+              }
+              else {
+                Collection characters = (Collection)
+                  _parseParam(
                   ref remainingCommandText,
                   typeof(Collection<Character>),
                   lineNumber
-              );
-              parameters.Add(characters);
+                );
+                parameters.Add(characters);
+              }
             }
             string[] parts = null;
-            if(remainingCommandText.Contains(SetToSymbol)) {
-              parts = remainingCommandText.Split(SetToSymbol);
-              remainingCommandText = remainingCommandText[(parts.First().Length + 1)..].Trim();
-            }
-            else if(remainingCommandText.Contains(SetToPhrase)) {
-              parts = remainingCommandText.Split(SetToPhrase);
-              remainingCommandText = remainingCommandText[(parts.First().Length + SetToPhrase.Length)..].Trim();
-            }
+            string left = remainingCommandText.UntilAny(new string[] {
+              SetToSymbol.ToString(),
+              SetToPhrase,
+              SetIsPhrase,
+              SetsAsPhrase,
+              Comparitors.EQUALS.ToString()
+            }, out string foundSetText);
+            if(foundSetText != null) {
+              parts = remainingCommandText.Split(foundSetText);
+              remainingCommandText = remainingCommandText[(parts.First().Length + foundSetText.Length)..].Trim();
+            } else
+              throw new ArgumentException($"Set command is missing 'to', 'as', 'is', '=', or 'equals' syntax.");
 
             parameters.Add(
               new String(Program, parts[0].Trim())
@@ -260,8 +288,7 @@ namespace Overworld.Script {
             parameters.Add(
               _parseParam(ref remainingCommandText, typeof(Token), lineNumber)
             );
-          }
-          else
+          } else
 
           // unset is special too
           if(commandType is Command.UN_SET unSetCommand) {
@@ -304,10 +331,47 @@ namespace Overworld.Script {
             else {
               parameters.Add(null);
             }
-            parameters.Add(
-              new Number(Program, lineNumber)
-            );
           }
+
+
+          /// If command has special post-params
+          if(commandType is Command.IF ifCommand || commandType is Command.IF_NOT endifCommand) {
+            try {
+              if(string.IsNullOrWhiteSpace(remainingCommandText)) {
+                throw new ArgumentNullException($"Param #{1} : {commandType.ParameterTypes[0]}", $"Command : {commandType} is missing an expected parameter.");
+              }
+
+              // condition:
+              parameters.Add(
+              _parseParam(
+                ref remainingCommandText,
+                commandType.ParameterTypes[0],
+                lineNumber));
+
+              if(string.IsNullOrWhiteSpace(remainingCommandText)) {
+                throw new ArgumentNullException($"Param #{2} : {commandType.ParameterTypes[1]}", $"Command : {commandType} is missing an expected parameter.");
+              }
+
+              parameters.Add(
+              _parseParam(
+                ref remainingCommandText,
+                commandType.ParameterTypes[1],
+                lineNumber));
+
+              specialCommandFound = true;
+              if(remainingCommandText.Length > 0 && remainingCommandText.StartsWith(ElsePhrase)) {
+                remainingCommandText = remainingCommandText.Trim()[ElsePhrase.Length..].After(':');
+                // Add the else param:
+                parameters.Add(_parseCommand(ref remainingCommandText, lineNumber));
+              }
+              else
+                parameters.Add(null);
+
+            } catch(System.Exception e) {
+              throw new System.ArgumentException($"Failed to parse params for Command: {currentFunctionName}", e);
+            }
+          }
+
 
           if(specialCommandFound) {
             return commandType.Make(
@@ -332,22 +396,24 @@ namespace Overworld.Script {
                 )
               );
             } catch(System.Exception e) {
-              throw new System.ArgumentException($"Failed to parse param for Command: {currentFunctionName}.", $"Prama #{paramIndex + 1}: {commandType.ParameterTypes[paramIndex].Name}");
+              throw new System.ArgumentException($"Failed to parse param for Command: {currentFunctionName}.", $"Prama #{paramIndex + 1}: {commandType.ParameterTypes[paramIndex].Name}", e);
             }
 
             remainingCommandText = remainingCommandText.Trim(FunctionSeperatorSymbol, ' ');
           }
+        
+
           return commandType.Make(Program, parameters);
         } else
           throw new System.MissingMethodException(nameof(Ows), currentFunctionName);
       }
 
       VariableMap _parseVariableMap(ref string remainingCommandText, int lineNumber) {
-        VariableMap variableMap = new(Program, new Dictionary<string, Variable>());
+        VariableMap variableMap = new(Program, new Dictionary<string, IParameter>());
         bool inClosure = false;
         if(remainingCommandText.StartsWith(CollectionStartSymbol)) {
           inClosure = true;
-          remainingCommandText.Trim(CollectionStartSymbol, ' ');
+          remainingCommandText = remainingCommandText.Trim(CollectionStartSymbol, ' ');
         }
         else {
           remainingCommandText.Trim();
@@ -375,19 +441,22 @@ namespace Overworld.Script {
               finished = true;
             }
             remainingCommandText = remainingCommandText[(potentialScopedVariable.Length + foundSplitter.Length)..];
-            string scopedVarName = remainingCommandText.UntilAny(
+            string scopedVarName = potentialScopedVariable.UntilAny(
               // TODO: cache this:
               new string[] {
                 ((char)Comparitors.EQUALS).ToString(),
                 $" {Comparitors.EQUALS} ",
-                $" {SetToPhrase} ",
-                $" IS ",
-                $" AS "
+                SetToPhrase,
+                SetIsPhrase,
+                SetsAsPhrase
               },
               out string foundSetter
             );
-            remainingCommandText = remainingCommandText[(scopedVarName.Length + foundSplitter.Length)..];
-            variableMap.Value.Add(scopedVarName.Trim(), _parseParam(ref remainingCommandText, typeof(Token), lineNumber));
+            potentialScopedVariable = potentialScopedVariable[scopedVarName.Length..].Trim()[foundSetter.Trim().Length..].Trim();
+            if(ReservedKeywords.Contains(scopedVarName.Trim())) {
+              throw new ArgumentException($"Tried to use reserved keyword as variable name: {scopedVarName.Trim()}");
+            }
+            variableMap.Value.Add(scopedVarName.Trim(), _parseParam(ref potentialScopedVariable, typeof(Token), lineNumber));
           }
           else {
             if(inClosure) {
@@ -474,7 +543,7 @@ namespace Overworld.Script {
         }
 
         // IF we've exausted most options and it begins with a not, try to make this a condition
-        if(fullRemaininglineText.StartsWith((char)Comparitors.NOT) || fullRemaininglineText.StartsWith(Ows.NotPrefixPhrase)) {
+        if(fullRemaininglineText.StartsWith((char)Comparitors.NOT) || fullRemaininglineText.StartsWith(Ows.NotComparitorPrefixPhrase)) {
           return _parseCondition(ref fullRemaininglineText, lineNumber);
         }
 
@@ -518,7 +587,7 @@ namespace Overworld.Script {
             // find add for collections
               AndConcatPhrase,
               ((char)Comparitors.AND).ToString()
-            }.Concat(NumberOpperatorChars.Select(x => x.ToString()))
+            }.Concat(NumberOpperatorSymbols.Select(x => x.ToString()))
             // todo: make constants
             .Concat(Enum.GetValues(typeof(Opperators)).Cast<Opperators>().Select(s => $"{s.ToString().Replace('_', '-')} "))
             , out string foundPrefix)
@@ -555,6 +624,12 @@ namespace Overworld.Script {
           }
 
           return compiledOpperaton ?? (IParameter)number;
+        }
+
+        if(fullRemaininglineText[0] == LogicStartSymbol) {
+          string closure = fullRemaininglineText.UntilClosure('(', ')');
+          fullRemaininglineText = fullRemaininglineText[..closure.Length];
+          return _parseParam(ref closure, expectedParamReturnType, lineNumber);
         }
 
         /// TODO: check if there's any spaces, or special characters in the potential variable or function name.
@@ -649,7 +724,7 @@ namespace Overworld.Script {
 
         // All * syntax
         if(fullRemainingLineText.Trim().StartsWith(new string[] { CollectAllSymbol.ToString(), CollectAllPhrase }, out string foundPhrase)) {
-          if(CollectAllPhrase.Length > 1 && !char.IsLetterOrDigit(fullRemainingLineText[foundPhrase.Length..].FirstOrDefault())) {
+          if(CollectAllPhrase.Length > 1 || (fullRemainingLineText[foundPhrase.Length..].FirstOrDefault() == ' ' || fullRemainingLineText[foundPhrase.Length..].FirstOrDefault() == ']')) {
             collection = Program._getAllObjectsOfType(collectionItemType);
             if(collectionDepth > 0 && fullRemainingLineText[foundPhrase.Length..].Trim().FirstOrDefault() != CollectionEndSymbol) {
               throw new ArgumentException($"No closure found for [ in an All/* collection syntax statement");
@@ -715,11 +790,12 @@ namespace Overworld.Script {
           leftConditionText = fullRemainingLineText.UntilAny(
             // TODO: cache this whole thing in a static
             // symbols
-            ComparitorSymbols.Select(ch => ch.ToString()).ToList().Except(new []{"!" })
+            ComparitorSymbols.Select(ch => ch.ToString())
               // phrases
-              .Concat(ComparitorPhrases.Except(new []{"NOT"}).Select(phrase => $" {phrase} "))
+              .Concat(ComparitorPhrases)
               .Append(LogicStartSymbol.ToString())
-              .Append(LogicEndSymbol.ToString()),
+              .Append(LogicEndSymbol.ToString())
+              .Append(FunctionSeperatorSymbol.ToString()),
             out string foundConditionOrEnding
           );
 
@@ -729,8 +805,6 @@ namespace Overworld.Script {
             string foundNot = null;
             if(conditionLogicContainerDepth > 0) {
               throw new ArgumentException($"Condition closure not closed. Add a ')'");
-            } else if(fullRemainingLineText.StartsWith(new string[] { "NOT-", "!" }, out foundNot)) {
-              comparitor = Comparitors.NOT;
             } else {
               comparitor = Comparitors.IDENTITY;
             }
@@ -758,6 +832,23 @@ namespace Overworld.Script {
             leftConditionText = string.IsNullOrWhiteSpace(leftConditionText) 
               ? parsed
               : leftConditionText;
+
+            // If it's not, trim, and return a NOT of the actual comparitor:
+            if(foundConditionOrEnding == NotComparitorPrefixPhrase || foundConditionOrEnding[0] == (char)Comparitors.NOT) {
+              comparitor = Comparitors.NOT;
+              fullRemainingLineText = fullRemainingLineText[foundConditionOrEnding.Length..];
+              return Command.Types.Get<Condition.Type>().Make(Program, new[] {
+                _parseCondition(ref fullRemainingLineText, lineNumber)
+              }, comparitor);
+            }
+
+            if(foundConditionOrEnding.EndsWith(FunctionSeperatorSymbol)) {
+              if(Program.Context.Commands.ContainsKey(leftConditionText.Trim())) {
+                identityCondition = _parseCommand(ref fullRemainingLineText, lineNumber);
+              } else
+                identityCondition = _parseCondition(ref leftConditionText, lineNumber);
+            }
+
             parsed += fullRemainingLineText[..foundConditionOrEnding.Length];
             fullRemainingLineText = fullRemainingLineText[foundConditionOrEnding.Length..];
 
@@ -838,12 +929,12 @@ namespace Overworld.Script {
       /// </summary>
       Variable _makeExistingVariable(string variableName) {
         // check if it's a global, then program, then local character variable
-        if(Program.TryToGetVariableByName(variableName, out Variable variable)) {
+        /*if(Program.TryToGetVariableByName(variableName, out Variable variable)) {
           return variable;
         } // as a last resort, assume it's a char specific variable:
-        else {
-          return new CharacterSpecificVariable(Program, variableName);
-        }
+        else {*/
+          return new ScopedVariable(Program, variableName);
+        /*}*/
       }
 
       /// <summary>

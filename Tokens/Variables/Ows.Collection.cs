@@ -31,16 +31,14 @@ namespace Overworld.Script {
     public class Collection<TValue> : Collection, IParameter
       where TValue : Variable 
     {
-
       public new IList<TValue> Value
-        => _value ?? base.Value.Cast<TValue>().ToList();
-      IList < TValue > _value;
+        => base.Value.Cast<TValue>().ToList();
 
       /// <summary>
       /// Gets the compiled collection for the executor
       /// </summary>
       Variable IParameter.GetUltimateVariableFor(Command.Context context)
-        => new Collection<TValue>(Program, (IList)_value 
+        => new Collection<TValue>(Program, (IList)Value
           ?? Value.Cast<IParameter>()
               .Select(param => param.GetUltimateVariableFor(context))
               .Cast<TValue>()

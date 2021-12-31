@@ -17,8 +17,8 @@ namespace Overworld.Script {
           => base.Value = value;
       }
 
-      internal VariableMap(Program program, Dictionary<string, Variable> values)
-        : base(program, values) { }
+      internal VariableMap(Program program, Dictionary<string, IParameter> values = null)
+        : base(program, values ?? new Dictionary<string, IParameter>()) { }
     }
   }
 }

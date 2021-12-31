@@ -1,7 +1,4 @@
-﻿using Meep.Tech.Data.Utility;
-using System;
-using System.Collections.Generic;
-using System.Linq;
+﻿using System;
 
 namespace Overworld.Script {
 
@@ -18,6 +15,7 @@ namespace Overworld.Script {
               new("IF-NOT"),
               new[] {
                 typeof(IConditional),
+                typeof(Command),
                 typeof(Command)
               }
             ) {
@@ -28,6 +26,9 @@ namespace Overworld.Script {
         } = context => {
           if(context.GetUltimateParameterVariable<Boolean>(0).Not.Value) {
             return (context.OrderedParameters[1] as Command).ExecuteUltimateCommandFor(context);
+          }// if there's an else:
+          else if(context.OrderedParameters[2] is not null) {
+            return (context.OrderedParameters[2] as Command).ExecuteUltimateCommandFor(context);
           }
 
           return null;

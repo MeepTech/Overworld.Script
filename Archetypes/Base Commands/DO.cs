@@ -1,8 +1,4 @@
-﻿using Meep.Tech.Data.Utility;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+﻿using System;
 
 namespace Overworld.Script {
 
@@ -16,8 +12,7 @@ namespace Overworld.Script {
               new("DO"),
               new[] {
                 typeof(String),
-                typeof(Ows.VariableMap),
-                typeof(Number)
+                typeof(Ows.VariableMap)
               }
             ) {
         }
@@ -25,21 +20,14 @@ namespace Overworld.Script {
         public override Func<Context, Variable> Execute {
           get;
         } = context => {
-          string labelText = context.GetUltimateParameterVariable<String>(0).Value;
-          if(context.Command.Program._labelsByLineNumber.ContainsKey(labelText)) {
-            return context.Command.Program._executeAllStartingAtLine(
-              context.Command.Program._labelsByLineNumber[labelText],
-              context.Executor,
-              context.GetUltimateParameterVariable<Number>(2).IntValue
-              // TODO: add temp scope params here:
-            );
-          }
-          else
-            return context.Command.Program._executeAllStartingAtLine(
-              context.Command.Program._labelsByLineNumber[context.TryToGetVariableByName<String>(labelText).Value],
-              context.Executor,
-              context.GetUltimateParameterVariable<Number>(2).IntValue
-            );
+          String labelText = context.GetUltimateParameterVariable<String>(0);
+          return new DoWithStartResult(
+            context.Command.Program,
+            labelText
+          ) {
+            _scopedParams = context.GetUltimateParameterVariable<VariableMap>(1),
+            _targetLineNumber = context.Command.Program.GetLineNumberForLabel(labelText.Value, context)
+          };
         };
       }
     }

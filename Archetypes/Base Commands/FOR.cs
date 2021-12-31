@@ -1,6 +1,4 @@
-﻿using Meep.Tech.Data.Utility;
-using System;
-using System.Collections.Generic;
+﻿using System;
 using System.Linq;
 
 namespace Overworld.Script {
@@ -33,8 +31,8 @@ namespace Overworld.Script {
             IParameter result = ( context.OrderedParameters[1] as Command)
               .ExecuteUltimateCommandFor(context);
 
-            index.RawValue = ((Number)loopOpperator
-              .ExecuteUltimateCommandFor(context)).RawValue;
+            index.Value = ((Number)loopOpperator
+              .ExecuteUltimateCommandFor(context)).Value;
           }
 
           return null;

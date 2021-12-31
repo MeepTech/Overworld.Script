@@ -4,15 +4,14 @@ namespace Overworld.Script {
 
   public partial class Ows {
     public partial class Command {
-
       /// <summary>
-      /// Sets a value to a given key for the whole world
+      /// Sets a value passed via the do:with scope
       /// </summary>
-      public class SET_FOR_WORLD : SET {
+      public class SET_HERE : SET {
 
-        SET_FOR_WORLD()
+        SET_HERE()
           : base(
-              new("SET-FOR-WORLD"),
+              new("SET-HERE"),
               new[] {
                 typeof(String),
                 typeof(IParameter)
@@ -23,7 +22,11 @@ namespace Overworld.Script {
         public override Func<Context, Variable> Execute {
           get;
         } = context => {
-          Ows._globals[((String)context.OrderedParameters[0]).Value]
+          String variableName = (context.OrderedParameters[0] as String);
+          if(ReservedKeywords.Contains(variableName.Value)) {
+            throw new ArgumentException($"Tried to use reserved keyword as variable name: {variableName.Value}");
+          }
+          context._temporaryScopedVariables.Value[variableName.Value] 
             = context.GetUltimateParameterVariable(1);
 
           return null;

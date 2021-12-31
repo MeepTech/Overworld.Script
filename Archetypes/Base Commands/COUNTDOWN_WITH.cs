@@ -1,8 +1,5 @@
-﻿using Meep.Tech.Data;
-using Meep.Tech.Data.Utility;
-using System;
+﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 
 namespace Overworld.Script {
 
@@ -53,7 +50,7 @@ namespace Overworld.Script {
           Number index = context.GetUltimateParameterVariable<Number>(0);
           while(index.IntValue >= 0) {
             context.GetUltimateParameterVariable(1);
-            index.RawValue -= 1;
+            index.IntValue -= 1;
           }
 
           return null;

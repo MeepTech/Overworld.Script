@@ -72,6 +72,29 @@ namespace Overworld.Script {
     }
 
     /// <summary>
+    /// Get a full closure from begining to end, with subcolsurs included
+    /// </summary>
+    public static string UntilClosure(this string @string, char start, char end) {
+      var @return = "";
+      int depth = 1;
+      int index = 0;
+      @string = @string.After(start);
+
+      while(depth > 0 && index < @string.Count()) {
+        if(@string[index] == end) {
+          depth--; 
+        } else if(@string[index] == start) {
+          depth++;
+        }
+
+        @return += @string[index];
+        index++;
+      }
+
+      return @return[0..^1];
+    }
+
+    /// <summary>
     /// Get a string until a characher appears
     /// </summary>
     public static string UntilAny(this IEnumerable<char> @string, IEnumerable<string> enders, out string foundEnding) {

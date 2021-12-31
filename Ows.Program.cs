@@ -1,10 +1,8 @@
 ﻿using Meep.Tech.Data;
 using Meep.Tech.Data.Utility;
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text.RegularExpressions;
 
 namespace Overworld.Script {
 
@@ -107,6 +105,17 @@ namespace Overworld.Script {
         => _executeAllStartingAtLine(StartLine, character, null);
 
       /// <summary>
+      /// Try to get the line number from some label text
+      /// </summary>
+      public int GetLineNumberForLabel(string labelName, Command.Context context) {
+        if(_labelsByLineNumber.TryGetValue(labelName, out var found)) {
+          return found;
+        }
+        else
+          return _labelsByLineNumber[context.GetFirstVariable<String>(labelName, context.Executor.Id).Value];
+      }
+
+      /// <summary>
       /// Try to get a world or program level variable by name for this program
       /// </summary>
       public bool TryToGetVariableByName(string variableName, out Variable variable) {
@@ -199,6 +208,25 @@ namespace Overworld.Script {
       }
 
       /// <summary>
+      /// Try to get a character level varaible by name from the world or program 
+      /// </summary>
+      public bool TryToGetVariableByName(string characterId, string variableName, out Variable variable) {
+        // shadowing Program level locals first
+        if(_variablesByCharacter.TryGetValue(characterId, out var characterVars) && characterVars.TryGetValue(variableName, out var foundGlobal)) {
+          variable = foundGlobal;
+
+          return true;
+        } else if(Ows._globalVariablesByCharacter.TryGetValue(characterId, out var characterVars3) && characterVars3.TryGetValue(variableName, out var foundProgramLevel)) {
+          variable = foundProgramLevel;
+
+          return true;
+        }
+
+        variable = null;
+        return false;
+      }
+
+      /// <summary>
       /// Get a matching character by id or unique name
       /// TODO: these should be turned into modular object fetcher/builder plugins
       /// </summary>
@@ -227,7 +255,8 @@ namespace Overworld.Script {
       /// <summary>
       /// Execute the whole program, starting at the given line
       /// </summary>
-      internal Variable _executeAllStartingAtLine(int line, Data.Character character, int? fromLine = null) {
+      internal Variable _executeAllStartingAtLine(int line, Data.Character character, int? fromLine = null, VariableMap scopedVariables = null) {
+        Variable result = null;
         while(line <= LineCount) {
           while(!_commands.Contains(line)) {
             line++;
@@ -243,29 +272,60 @@ namespace Overworld.Script {
 
           /// END
           if(command.Archetype is Command.END) {
-            return null;
+            return new EndResult(this);
           }
 
           // GO-TO
           if(command.Archetype is Command.GO_TO) {
-            command._executeWithExtraParams(character, new List<IParameter> { new Number(this, line) });
+            try {
+              command._executeWithExtraParams(character, new List<IParameter> { new Number(this, line) }, scopedVariables);
+            } catch (InvalidOperationException e) {
+              throw new InvalidOperationException($"Failed to execute GOTO on line {line}.", e);
+            }
             // if it was a goto command, it is expected to have finished the rest itself.
             break;
           } // GO-BACK is implimented here:
           else if(command.Archetype is Command.GO_BACK) {
             if(fromLine.HasValue) {
+              fromLine = line;
               line = fromLine.Value + 1;
-              fromLine = null;
+              result = null;
+              continue;
             } else
-              throw new ArgumentNullException($"No available From Line to go back to. GO-BACK should only work once.");
+              throw new ArgumentNullException($"No available From Line to go back to. GO-BACK may only work once.");
           }
 
-          Variable result 
-            = command.ExecuteFor(character);
+          try {
+            if(scopedVariables != null) {
+              result
+                 = command._executeWithExtraParams(character, scopedParameters: scopedVariables);
+            }
+            else {
+              result
+                = command.ExecuteFor(character);
+            }
+          }
+          catch(InvalidOperationException e) {
+            throw new InvalidOperationException($"Failed to execute command: {command}, on line: {line}.", e);
+          }
+
+          // DOWITH Call:
+          if(result is DoWithStartResult doWithStart) {
+            result = _executeAllStartingAtLine(
+             doWithStart._targetLineNumber,
+             character,
+             line,
+             doWithStart._scopedParams
+            );
+          }
+
+          if(result is EndResult) {
+            break;
+          }
 
           /// RETURN
           if(result is ReturnResult returnResult) {
-            return returnResult.Value;
+            break;
           }
 
           // break if we came back from a goto
@@ -277,8 +337,21 @@ namespace Overworld.Script {
           line++;
         }
 
-        return fromLine != null
-          ? new GoToResult(this, fromLine)
+        if(result is EndResult) {
+          return null;
+        }
+
+        if(fromLine != null) {
+          if(result is ReturnResult) {
+            return result;
+          }
+          return result is GoToResult existing
+             ? existing
+             : new GoToResult(this) { _fromLine = line};
+        }
+
+        return result is ReturnResult
+          ? result
           : null;
       }
 

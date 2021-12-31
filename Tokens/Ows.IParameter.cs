@@ -11,25 +11,20 @@ namespace Overworld.Script {
       /// <summary>
       /// Get the ultimate value from a parameter
       /// </summary>
-      public object GetUltimateValueFor(Command.Context context) {
-        IParameter current = this;
-        // while executable returned, reduce it
-        while(current is Command command) {
-          current = command._executeWith(context._swapTo(command));
-        }
-
-        // return the ultimate value
-        return current?.Value;
-      }
+      public object GetUltimateValueFor(Command.Context context)
+        => GetUltimateVariableFor(context)?.Value;
 
       /// <summary>
       /// Get the ultimate variable from a parameter
       /// </summary>
       public Variable GetUltimateVariableFor(Command.Context context) {
         IParameter current = this;
+
         // while executable returned, reduce it
         while(current is Command command) {
-          current = command._executeWith(context._swapTo(command));
+          Command.Context derivedContext = context;
+          derivedContext._swapTo(command);
+          current = command._executeWith(derivedContext);
         }
 
         // return the ultimate value
@@ -41,16 +36,7 @@ namespace Overworld.Script {
       /// </summary>
       public TVariable GetUltimateVariableAs<TVariable>(Command.Context context)
         where TVariable : Variable
-      {
-        IParameter current = this;
-        // while executable returned, reduce it
-        while(current is Command command) {
-          current = command._executeWith(context._swapTo(command));
-        }
-
-        // return the ultimate value
-        return (TVariable)current;
-      }
+          => (TVariable)GetUltimateVariableFor(context);
     }
   }
 }

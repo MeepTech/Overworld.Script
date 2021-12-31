@@ -1,5 +1,4 @@
-﻿using Meep.Tech.Data.Utility;
-using System;
+﻿using System;
 using System.Collections.Generic;
 
 namespace Overworld.Script {
@@ -44,6 +43,9 @@ namespace Overworld.Script {
         /// Helper function to get the variables for a character safely
         /// </summary>
         protected static void SetLocalVariableForCharacter(Context context, string characterId, String variableName, IParameter value) {
+          if(ReservedKeywords.Contains(variableName.Value)) {
+            throw new ArgumentException($"Tried to use reserved keyword as variable name: {variableName.Value}");
+          }
           var characterSpecificCollection = context.Command.Program._variablesByCharacter.TryGetValue(characterId, out var found)
             ? found
             : (context.Command.Program._variablesByCharacter[characterId] = new Dictionary<string, Variable>());
@@ -60,6 +62,9 @@ namespace Overworld.Script {
         /// Helper function to get the variables for a character safely
         /// </summary>
         protected static void SetGlobalVariableForCharacter(Context context, string characterId, String variableName, IParameter value) {
+          if(ReservedKeywords.Contains(variableName.Value)) {
+            throw new ArgumentException($"Tried to use reserved keyword as variable name: {variableName.Value}");
+          }
           var characterSpecificCollection =  _globalVariablesByCharacter.TryGetValue(characterId, out var found)
             ? found
             : (_globalVariablesByCharacter[characterId] = new Dictionary<string, Variable>());

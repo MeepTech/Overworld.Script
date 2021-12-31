@@ -1,8 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using Meep.Tech.Data.Utility;
-using Overworld.Data;
 
 namespace Overworld.Script {
 
@@ -14,9 +10,9 @@ namespace Overworld.Script {
       /// </summary>
       public class GO_TO : Ows.Command.Type {
 
-        GO_TO()
+        protected GO_TO(Identity id)
           : base(
-              new("GO-TO"),
+              id ?? new("GO-TO"),
               new[] {
                 typeof(String),
                 typeof(Number)
@@ -28,18 +24,11 @@ namespace Overworld.Script {
           get;
         } = context => {
           string labelText = context.GetUltimateParameterVariable<String>(0).Value;
-          if(context.Command.Program._labelsByLineNumber.ContainsKey(labelText)) {
-            return context.Command.Program._executeAllStartingAtLine(
-              context.Command.Program._labelsByLineNumber[labelText],
-              context.Executor,
-              context.GetUltimateParameterVariable<Number>(1).IntValue
-            );
-          } else
-            return context.Command.Program._executeAllStartingAtLine(
-              context.Command.Program._labelsByLineNumber[context.TryToGetVariableByName<String>(labelText).Value],
-              context.Executor,
-              context.GetUltimateParameterVariable<Number>(1).IntValue
-            );
+          return context.Command.Program._executeAllStartingAtLine(
+            context.Command.Program.GetLineNumberForLabel(labelText, context),
+            context.Executor,
+            context.GetUltimateParameterVariable<Number>(1).IntValue
+          );
         };
       }
     }

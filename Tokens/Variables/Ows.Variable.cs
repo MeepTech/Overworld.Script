@@ -30,7 +30,7 @@
       public static Variable Make(Program program, string name, object @object) {
         switch(@object) {
           case string @string:
-            return new String(program, name, @string);
+            return new String(program, @string, name);
           case double number:
             return new Number(program, number, name);
           case int number:
