@@ -12,7 +12,7 @@ namespace Overworld.Script {
       public class END_AND_RETURN : Ows.Command.Type {
 
         public override IEnumerable<System.Type> ExpectedReturnTypes
-          => new System.Type[] { typeof(ReturnResult) };
+          => new System.Type[] { typeof(ReturnAllResult) };
 
         public override string Description 
           => $"This Command stops the program execution on the current line and ends all execution, providing a Return value back to the executor of the program";
@@ -29,9 +29,7 @@ namespace Overworld.Script {
         public override Func<Context, Variable> Execute {
           get;
         } = context =>
-          new ReturnResult(context.Command.Program, context.GetUltimateParameterVariable(0)) {
-            EndAll = true
-          };
+          new ReturnAllResult(context.Command.Program, context.GetUltimateParameterVariable(0));
       }
     }
   }

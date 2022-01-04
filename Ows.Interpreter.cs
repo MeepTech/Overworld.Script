@@ -243,7 +243,7 @@ namespace Overworld.Script {
             while(preCompiledLines[preCompiledLineIndex + 1].Trim().StartsWith("...")) {
               currentCommandText += preCompiledLines[preCompiledLineIndex + 1].Trim()[3..] + " ";
               preCompiledLineIndex++;
-              if(preCompiledLines.Length <= preCompiledLineIndex) {
+              if(preCompiledLines.Length <= (preCompiledLineIndex + 1)) {
                 break;
               }
             }
@@ -438,17 +438,26 @@ namespace Overworld.Script {
                 throw new ArgumentNullException($"Param #{2} : {commandType.ParameterTypes[1]}", $"Command : {commandType} is missing an expected parameter.");
               }
 
+              // on success:
               parameters.Add(
               _parseParam(
-                ref remainingCommandText,
-                commandType.ParameterTypes[1],
-                lineNumber));
+                  ref remainingCommandText,
+                  commandType.ParameterTypes[1],
+                  lineNumber
+                )
+              );
 
               specialCommandFound = true;
               if(remainingCommandText.Length > 0 && remainingCommandText.StartsWith(ElsePhrase)) {
                 remainingCommandText = remainingCommandText.Trim()[ElsePhrase.Length..].After(':');
                 // Add the else param:
-                parameters.Add(_parseCommand(ref remainingCommandText, lineNumber));
+                parameters.Add(
+                  _parseParam(
+                    ref remainingCommandText,
+                    commandType.ParameterTypes[2], 
+                    lineNumber
+                  )
+                );
               }
               else
                 parameters.Add(null);

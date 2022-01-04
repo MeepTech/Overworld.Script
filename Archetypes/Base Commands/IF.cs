@@ -19,8 +19,8 @@ namespace Overworld.Script {
               new("IF"),
               new[] {
                 typeof(IConditional),
-                typeof(Command),
-                typeof(Command)
+                typeof(IParameter),
+                typeof(IParameter)
               }
             ) {
         }
@@ -30,14 +30,14 @@ namespace Overworld.Script {
         } = context => {
           Variable @return;
           if(context.GetUltimateParameterVariable<Boolean>(0).Value) {
-            @return = (context.OrderedParameters[1] as Command).ExecuteUltimateCommandFor(context);
+            @return = context.GetUltimateParameterVariable(1);
           }// if there's an else:
           else if(context.OrderedParameters[2] is not null) {
-            @return = (context.OrderedParameters[2] as Command).ExecuteUltimateCommandFor(context);
+            @return = context.GetUltimateParameterVariable(2);
           } else
             @return = null;
 
-          return @return is ReturnResult result ? result.Value : @return;
+          return @return;
         };
       }
     }

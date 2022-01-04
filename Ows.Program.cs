@@ -112,20 +112,29 @@ namespace Overworld.Script {
         int startingLine = TryToGetLineNumberForLabel(startLabel ?? StartLabel, context)
           ?? StartLine;
 
-        return _executeAllStartingAtLine(
+        Variable @return = _executeAllStartingAtLine(
           startingLine,
           character
         );
+
+        return @return is ReturnAllResult allResult
+          ? allResult.Value
+          : @return;
       }
 
       /// <summary>
       /// Execute this program as a specific character
       /// </summary>
-      public Variable DebugAs(Data.Character character, Command.Context.DebugData debugData, string startLabel = StartLabel)
-        => _executeAllStartingAtLine(
+      public Variable DebugAs(Data.Character character, Command.Context.DebugData debugData, string startLabel = StartLabel) {
+        Variable @return =  _executeAllStartingAtLine(
           GetLineNumberForLabel(startLabel, new Command.Context(null, character)),
           character, null, debugData: debugData
         );
+
+        return @return is ReturnAllResult allResult
+          ? allResult.Value
+          : @return;
+      }
 
       /// <summary>
       /// Try to get the line number from some label text
@@ -298,7 +307,7 @@ namespace Overworld.Script {
         // For debugging:
         Command.Context.DebugData debugData = null
       ) {
-        Variable result = null;
+        Variable currentResult = null;
         while(line <= LineCount) {
           while(!_commands.Contains(line) || _commands[line] is null) {
             line++;
@@ -313,7 +322,9 @@ namespace Overworld.Script {
           Command command = _commands[(double)line];
           debugData?.BeforeLine?.Invoke(new Command.Context(command, character, null, scopedVariables, null), line);
 
-          /// END
+          /// Try to call the special command:
+           
+          // END
           if(command.Archetype is Command.END) {
             return new EndResult(this);
           }
@@ -334,7 +345,7 @@ namespace Overworld.Script {
             if(fromLine.HasValue) {
               fromLine = line;
               line = fromLine.Value + 1;
-              result = null;
+              currentResult = null;
 
               debugData?.AfterLine?.Invoke(new Command.Context(command, character, null, scopedVariables, null), line);
               continue;
@@ -342,18 +353,19 @@ namespace Overworld.Script {
               throw new ArgumentNullException($"No available From Line to go back to");
           }
 
+          // Try to call the normal command:
           try {
             if(scopedVariables != null) {
-              result
+              currentResult
                  = command._executeWithExtraParams(character, scopedParameters: scopedVariables, debugData: debugData);
             }
             else {
               if(debugData is not null) {
-                result
+                currentResult
                   = command._executeWithExtraParams(character, debugData: debugData);
               }
               else {
-                result
+                currentResult
                   = command.ExecuteFor(character);
               }
             }
@@ -363,34 +375,45 @@ namespace Overworld.Script {
             throw new InvalidOperationException($"Failed to execute command: {command}, on line: {line}.", e);
           }
 
-          EndResult endResult = result as EndResult;
-          ReturnResult returnResult = result as ReturnResult;
-          if(returnResult is not null || endResult is not null || result is GoToResult) {
-            if(endResult is not null || (returnResult?.EndAll ?? false)) {
-              return returnResult ?? endResult as Variable;
-            }
-            break;
-          } 
+          // These break the whole program.
+          EndResult endResult = currentResult as EndResult;
+          ReturnAllResult returnAllResult = currentResult as ReturnAllResult;
+          if(returnAllResult is not null || endResult is not null || currentResult is GoToResult) {
+            return returnAllResult ?? endResult as Variable;
+          }
+
+          // just a single level return
+          if(currentResult is ReturnResult returnResult) {
+            return returnResult.Value;
+          }
 
           line++;
         }
 
-        if(result is EndResult) {
+        // final returns. End returns nothing
+        if(currentResult is EndResult) {
           return null;
         }
 
+        // return all continues down the line
+        if(currentResult is ReturnAllResult) {
+          return currentResult;
+        }
+
+        // simple return just returns the value
+        if(currentResult is ReturnResult @return) {
+          return @return.Value;
+        }
+
+        // return a goto result if it's a goto and we have a from line
         if(fromLine != null) {
-          if(result is ReturnResult) {
-            return result;
-          }
-          return result is GoToResult existing
+          // goto also continues
+          return currentResult is GoToResult existing
              ? existing
              : new GoToResult(this) { _fromLine = line};
         }
 
-        return result is ReturnResult
-          ? result
-          : null;
+        return null;
       }
 
       /// <summary>

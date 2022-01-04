@@ -11,7 +11,7 @@ namespace Overworld.Script {
       public class RETURN : Ows.Command.Type {
 
         public override IEnumerable<System.Type> ExpectedReturnTypes
-          => new System.Type[] { typeof(ReturnResult) };
+          => new System.Type[] { typeof(ReturnAllResult) };
 
         public override string Description 
           => $"This Command stops the program execution on the current line, and GO-BACK's to the line it last came from, providing a Return value back to the executor";

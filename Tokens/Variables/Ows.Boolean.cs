@@ -46,7 +46,7 @@
         => this;
 
       public override string ToString()
-        => Value ? "TRUE" : "FALSE";
+        => Value == true ? "TRUE" : "FALSE";
     }
   }
 }
