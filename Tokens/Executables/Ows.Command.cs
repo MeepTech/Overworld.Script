@@ -35,7 +35,7 @@ namespace Overworld.Script {
       /// </summary>
       public virtual IEnumerable<IParameter> Parameters
         => _parameters;
-      List<IParameter> _parameters {
+      internal List<IParameter> _parameters {
         get;
       }
 
@@ -89,14 +89,48 @@ namespace Overworld.Script {
           Data.Character executor,
           IList<IParameter> extraParameters = null,
           VariableMap scopedParameters = null,
-          Index indexReplacement = null)
-        => _executeWith(new Context(this, executor, extraParameters, scopedParameters, indexReplacement));
+          Index indexReplacement = null,
+          Context.DebugData debugData = null
+        ) => _executeWith(new Context(this, executor, extraParameters, scopedParameters, indexReplacement) { _debugData = debugData });
 
       /// <summary>
       /// Execute this command for the given character
       /// </summary>
       protected internal virtual Variable _executeWith(Context context)
-        => Archetype.Execute(context);
+        => _execute(context);
+
+      /// <summary>
+      /// Execution internal logic
+      /// </summary>
+      protected Variable _execute(Context context) {
+        context._debugData?.BeforeCommandExecution?.Invoke(context);
+        return Archetype.Execute(context);
+      }
+
+      public override string ToString() {
+        if(Archetype is StringConcatinator.Type) {
+          return $"{_parameters[0]} AND {_parameters[1]}";
+        }
+
+        if(Archetype is Command.SET) {
+          return $"SET : {_parameters[0].Value} TO {_parameters[1]}";
+        }
+
+        if(Archetype is Command.GO_TO) {
+          return $"GO-TO : {_parameters[0].Value}";
+        }
+
+        if(Archetype is Command.DO) {
+          return $"DO : {_parameters[0].Value} {_parameters[1]}";
+        }
+
+        string @return = Archetype.Id.Name.ToString().ToUpper();
+        foreach(IParameter parameter in _parameters) {
+          @return += " : " + parameter.ToString();
+        }
+
+        return @return;
+      }
     }
   }
 }

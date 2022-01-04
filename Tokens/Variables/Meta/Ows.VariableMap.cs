@@ -1,4 +1,6 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace Overworld.Script {
 
@@ -18,7 +20,23 @@ namespace Overworld.Script {
       }
 
       internal VariableMap(Program program, Dictionary<string, IParameter> values = null)
-        : base(program, values ?? new Dictionary<string, IParameter>()) { }
+        : base(program, values ?? new Dictionary<string, IParameter>()) {
+      }
+
+      public override string ToString() {
+        if(!Value.Any()) {
+          return "";
+        }
+
+        string @return = ConcatPhrase + " [ ";
+        @return += string.Join(
+          " AND ", 
+          Value.Select(item => $"{item.Key} {SetsAsPhrase} {item.Value}")
+        );
+        @return += " ]";
+
+        return @return;
+      }
     }
   }
 }

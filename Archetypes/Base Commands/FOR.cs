@@ -24,7 +24,7 @@ namespace Overworld.Script {
         public override Func<Context, Variable> Execute {
           get;
         } = context => {
-          Condition endCondition = context.OrderedParameters[0] as Condition;
+          IConditional endCondition = (IConditional)context.OrderedParameters[0];
           MathOpperator loopOpperator =  context.OrderedParameters[1] as MathOpperator;
           Number index = loopOpperator.Parameters.First() as Number;
           while(endCondition.ComputeFor(context.Executor).Value) {

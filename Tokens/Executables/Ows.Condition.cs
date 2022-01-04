@@ -58,6 +58,15 @@ namespace Overworld.Script {
       /// </summary>
       public Boolean ComputeFor(Data.Character executor)
         => (Boolean)ExecuteFor(executor);
+
+      public override string ToString()
+        => _parameters[1] is not null
+          ? $"({_parameters[0]} {Comparitor} {_parameters[1]})"
+          : Comparitor == Comparitors.IDENTITY
+            ? $"{_parameters[0]}"
+            : Comparitor == Comparitors.NOT
+              ? $"{Comparitor}-{_parameters[0]}"
+              : throw new System.ArgumentException($"Incorrect number of parameters for math opperator of type: {Comparitor}");
     }
   }
 }

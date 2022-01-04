@@ -12,9 +12,7 @@ namespace Overworld.Script {
         GO_BACK()
           : base(
               new("GO-BACK"),
-              new[] {
-                typeof(Number)
-              }
+              new System.Type[0]
             ) {
         }
 

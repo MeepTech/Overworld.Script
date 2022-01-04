@@ -27,7 +27,9 @@ namespace Overworld.Script {
           return context.Command.Program._executeAllStartingAtLine(
             context.Command.Program.GetLineNumberForLabel(labelText, context),
             context.Executor,
-            context.GetUltimateParameterVariable<Number>(1).IntValue
+            context.GetUltimateParameterVariable<Number>(1).IntValue,
+            null,
+            context._debugData
           );
         };
       }

@@ -6,7 +6,7 @@
     /// A string variable in an Ows program
     // TODO: add {Value} syntax
     /// </summary>
-    public class String : Variable {
+    public class String : Variable, ITextual {
 
       /// <summary>
       /// <inheritdoc/>
@@ -21,6 +21,9 @@
       /// </summary>
       public String(Program program, string value, string name = null) 
         : base(program, value, name) {}
+
+      public override string ToString()
+        => $"\"{Value}\"";
     }
   }
 }

@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -9,43 +10,63 @@ namespace Overworld.Script {
 
     /// <summary>
     /// A collection of values.
-    /// Rarely used.
     /// </summary>
-    public abstract class Collection : Variable {
+    public class Collection : Variable, IParameter {
 
-      public new ArrayList Value {
+      /// <summary>
+      /// If this collection is restricted to a type:
+      /// </summary>
+      public System.Type RestrictedToType {
+        get;
+      }
+
+      public new List<IParameter> Value {
         get
-        => (ArrayList)base.Value;
+        => (List<IParameter>)base.Value;
         internal set 
           => base.Value = value;
       }
 
-      protected Collection(Program program, ICollection value, string name = null)
-        : base(program, value, name) { }
-    }
-
-    /// <summary>
-    /// A collection of values.
-    /// Rarely used.
-    /// </summary>
-    public class Collection<TValue> : Collection, IParameter
-      where TValue : Variable 
-    {
-      public new IList<TValue> Value
-        => base.Value.Cast<TValue>().ToList();
-
       /// <summary>
       /// Gets the compiled collection for the executor
       /// </summary>
-      Variable IParameter.GetUltimateVariableFor(Command.Context context)
-        => new Collection<TValue>(Program, (IList)Value
-          ?? Value.Cast<IParameter>()
-              .Select(param => param.GetUltimateVariableFor(context))
-              .Cast<TValue>()
-              .ToList());
+      Variable IParameter.GetUltimateVariableFor(Command.Context context) {
+        ArrayList values = new ArrayList();
+        foreach(IParameter item in Value) {
+          Variable variable = item.GetUltimateVariableFor(context);
+          if(RestrictedToType != null) {
+            if(!RestrictedToType.IsAssignableFrom(variable.GetType())) {
+              throw new System.ArgumentException($"Incorrect item type: {variable.GetType()}, added to collection of type {RestrictedToType.Name}.");
+            }
+          }
+          values.Add(variable);
+        }
 
-      public Collection(Program program, IList value, string name = null) 
-        : base(program, value, name) {}
+        return new Collection(context.Command.Program, values, RestrictedToType);
+      }
+
+      public Collection(Program program, ICollection value, System.Type restrictTo = null, string name = null)
+        : base(program, value, name) {
+        RestrictedToType = restrictTo;
+      }
+
+      public override string ToString()
+        => $"[ {string.Join(" AND ", Value)} ]";
+    }
+
+    /// <summary>
+    /// Used to show what type of collection a command wants.
+    /// </summary>
+    /// <typeparam name="TValue"></typeparam>
+    public abstract class Collection<TValue>
+      : Collection where TValue : Variable {
+
+      public new List<TValue> Value {
+        get => base.Value.Cast<TValue>().ToList();
+      }
+
+      protected Collection(Program program, ICollection value, Type restrictTo = null, string name = null) 
+        : base(program, value, restrictTo, name) {}
     }
   }
 }

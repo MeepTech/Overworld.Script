@@ -5,6 +5,7 @@ namespace Overworld.Script {
 
   public partial class Ows {
     public partial class Command {
+
       /// <summary>
       /// Un-sets any value for a given key for the local character
       /// </summary>

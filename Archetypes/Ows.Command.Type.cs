@@ -40,6 +40,7 @@ namespace Overworld.Script {
         /// Optional:
 
         /// A type of token this command is expected to return
+        /// If it can return null, place null last.
         public virtual IEnumerable<System.Type> ExpectedReturnTypes {
           get;
         } = new[] { typeof(Token), null };

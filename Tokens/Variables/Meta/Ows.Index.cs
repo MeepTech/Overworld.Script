@@ -4,7 +4,7 @@
     /// <summary>
     /// Represents an index for a For loop
     /// </summary>
-    public class Index : Number {
+    public class Index : Number, INumeric {
       internal Index(Program program, int value) 
         : base(program, value, null) {}
 
@@ -15,6 +15,9 @@
       public void Decrement() {
         Value = IntValue - 1;
       }
+
+      public override string ToString()
+        => "LOOP-INDEX";
     }
   }
 }

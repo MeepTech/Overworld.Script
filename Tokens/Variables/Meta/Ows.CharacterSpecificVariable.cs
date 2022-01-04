@@ -16,6 +16,9 @@ namespace Overworld.Script {
 
       internal ScopedVariable(Program program, string name)
         : base(program, null, name) {}
+
+      public override string ToString()
+        => Name;
     }
   }
 }

@@ -44,6 +44,9 @@
       /// </summary>
       public Boolean ComputeFor(Data.Character character)
         => this;
+
+      public override string ToString()
+        => Value ? "TRUE" : "FALSE";
     }
   }
 }

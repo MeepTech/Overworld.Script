@@ -6,7 +6,7 @@ namespace Overworld.Script {
   public partial class Ows {
     public partial class Command {
       /// <summary>
-      /// Ends the program and returns a value to the compiler
+      /// returns a value to the kube that this came from.
       /// </summary>
       public class RETURN : Ows.Command.Type {
 

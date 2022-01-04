@@ -12,7 +12,8 @@ namespace Overworld.Script {
               new("DO"),
               new[] {
                 typeof(String),
-                typeof(Ows.VariableMap)
+                typeof(Ows.VariableMap),
+                typeof(Number)
               }
             ) {
         }
@@ -21,13 +22,13 @@ namespace Overworld.Script {
           get;
         } = context => {
           String labelText = context.GetUltimateParameterVariable<String>(0);
-          return new DoWithStartResult(
-            context.Command.Program,
-            labelText
-          ) {
-            _scopedParams = context.GetUltimateParameterVariable<VariableMap>(1),
-            _targetLineNumber = context.Command.Program.GetLineNumberForLabel(labelText.Value, context)
-          };
+          return context.Command.Program._executeAllStartingAtLine(
+            context.Command.Program.GetLineNumberForLabel(labelText.Value, context),
+            context.Executor,
+            context.GetUltimateParameterVariable<Number>(2).IntValue,
+            context.GetUltimateParameterVariable<VariableMap>(1),
+            context._debugData
+          );
         };
       }
     }

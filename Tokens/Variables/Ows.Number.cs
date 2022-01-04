@@ -1,7 +1,8 @@
 ﻿namespace Overworld.Script {
 
   public static partial class Ows {
-    public class Number : Variable {
+
+    public class Number : Variable, INumeric {
 
       public override object Value {
         get => base.Value;
@@ -29,6 +30,11 @@
 
       public Number(Program program, double value, string name = null) 
         : base(program, value, name) {}
+
+      public override string ToString() 
+        => ((double)IntValue) == DoubleValue
+          ? IntValue.ToString()
+          : DoubleValue.ToString();
     }
   }
 }

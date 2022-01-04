@@ -4,6 +4,9 @@ using System.Linq;
 
 namespace Overworld.Script {
   public static class StringExtensions {
+    public static IEnumerable<T> SingleItemAsEnumerable<T>(this T item) {
+      yield return item;
+    }
 
     /// <summary>
     /// Get a string until a characher appears

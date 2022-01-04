@@ -24,14 +24,19 @@ namespace Overworld.Script {
         public override Func<Context, Variable> Execute {
           get;
         } = context => {
+          Variable @return;
           if(context.GetUltimateParameterVariable<Boolean>(0).Not.Value) {
-            return (context.OrderedParameters[1] as Command).ExecuteUltimateCommandFor(context);
+            @return = (context.OrderedParameters[1] as Command).ExecuteUltimateCommandFor(context);
           }// if there's an else:
           else if(context.OrderedParameters[2] is not null) {
-            return (context.OrderedParameters[2] as Command).ExecuteUltimateCommandFor(context);
+            @return = (context.OrderedParameters[2] as Command).ExecuteUltimateCommandFor(context);
           }
+          else
+            @return = null;
 
-          return null;
+          return @return is ReturnResult result 
+            ? result.Value 
+            : @return;
         };
       }
     }

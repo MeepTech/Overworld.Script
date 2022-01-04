@@ -81,7 +81,13 @@ namespace Overworld.Script {
       /// <summary>
       /// Label name keys and what line they relate to
       /// </summary>
-      internal Dictionary<string, int> _labelsByLineNumber
+      internal Dictionary<string, int> _labelsWithLineNumber
+        = new();
+
+      /// <summary>
+      /// Label name keys and what line they relate to
+      /// </summary>
+      internal Dictionary<int, string> _labelsByLineNumber
         = new();
 
       /// <summary>
@@ -101,18 +107,47 @@ namespace Overworld.Script {
       /// Execute this program as a specific character
       /// TODO: Runs should be wrapped in an object.
       /// </summary>
-      public Variable ExecuteAs(Data.Character character)
-        => _executeAllStartingAtLine(StartLine, character, null);
+      public Variable ExecuteAs(Data.Character character, string startLabel = StartLabel) {
+        Command.Context context = new(null, character, overrideProgram: this);
+        int startingLine = TryToGetLineNumberForLabel(startLabel ?? StartLabel, context)
+          ?? StartLine;
+
+        return _executeAllStartingAtLine(
+          startingLine,
+          character
+        );
+      }
+
+      /// <summary>
+      /// Execute this program as a specific character
+      /// </summary>
+      public Variable DebugAs(Data.Character character, Command.Context.DebugData debugData, string startLabel = StartLabel)
+        => _executeAllStartingAtLine(
+          GetLineNumberForLabel(startLabel, new Command.Context(null, character)),
+          character, null, debugData: debugData
+        );
 
       /// <summary>
       /// Try to get the line number from some label text
       /// </summary>
       public int GetLineNumberForLabel(string labelName, Command.Context context) {
-        if(_labelsByLineNumber.TryGetValue(labelName, out var found)) {
+        if(_labelsWithLineNumber.TryGetValue(labelName, out var found)) {
           return found;
         }
         else
-          return _labelsByLineNumber[context.GetFirstVariable<String>(labelName, context.Executor.Id).Value];
+          return _labelsWithLineNumber[context.GetFirstVariable<String>(labelName, context.Executor.Id).Value];
+      }
+      /// <summary>
+      /// Try to get the line number from some label text
+      /// </summary>
+      public int? TryToGetLineNumberForLabel(string labelName, Command.Context context) {
+        if(_labelsWithLineNumber.TryGetValue(labelName, out var found)) {
+          return found;
+        }
+        else
+          return _labelsWithLineNumber.TryGetValue(context.TryToGetFirstVariable<String>(labelName, context.Executor.Id)?.Value ?? "-1", out int lineNumber)
+            ? lineNumber
+            : null;
       }
 
       /// <summary>
@@ -255,10 +290,17 @@ namespace Overworld.Script {
       /// <summary>
       /// Execute the whole program, starting at the given line
       /// </summary>
-      internal Variable _executeAllStartingAtLine(int line, Data.Character character, int? fromLine = null, VariableMap scopedVariables = null) {
+      internal Variable _executeAllStartingAtLine(
+        int line,
+        Data.Character character,
+        int? fromLine = null,
+        VariableMap scopedVariables = null,
+        // For debugging:
+        Command.Context.DebugData debugData = null
+      ) {
         Variable result = null;
         while(line <= LineCount) {
-          while(!_commands.Contains(line)) {
+          while(!_commands.Contains(line) || _commands[line] is null) {
             line++;
             if(line > LineCount) {
               break;
@@ -269,6 +311,7 @@ namespace Overworld.Script {
           }
 
           Command command = _commands[(double)line];
+          debugData?.BeforeLine?.Invoke(new Command.Context(command, character, null, scopedVariables, null), line);
 
           /// END
           if(command.Archetype is Command.END) {
@@ -278,11 +321,13 @@ namespace Overworld.Script {
           // GO-TO
           if(command.Archetype is Command.GO_TO) {
             try {
-              command._executeWithExtraParams(character, new List<IParameter> { new Number(this, line) }, scopedVariables);
+              command._executeWithExtraParams(character, new List<IParameter> { new Number(this, line) }, scopedVariables, debugData: debugData);
             } catch (InvalidOperationException e) {
               throw new InvalidOperationException($"Failed to execute GOTO on line {line}.", e);
             }
+
             // if it was a goto command, it is expected to have finished the rest itself.
+            debugData.AfterLine?.Invoke(new Command.Context(command, character, new List<IParameter> { new Number(this, line) }, scopedVariables, null), line);
             break;
           } // GO-BACK is implimented here:
           else if(command.Archetype is Command.GO_BACK) {
@@ -290,49 +335,42 @@ namespace Overworld.Script {
               fromLine = line;
               line = fromLine.Value + 1;
               result = null;
+
+              debugData?.AfterLine?.Invoke(new Command.Context(command, character, null, scopedVariables, null), line);
               continue;
             } else
-              throw new ArgumentNullException($"No available From Line to go back to. GO-BACK may only work once.");
+              throw new ArgumentNullException($"No available From Line to go back to");
           }
 
           try {
             if(scopedVariables != null) {
               result
-                 = command._executeWithExtraParams(character, scopedParameters: scopedVariables);
+                 = command._executeWithExtraParams(character, scopedParameters: scopedVariables, debugData: debugData);
             }
             else {
-              result
-                = command.ExecuteFor(character);
+              if(debugData is not null) {
+                result
+                  = command._executeWithExtraParams(character, debugData: debugData);
+              }
+              else {
+                result
+                  = command.ExecuteFor(character);
+              }
             }
+            debugData?.AfterLine?.Invoke(new Command.Context(command, character, new List<IParameter> { new Number(this, line) }, scopedVariables, null), line);
           }
           catch(InvalidOperationException e) {
             throw new InvalidOperationException($"Failed to execute command: {command}, on line: {line}.", e);
           }
 
-          // DOWITH Call:
-          if(result is DoWithStartResult doWithStart) {
-            result = _executeAllStartingAtLine(
-             doWithStart._targetLineNumber,
-             character,
-             line,
-             doWithStart._scopedParams
-            );
-          }
-
-          if(result is EndResult) {
+          EndResult endResult = result as EndResult;
+          ReturnResult returnResult = result as ReturnResult;
+          if(returnResult is not null || endResult is not null || result is GoToResult) {
+            if(endResult is not null || (returnResult?.EndAll ?? false)) {
+              return returnResult ?? endResult as Variable;
+            }
             break;
-          }
-
-          /// RETURN
-          if(result is ReturnResult returnResult) {
-            break;
-          }
-
-          // break if we came back from a goto
-          // TODO: this should return goto-result with a value.
-          if(result is GoToResult) {
-            break;
-          }
+          } 
 
           line++;
         }
@@ -365,11 +403,11 @@ namespace Overworld.Script {
 
         // TODO: Cache these and make these more modular
         if(collectionItemType.Equals(typeof(Character))) {
-          return new Collection<Character>(this, Context.Characters.Values.ToList());
+          return new Collection(this, Context.Characters.Values.ToList(), typeof(Character));
         } else if(collectionItemType.Equals(typeof(Entity))) {
-          return new Collection<Character>(this, Context.Characters.Values.ToList());
+          return new Collection(this, Context.Characters.Values.ToList(), typeof(Entity));
         } else
-          throw new NotSupportedException($"The ALL Syntax (*), can only be used with entities and characters atm");
+          throw new NotSupportedException($"The ALL Syntax (*), can only be used with entities and characters currently");
       }
 
       /// <summary>
@@ -437,6 +475,31 @@ namespace Overworld.Script {
         if(!isProgramLevel && _globals.ContainsKey(name)) {
           throw new ArgumentException(name, $"Cannot have another variable with a name matching existing top level Program variable: {name}");
         }
+      }
+
+      public override string ToString() {
+        string @program = "";
+        for(int line = 0; line <= LineCount; line++) {
+          if(line != 0) {
+            program += "\n";
+          }
+
+          string commandLineText = "";
+          if(_commands.Contains(line)) {
+            commandLineText += _commands[line]?.ToString() ?? "";
+          }
+
+          if(_labelsByLineNumber.TryGetValue(line, out string label)) {
+            commandLineText = $"[ {label} ]:" + (string.IsNullOrWhiteSpace(commandLineText)
+                ? "" 
+                : "\n")
+              +commandLineText;
+          }
+
+          program += commandLineText;
+        }
+
+        return program;
       }
     }
   }

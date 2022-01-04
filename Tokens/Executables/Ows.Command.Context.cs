@@ -15,6 +15,27 @@ namespace Overworld.Script {
       public struct Context : IEnumerable<IParameter> {
 
         /// <summary>
+        /// Debug data passed along with the context.
+        /// </summary>
+        public class DebugData {
+
+          /// <summary>
+          /// Executes before each command line
+          /// </summary>
+          public Action<Context, int> BeforeLine;
+
+          /// <summary>
+          /// Executes after each command line
+          /// </summary>
+          public Action<Context, int> AfterLine;
+
+          /// <summary>
+          /// Executes before each command line
+          /// </summary>
+          public Action<Context> BeforeCommandExecution;
+        }
+
+        /// <summary>
         /// The executed command
         /// </summary>
         public Command Command {
@@ -32,6 +53,7 @@ namespace Overworld.Script {
         internal readonly Index _indexReplacement;
         internal IList<IParameter> _extraParameters;
         List<IParameter> _compiledParameters;
+        internal DebugData _debugData;
 
         /// <summary>
         /// The ordered parameters passed to this command
@@ -44,14 +66,16 @@ namespace Overworld.Script {
           Data.Character executor,
           IList<IParameter> extraParameters = null,
           VariableMap scopedParameters = null,
-          Index indexReplacement = null
+          Index indexReplacement = null,
+          Program overrideProgram = null
         ) {
           Command = command;
           Executor = executor;
-          _temporaryScopedVariables = scopedParameters ?? new VariableMap(command.Program);
+          _temporaryScopedVariables = scopedParameters ?? new VariableMap(overrideProgram ?? command?.Program);
           _indexReplacement = indexReplacement;
           _compiledParameters = null;
           _extraParameters = extraParameters ?? Enumerable.Empty<IParameter>().ToList();
+          _debugData = null;
           _compileParams();
         }
 
@@ -62,7 +86,7 @@ namespace Overworld.Script {
           // TODO: is it faster to not copy this and remove the select?
           Context @this = this;
 
-          _compiledParameters = Command.Parameters?.Concat(_extraParameters)
+          _compiledParameters = Command?.Parameters?.Concat(_extraParameters)
             .Select(param => {
               if(param is PlaceholderIndex index) {
                 if(indexReplacement is null) {
@@ -76,7 +100,7 @@ namespace Overworld.Script {
               }
               else
                 return param;
-            })?.ToList();
+            })?.ToList() ?? new List<IParameter>();
         }
 
         void _recompileParams(IList<IParameter> extraParameters = null) {
@@ -232,7 +256,7 @@ namespace Overworld.Script {
         /// </summary>
         public TVariable GetUltimateParameterVariable<TVariable>(int index)
           where TVariable : Variable
-          => _compiledParameters[index].GetUltimateVariableAs<TVariable>(this);
+            => _compiledParameters[index].GetUltimateVariableAs<TVariable>(this);
 
         /// <summary>
         /// Best method for getting variables by name.

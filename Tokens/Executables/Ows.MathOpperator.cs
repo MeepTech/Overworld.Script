@@ -8,7 +8,7 @@ namespace Overworld.Script {
     /// A math opperator
     /// </summary>
     public partial class MathOpperator 
-      : Command
+      : Command, INumeric
     {
 
       /// <summary>
@@ -36,6 +36,13 @@ namespace Overworld.Script {
         // add the extra param of "this" to the end
         return base._executeWith(context.AddExtraParameter(this));
       }
+
+      public override string ToString()
+        => _parameters.Count > 1
+          ? $"({_parameters[0]} {Opperator} {_parameters[1]})"
+          : Opperator == Opperators.SQUARED
+            ? $"{_parameters[0]} {Opperator}"
+            : throw new System.ArgumentException($"Incorrect number of parameters for math opperator of type: {Opperator}");
     }
   }
 }

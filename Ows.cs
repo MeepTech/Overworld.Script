@@ -122,6 +122,7 @@ namespace Overworld.Script {
         Command.Types.Get<Command.DO>(),
         Command.Types.Get<Command.ELSE>(),
         Command.Types.Get<Command.END>(),
+        Command.Types.Get<Command.END_AND_RETURN>(),
         Command.Types.Get<Command.FOR>(),
         Command.Types.Get<Command.GO_BACK>(),
         Command.Types.Get<Command.GO_TO>(),
@@ -138,6 +139,8 @@ namespace Overworld.Script {
         Command.Types.Get<Command.SET_LOCALLY_FOR>(),
         Command.Types.Get<Command.UN_SET>(),
         Command.Types.Get<Command.UN_SET_FOR>(),
+        Command.Types.Get<Command.UN_SET_FOR_PROGRAM>(),
+        Command.Types.Get<Command.UN_SET_FOR_WORLD>(),
         Command.Types.Get<Command.UN_SET_LOCALLY>(),
         Command.Types.Get<Command.UN_SET_LOCALLY_FOR>(),
         Command.Types.Get<Command.UNTIL>(),
@@ -195,7 +198,6 @@ namespace Overworld.Script {
     /// An extra phrase that can be used with concatination
     /// </summary>
     public const string ConcatPhrase = "WITH";
-
 
     /// <summary>
     /// An extra phrase that can be used with concatination

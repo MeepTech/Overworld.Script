@@ -4,6 +4,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
+using System.Text.RegularExpressions;
 
 namespace Overworld.Script {
 
@@ -30,9 +31,15 @@ namespace Overworld.Script {
         => rawFiles.OrderBy(raw => raw.filename)
           .SelectMany(raw => raw.contents
           // TODO: make this an extension method for here and below uses
-            .Split(Environment.NewLine)
-              .SelectMany(line => line
-                .Split(LineEndAlternateSymbol, StringSplitOptions.RemoveEmptyEntries)));
+            .Split('\n').Select(s => s.Trim('\r'))
+            .SelectMany(line => {
+              if(line.Contains(';')) {
+                return line.Split(LineEndAlternateSymbol).Where(x => x.Any(c => c != ' '));
+              }
+
+              return line.SingleItemAsEnumerable();
+            })
+          );
 
       /// <summary>
       /// Join together several .ows files into a program
@@ -82,24 +89,45 @@ namespace Overworld.Script {
       /// </summary>
       /// <param name="rawLines">The raw lines of program text, starting from the initial entry point</param>
       /// <param name="preInitialLines">Lines that are placed before the default start point of the compiled program. These are useful for adding dependencies and such to a Program that you don't want run by default.</param>
-      public Program Build([NotNull] string rawLines, string preInitialLines = null)
-        => Build(rawLines
-            .Split(Environment.NewLine)
-              .SelectMany(line => line
-                .Split(LineEndAlternateSymbol, StringSplitOptions.RemoveEmptyEntries)),
-        preInitialLines?
-            .Split(Environment.NewLine)
-              .SelectMany(line => line
-                .Split(LineEndAlternateSymbol, StringSplitOptions.RemoveEmptyEntries)));
+      public Program Build([NotNull] string rawLines, string preInitialLines = null) {
+        var rawlinesSplitByNewline = rawLines
+          .Split('\n')
+          .Select(s => s.Trim('\r'))
+          // remove empty lines from beginning and end.
+          .SkipWhile(l => string.IsNullOrWhiteSpace(l))
+          .Reverse()
+          .SkipWhile(l => string.IsNullOrWhiteSpace(l))
+          .Reverse();
+        var rawLinesSplitByExtraLineEndChar = rawlinesSplitByNewline
+          .SelectMany(line => {
+            if(line.Contains(';')) {
+              return line.Split(LineEndAlternateSymbol).Where(x => x.Any(c => c != ' '));
+            }
+
+            return line.SingleItemAsEnumerable();
+          });
+
+        return Build(
+          rawLinesSplitByExtraLineEndChar,
+          preInitialLines?
+            .Split('\n').Select(s => s.Trim('\r'))
+            .SelectMany(line => {
+              if(line.Contains(';')) {
+                return line.Split(LineEndAlternateSymbol).Where(x => x.Any(c => c != ' '));
+              }
+
+              return line.SingleItemAsEnumerable();
+            })
+        );
+      }
 
       /// <summary>
       /// Build a new program from a single line of text
       /// </summary>
       /// <param name="rawLine">The single line of text to build from</param>
       public Command BuildLine([NotNull] string rawLine)
-        => Build(rawLine
-            .Split(LineEndAlternateSymbol, StringSplitOptions.RemoveEmptyEntries))
-              ._commands.First().Value;
+        => Build(rawLine)
+            ._commands.First().Value;
 
       /// <summary>
       /// Build a new program from a single line of text
@@ -107,11 +135,10 @@ namespace Overworld.Script {
       /// <param name="rawLine">The single line of text to build from</param>
       /// <param name="label">The label of the line if there is one</param>
       public Command BuildLine([NotNull] string rawLine, out string label) {
-        var program = Build(rawLine
-          .Split(LineEndAlternateSymbol, StringSplitOptions.RemoveEmptyEntries));
+        var program = Build(rawLine);
         
         var firstCommand = program._commands.First();
-        var firstLabel = program._labelsByLineNumber.FirstOrDefault();
+        var firstLabel = program._labelsWithLineNumber.FirstOrDefault();
         if(firstLabel.Key != null && firstLabel.Value != firstCommand.Key) {
           throw new System.InvalidOperationException($"Multi line command with label passed into BuildLine. Use Build instead");
         }
@@ -123,38 +150,65 @@ namespace Overworld.Script {
       /// <summary>
       /// Build a new program from a bunch of files
       /// </summary>
-      public Program Build(IEnumerable<string> rawLines, IEnumerable<string> preInitialLines = null) {
+      Program Build(IEnumerable<string> rawLines, IEnumerable<string> preInitialLines = null) {
         _cleanProgram();
 
         /// save the raw text
         preInitialLines ??= Enumerable.Empty<string>();
         preInitialLines = preInitialLines.ToUpperExeptStringLiterals();
         Program.PreStartRawText =
-          string.Join(Environment.NewLine, preInitialLines.SelectMany(
-            line => line.Split(
-              LineEndAlternateSymbol,
-              StringSplitOptions.RemoveEmptyEntries
-            )));
+          string.Join('\n', preInitialLines);
 
         rawLines = rawLines.ToUpperExeptStringLiterals();
-        Program.PostStartRawText ??= string.Join(Environment.NewLine, rawLines
-          .SelectMany(line => line
-            .Split(LineEndAlternateSymbol, StringSplitOptions.RemoveEmptyEntries))
-          ).Trim();
+        Program.PostStartRawText ??= string.Join('\n', rawLines);
 
         Program.RawText ??= string.Join(
-          Environment.NewLine,
+          '\n',
           rawLines.Concat(preInitialLines)
         );
 
         int lineNumber = 0;
         Program.StartLine = preInitialLines?.Count() ?? Program.StartLine;
-        Program._labelsByLineNumber.Add(StartLabel, Program.StartLine);
+        Program._labelsWithLineNumber.Add(StartLabel, Program.StartLine);
+        Program._labelsByLineNumber.Add(Program.StartLine, StartLabel);
         string[] preCompiledLines = preInitialLines.Concat(rawLines).ToArray();
         bool startCommandFound=  false;
         for(int preCompiledLineIndex = 0; preCompiledLineIndex < preCompiledLines.Length; preCompiledLineIndex++) {
           string currentLine = preCompiledLines[preCompiledLineIndex];
           string currentCommandText = string.Copy(currentLine);
+          // remove comments:
+          if(currentCommandText.Contains('#')) {
+            bool inString = false;
+            bool inComment = false;
+            string corrected = "";
+            foreach(char c in currentCommandText) {
+              if(!inComment) {
+                if(!inString) {
+                  if(c == '#') {
+                    inComment = true;
+                    continue;
+                  }
+                  if(c == StringQuotesSymbol) {
+                    inString = true;
+                  }
+                }
+                else {
+                  if(c == StringQuotesSymbol) {
+                    inString = false;
+                  }
+                }
+
+                corrected += c;
+              }
+              else {
+                if(c == '#') {
+                  inComment = false;
+                }
+              }
+            }
+
+            currentCommandText = corrected;
+          }
 
           // if there's a label, store it
           if(currentCommandText.Trim().FirstOrDefault() == LabelStartSymbol) {
@@ -164,14 +218,20 @@ namespace Overworld.Script {
               if(startCommandFound) {
                 throw new ArgumentException($"Multiple START lables detected. Only one START label is allowed per compiled program.");
               }
-              Program._labelsByLineNumber[StartLabel] = lineNumber;
+              Program._labelsByLineNumber.Remove(Program._labelsWithLineNumber[StartLabel]);
+              Program._labelsWithLineNumber[StartLabel] = lineNumber;
+              Program._labelsByLineNumber[lineNumber] = StartLabel;
               Program.StartLine = lineNumber;
               startCommandFound = true;
             }
             else {
-              Program._labelsByLineNumber.Add(
+              Program._labelsWithLineNumber.Add(
                 labelName,
                 lineNumber
+              );
+              Program._labelsByLineNumber.Add(
+                lineNumber,
+                labelName
               );
             }
             currentCommandText = currentCommandText.After(FunctionSeperatorSymbol);
@@ -197,6 +257,8 @@ namespace Overworld.Script {
             } catch(System.Exception e) {
               throw new System.InvalidOperationException($"Error compiling OWS code on line {lineNumber}.", e);
             }
+          } else {
+            Program._commands.Add(lineNumber, null);
           }
 
           lineNumber++;
@@ -254,20 +316,21 @@ namespace Overworld.Script {
                   remainingCommandText = remainingCommandText.After(FunctionSeperatorSymbol).Trim();
                 }
                 if(foundSpecialSelector[0] == ProgramSymbol || foundSpecialSelector == ProgramPhrase) {
-                  commandType = Command.Types.Get<Command.SET_FOR_WORLD>();
+                  commandType = Command.Types.Get<Command.SET_FOR_PROGRAM>();
                   remainingCommandText = remainingCommandText.After(FunctionSeperatorSymbol).Trim();
                 }
               }
               else {
-                Collection characters = (Collection)
-                  _parseParam(
-                  ref remainingCommandText,
-                  typeof(Collection<Character>),
-                  lineNumber
-                );
+                Collection characters =
+                  _parseCollection(
+                    ref remainingCommandText,
+                    typeof(Collection),
+                    lineNumber
+                  );
                 parameters.Add(characters);
               }
             }
+
             string[] parts = null;
             string left = remainingCommandText.UntilAny(new string[] {
               SetToSymbol.ToString(),
@@ -294,14 +357,34 @@ namespace Overworld.Script {
           if(commandType is Command.UN_SET unSetCommand) {
             specialCommandFound = true;
             if(commandType is Command.UN_SET_FOR) {
-              Collection characters =
-                (Collection)_parseParam(
+              // if it's a special set_for:
+              if(remainingCommandText.Trim().StartsWith(new string[] {
+                WorldPhrase,
+                ProgramPhrase,
+                ProgramSymbol.ToString(),
+                WorldSymbol.ToString()
+              }, out string foundSpecialSelector)) {
+                if(foundSpecialSelector[0] == WorldSymbol || foundSpecialSelector == WorldPhrase) {
+                  commandType = Command.Types.Get<Command.UN_SET_FOR_WORLD>();
+                  remainingCommandText = remainingCommandText.After(FunctionSeperatorSymbol).Trim();
+                }
+                if(foundSpecialSelector[0] == ProgramSymbol || foundSpecialSelector == ProgramPhrase) {
+                  commandType = Command.Types.Get<Command.UN_SET_FOR_WORLD>();
+                  remainingCommandText = remainingCommandText.After(FunctionSeperatorSymbol).Trim();
+                }
+              }
+              else {
+                Collection characters =
+                _parseCollection(
                   ref remainingCommandText,
-                  typeof(Collection<Character>),
+                  typeof(Collection),
                   lineNumber
                 );
-              parameters.Add(characters);
+
+                parameters.Add(characters);
+              }
             }
+
             parameters.Add(
               new String(Program, remainingCommandText.Trim())
             );
@@ -331,6 +414,9 @@ namespace Overworld.Script {
             else {
               parameters.Add(null);
             }
+
+            // add line number:
+            parameters.Add(new Number(Program, lineNumber));
           }
 
 
@@ -453,10 +539,30 @@ namespace Overworld.Script {
               out string foundSetter
             );
             potentialScopedVariable = potentialScopedVariable[scopedVarName.Length..].Trim()[foundSetter.Trim().Length..].Trim();
-            if(ReservedKeywords.Contains(scopedVarName.Trim())) {
+            scopedVarName = scopedVarName.Trim();
+            if(ReservedKeywords.Contains(scopedVarName)) {
               throw new ArgumentException($"Tried to use reserved keyword as variable name: {scopedVarName.Trim()}");
             }
-            variableMap.Value.Add(scopedVarName.Trim(), _parseParam(ref potentialScopedVariable, typeof(Token), lineNumber));
+            if(char.IsDigit(scopedVarName.FirstOrDefault())) {
+              throw new System.Exception($"Invalid digit detected in where syntax. The variable name goes first in where/{foundSetter} Syntax");
+            }
+            if(scopedVarName[0] == StringQuotesSymbol) {
+              throw new System.Exception($"Invalid string detected in where syntax. The variable name goes first in where/{foundSetter} Syntax");
+            }
+            //TODO: standardize variable name rules:
+            // Can contain: a-z,A-Z,0-9,- and _.
+            // must begin with a-z,A-Z, or _.
+            if(!char.IsLetter(scopedVarName[0]) && scopedVarName[0] != '_') {
+              throw new System.Exception($"Invalid variable name detected in where syntax. The variable name goes first in where/{foundSetter} Syntax.");
+            }
+
+            variableMap.Value.Add(
+              scopedVarName, 
+              _parseParam(
+                ref potentialScopedVariable, 
+                typeof(Token),
+                lineNumber
+            ));
           }
           else {
             if(inClosure) {
@@ -489,38 +595,17 @@ namespace Overworld.Script {
         }
 
         // if we expect a collection of somekind, it could be a collection of strings, or entities.
-        if(expectedParamReturnType.IsAssignableToGeneric(typeof(Collection<>)) || firstParamStub.StartsWith(CollectionStartSymbol)) {
+        if(expectedParamReturnType == typeof(Collection) || firstParamStub.StartsWith(CollectionStartSymbol)) {
           Collection collection = _parseCollection(ref fullRemaininglineText, expectedParamReturnType, lineNumber);
           fullRemaininglineText = fullRemaininglineText.Trim();
-          // check for concat
-          bool isAdd = true;
-          while(isAdd = fullRemaininglineText.StartsWith(new string[] {
-            // find add for collections
-            AndConcatPhrase,
-            Opperators.PLUS.ToString(),
-            ConcatPhrase,
-            ((char)Comparitors.AND).ToString(),
-            ((char)Opperators.PLUS).ToString()
-          }, out string foundPrefix)
-            // find minus for collections
-          || fullRemaininglineText.StartsWith(new string[] {
-              Opperators.MINUS.ToString(),
-              CollectionExclusionPhrase,
-              ((char)Opperators.MINUS).ToString()
-            }, out foundPrefix)
-          ) {
-            fullRemaininglineText = fullRemaininglineText[foundPrefix.Length..];
-            if(isAdd) {
-              collection.Value.AddRange(_parseCollection(ref fullRemaininglineText, expectedParamReturnType, lineNumber).Value);
-            } else {
-              foreach(var o in _parseCollection(ref fullRemaininglineText, expectedParamReturnType, lineNumber).Value) {
-                collection.Value.Remove(o);
-              }
-            }
-            fullRemaininglineText = fullRemaininglineText.Trim();
-          }
 
-          return collection;
+          // check for concat
+          return _parseAnyTrailingCollectionConcatinators(
+            ref fullRemaininglineText,
+            expectedParamReturnType,
+            lineNumber, 
+            collection
+          );
         }
 
         /// if it's a plain old bool/conditional 
@@ -550,120 +635,290 @@ namespace Overworld.Script {
         /// if it's a string
         if(firstParamStub.FirstOrDefault() == StringQuotesSymbol) {
           String @string = _parseString(ref fullRemaininglineText);
+          IParameter concatinator 
+            = _parseAnyTrailingStringConcatinators(ref fullRemaininglineText, @string, lineNumber);
 
-          // concat remaining strings
-          while(fullRemaininglineText.StartsWith(new string[] {
+          return concatinator ?? @string;
+        }
+
+        /// numbers
+        /*if(firstParamStub.FirstOrDefault().Equals('#')) {
+          string textualNumberString = firstParamStub
+            .UntilNot(c => char.IsLetterOrDigit(c) || c == '-' || c == DecimalSymbol)
+            .Replace('-', ' ')
+            .Replace(DecimalSymbol.ToString(), "point");
+          throw new NotImplementedException($"Number text to number format not yet supported.");
+        }*/
+
+        // if it's a plain number
+        if(char.IsNumber(firstParamStub.FirstOrDefault())) {
+          Number number = _parseNumber(ref fullRemaininglineText);
+
+          // check for opperators
+          MathOpperator compiledOpperaton = _parseAnyTrailingMathOpperators(
+            ref fullRemaininglineText, 
+            number,
+            lineNumber
+          );
+
+          return compiledOpperaton ?? (IParameter)number;
+        }
+
+        // if the whole thing is a closure, remove the closure and parse:
+        if(fullRemaininglineText[0] == LogicStartSymbol) {
+          string closure = fullRemaininglineText.UntilClosure('(', ')');
+          fullRemaininglineText = fullRemaininglineText[(closure.Length + 2)..].Trim();
+          IParameter value = _parseParam(ref closure, expectedParamReturnType, lineNumber);
+          return _tryToParseAnyPotentialConcatinatorsOrOpperators(ref fullRemaininglineText, value, expectedParamReturnType, lineNumber);
+        }
+
+
+        // check if it's a command by chance that returns what we want
+        if(Program.Context.Commands.ContainsKey(firstParamStub)) {
+          IParameter parameter =  _parseCommand(ref fullRemaininglineText, lineNumber);
+          return _tryToParseAnyPotentialConcatinatorsOrOpperators(ref fullRemaininglineText, parameter, expectedParamReturnType, lineNumber);
+        }
+
+        /// lastly, assume it's a plain old variable
+        IParameter param = _parseExistingVariable(ref fullRemaininglineText);
+        return _tryToParseAnyPotentialConcatinatorsOrOpperators(ref fullRemaininglineText, param, expectedParamReturnType, lineNumber);
+      }
+
+      IParameter _tryToParseAnyPotentialConcatinatorsOrOpperators(ref string fullRemainingLineText, IParameter current, Type expectedParamType, int lineNumber) {
+        fullRemainingLineText = fullRemainingLineText.Trim();
+        // nothing left to parse?:
+        if(string.IsNullOrWhiteSpace(fullRemainingLineText) || fullRemainingLineText.FirstOrDefault() == FunctionSeperatorSymbol) {
+          return current;
+        }
+
+        Type expectedCommandReturn = null;
+
+        // if it's a command, check the expected return types:
+        if(current is Command command) {
+          expectedCommandReturn = command.Archetype.ExpectedReturnTypes.First();
+          // if the current expected type is generic, and we have an expected return, replace the expected type:
+          if((expectedParamType == typeof(Token)
+              || expectedParamType == typeof(IParameter)
+              || expectedParamType == typeof(Variable)
+              || expectedParamType == typeof(Command))
+            && (expectedCommandReturn is not null)
+          ) {
+            expectedParamType = expectedCommandReturn;
+          }
+        }
+
+        if(current is Number || expectedParamType == typeof(Number)
+          || (expectedCommandReturn is not null && expectedCommandReturn == typeof(Number))
+        ) {
+         return _parseAnyTrailingMathOpperators(ref fullRemainingLineText, current, lineNumber) ?? current;
+        }
+        else if(current is String || expectedParamType == typeof(String)
+          || (expectedCommandReturn is not null && expectedCommandReturn == typeof(String))
+        ) {
+          return _parseAnyTrailingStringConcatinators(ref fullRemainingLineText, current, lineNumber) ?? current;
+        }
+        else if(current is Boolean || typeof(IConditional).IsAssignableFrom(expectedParamType)
+          || (expectedCommandReturn is not null && typeof(IConditional).IsAssignableFrom(expectedCommandReturn))
+        ) {
+          return _parseCondition(ref fullRemainingLineText, lineNumber, current);
+        }
+        else if(current is Collection || typeof(Collection).IsAssignableFrom(expectedParamType)
+          || (expectedCommandReturn is not null && typeof(Collection).IsAssignableFrom(expectedCommandReturn))
+        ) {
+          return _parseAnyTrailingCollectionConcatinators(ref fullRemainingLineText, expectedParamType, lineNumber, current);
+        }
+        // else we have to work with the symbols we have and make assumptions.
+        else {
+          if(fullRemainingLineText.Trim().StartsWith(new string[] {
+            ConcatPhrase,
+            CollectionExclusionPhrase
+          }.Concat(ComparitorPhrases)
+            .Concat(NumberOpperatorPhrases)
+            .Concat(ComparitorSymbols.Select(c => c.ToString()))
+            .Concat(NumberOpperatorSymbols.Select(c => c.ToString()))
+          , out string foundOperator)
+          ) {
+            bool isVauge = false;
+            // if it's a symbol:
+            if(foundOperator.Length == 1) {
+              // comparitor symbols assume boolean, except &
+              if(ComparitorSymbols.Contains(foundOperator[0])) {
+                if(foundOperator[0] == (char)Comparitors.AND) {
+                  isVauge = true;
+                } else
+                  return _parseCondition(ref fullRemainingLineText, lineNumber, current);
+              }// numeric is assumed for all but + and - 
+              else if (NumberOpperatorSymbols.Contains(foundOperator[0])) {
+                if(foundOperator[0] == (char)Opperators.PLUS
+                  || foundOperator[0] == (char)Opperators.MINUS) {
+                  isVauge = true;
+                }
+                else
+                  return _parseAnyTrailingMathOpperators(ref fullRemainingLineText, current as Number, lineNumber);
+              }
+            } // if it's a phrase:
+            else {
+              // comparitor phrases assume boolean, except AND
+              if(ComparitorPhrases.Contains(foundOperator)) {
+                if(foundOperator == AndConcatPhrase) {
+                  isVauge = true;
+                }
+                else
+                  return _parseCondition(ref fullRemainingLineText, lineNumber, current);
+              } // numeric is assumed for all but + and -
+              else if(NumberOpperatorPhrases.Contains(foundOperator)) {
+                if(foundOperator == Opperators.PLUS.ToString()
+                  || foundOperator == Opperators.MINUS.ToString()) {
+                  isVauge = true;
+                }
+                else
+                  return _parseAnyTrailingMathOpperators(ref fullRemainingLineText, current as Number, lineNumber);
+              } // collection phrases
+              else if(foundOperator == ConcatPhrase || foundOperator == CollectionExclusionPhrase) {
+                return _parseAnyTrailingCollectionConcatinators(ref fullRemainingLineText, expectedParamType, lineNumber, current as Collection);
+              }
+            }
+
+            if(isVauge) {
+              fullRemainingLineText = fullRemainingLineText[foundOperator.Length..].Trim();
+              UnknownOperator @return 
+                = Command.Types.Get<UnknownOperator.Type>()
+                  .Make(Program, new IParameter[] {
+                    current,
+                    _parseParam(ref fullRemainingLineText, expectedParamType, lineNumber)
+                  }, foundOperator);
+              return @return;
+            }
+          }
+        }
+
+        throw new System.ArgumentException($"Unrecognized operation or parameter at\n: {fullRemainingLineText}");
+      }
+
+      MathOpperator _parseAnyTrailingMathOpperators(ref string fullRemaininglineText, IParameter left, int lineNumber) {
+        MathOpperator compiledOpperaton = null;
+        while(fullRemaininglineText.StartsWith(new string[] {
+        // find add for collections
+          AndConcatPhrase,
+          ((char)Comparitors.AND).ToString()
+        }.Concat(NumberOpperatorSymbols.Select(x => x.ToString()))
+          // todo: make constants
+          .Concat(Enum.GetValues(typeof(Opperators))
+            .Cast<Opperators>()
+            .Select(s => $"{s.ToString().Replace('_', '-')} "))
+          // While we find an opperation prefix:
+        , out string foundPrefix)) {
+
+          // get the opperator
+          Opperators opperation;
+          if(foundPrefix.Length > 1) {
+            if(foundPrefix.Equals(AndConcatPhrase)) {
+              opperation = Opperators.PLUS;
+            }
+            else
+              opperation = Enum.Parse<Opperators>(foundPrefix.Trim());
+          }
+          else {
+            if(foundPrefix[0].Equals((char)Comparitors.AND)) {
+              opperation = Opperators.PLUS;
+            }
+            else
+              opperation = (Opperators)foundPrefix[0];
+          }
+
+          fullRemaininglineText = fullRemaininglineText[foundPrefix.Length..];
+          IParameter right = null;
+          // squared is special, and only has one param
+          if(opperation != Opperators.SQUARED) {
+            right = _parseParam(ref fullRemaininglineText, typeof(Number), lineNumber);
+          }
+
+          compiledOpperaton = Command.Types.Get<MathOpperator.Type>()
+            .Make(
+              Program,
+              new IParameter[] {
+                  compiledOpperaton ?? left,
+                  right
+              },
+              opperation
+            );
+          fullRemaininglineText = fullRemaininglineText.Trim();
+        }
+
+        return compiledOpperaton;
+      }
+
+      IParameter _parseAnyTrailingStringConcatinators(ref string fullRemaininglineText, IParameter left, int lineNumber) {
+        Command compiledConcatinator = null;
+
+        // concat remaining strings
+        while(fullRemaininglineText.StartsWith(new string[] {
+            // find add for collections
+            AndConcatPhrase,
+            Opperators.PLUS.ToString(),
+            ((char)Comparitors.AND).ToString(),
+            ((char)Opperators.PLUS).ToString()
+          }, out string foundPrefix)) {
+          fullRemaininglineText = fullRemaininglineText[foundPrefix.Length..];
+          IParameter right = _parseParam(ref fullRemaininglineText, typeof(String), lineNumber);
+          compiledConcatinator = Command.Types.Get<StringConcatinator.Type>()
+            .Make(
+              Program,
+              new IParameter[] {
+                  compiledConcatinator ?? left,
+                  right
+              }
+            );
+          fullRemaininglineText = fullRemaininglineText.Trim();
+        }
+
+        return compiledConcatinator;
+      }
+
+      /// <summary>
+      /// Parse any trailing concatinators after a collection and add them to the main collection object.
+      /// This does nothing if there are no concatinators.
+      /// </summary>
+      IParameter _parseAnyTrailingCollectionConcatinators(ref string fullRemaininglineText, Type expectedParamReturnType, int lineNumber, IParameter left) {
+        CollectionConcatinator compiledConcatinator = null;
+        bool isAdd = true;
+        while(isAdd = fullRemaininglineText.StartsWith(new string[] {
             // find add for collections
             AndConcatPhrase,
             Opperators.PLUS.ToString(),
             ConcatPhrase,
             ((char)Comparitors.AND).ToString(),
             ((char)Opperators.PLUS).ToString()
-          }, out string foundPrefix)) {
-            fullRemaininglineText = fullRemaininglineText[foundPrefix.Length..];
-            @string.Value += _parseString(ref fullRemaininglineText);
-            fullRemaininglineText = fullRemaininglineText.Trim();
+          }, out string foundPrefix)
+        // find minus for collections
+        || fullRemaininglineText.StartsWith(new string[] {
+              Opperators.MINUS.ToString(),
+              CollectionExclusionPhrase,
+              ((char)Opperators.MINUS).ToString()
+          }, out foundPrefix)
+        ) {
+          fullRemaininglineText = fullRemaininglineText[foundPrefix.Length..];
+          compiledConcatinator = Command.Types.Get<CollectionConcatinator.Type>()
+            .Make(Program, new IParameter[] {
+              compiledConcatinator == null
+                ? left
+                : compiledConcatinator,
+              _parseCollection(ref fullRemaininglineText, expectedParamReturnType, lineNumber)
+            }, isAdd);
+          /*if(isAdd) {
+            collection.Value.AddRange(_parseCollection(ref fullRemaininglineText, expectedParamReturnType, lineNumber).Value);
           }
-
-          return @string;
-        }
-
-        /// numbers
-        if(firstParamStub.FirstOrDefault().Equals('#')) {
-          string textualNumberString = firstParamStub
-            .UntilNot(c => char.IsLetterOrDigit(c) || c == '-' || c == DecimalSymbol)
-            .Replace('-', ' ')
-            .Replace(DecimalSymbol.ToString(), "point");
-          throw new NotImplementedException($"Number text to number format not yet supported.");
-        }
-
-        // if it's a plain number
-        if(char.IsNumber(firstParamStub.FirstOrDefault())) {
-          Number number = _parseNumber(ref fullRemaininglineText);
-          MathOpperator compiledOpperaton = null;
-
-          // check for opperators
-          while(fullRemaininglineText.StartsWith(new string[] {
-            // find add for collections
-              AndConcatPhrase,
-              ((char)Comparitors.AND).ToString()
-            }.Concat(NumberOpperatorSymbols.Select(x => x.ToString()))
-            // todo: make constants
-            .Concat(Enum.GetValues(typeof(Opperators)).Cast<Opperators>().Select(s => $"{s.ToString().Replace('_', '-')} "))
-            , out string foundPrefix)
-          ) {
-            // get the opperator
-            Opperators opperation;
-            if(foundPrefix.Length > 1) {
-              if(foundPrefix.Equals(AndConcatPhrase)) {
-                opperation = Opperators.PLUS;
-              } else
-                opperation = Enum.Parse<Opperators>(foundPrefix.Trim());
-            } else {
-              if(foundPrefix[0].Equals((char)Comparitors.AND) || foundPrefix[0] == 'X') {
-                opperation = Opperators.PLUS;
-              } else
-                opperation = (Opperators)foundPrefix[0];
+          else {
+            foreach(var o in _parseCollection(ref fullRemaininglineText, expectedParamReturnType, lineNumber).Value) {
+              collection.Value.Remove(o);
             }
-            fullRemaininglineText = fullRemaininglineText[foundPrefix.Length..];
-            Number next = null;
-            // squared is special, and only has one param
-            if(opperation != Opperators.SQUARED) {
-              next =_parseNumber(ref fullRemaininglineText);
-            }
-            compiledOpperaton = Command.Types.Get<MathOpperator.Type>()
-              .Make(
-                Program,
-                new IParameter[] {
-                  compiledOpperaton ?? (IParameter)number,
-                  next
-                },
-                opperation
-              );
-            fullRemaininglineText = fullRemaininglineText.Trim();
-          }
-
-          return compiledOpperaton ?? (IParameter)number;
+          }*/
+          fullRemaininglineText = fullRemaininglineText.Trim();
         }
 
-        if(fullRemaininglineText[0] == LogicStartSymbol) {
-          string closure = fullRemaininglineText.UntilClosure('(', ')');
-          fullRemaininglineText = fullRemaininglineText[..closure.Length];
-          return _parseParam(ref closure, expectedParamReturnType, lineNumber);
-        }
-
-        /// TODO: check if there's any spaces, or special characters in the potential variable or function name.
-        /// If there are, then we should check which and send it to either conditional or opperation
-        /*firstParamStub.UntilAny(
-            // TODO: cache this whole thing in a static
-            // symbols
-            ComparitorSymbols.Select(ch => ch.ToString()).ToList().Except(new[] { "!" })
-              // phrases
-              .Concat(ComparitorPhrases
-                .Except(new[] { Comparitors.NOT.ToString() })
-                .Select(phrase => $" {phrase} ")
-                ).Append(LogicStartSymbol.ToString())
-                .Append(" "),
-            out string foundSeperator
-        );
-        if(foundSeperator != null) {
-          if(foundSeperator != FunctionSeperatorSymbol.ToString()) {
-            // TODO: also check for opperators when we impliment those
-            return _parseCondition(ref fullRemaininglineText, lineNumber);
-          }
-          if(foundSeperator == " ") {
-            throw new ArgumentException($"Unexpected space at:\n>{firstParamStub}");
-          }
-        }*/
-
-
-        // check if it's a command by chance that returns what we want
-        if(Program.Context.Commands.ContainsKey(firstParamStub)) {
-          return _parseCommand(ref fullRemaininglineText, lineNumber);
-        }
-
-        /// lastly, assume it's a plain old variable
-        return _parseExistingVariable(ref fullRemaininglineText, string.IsNullOrWhiteSpace(firstParamStub) ? fullRemaininglineText : firstParamStub);
+        return compiledConcatinator == null
+          ? left
+          : compiledConcatinator;
       }
 
       Number _parseNumber(ref string fullRemaininglineText) {
@@ -691,21 +946,16 @@ namespace Overworld.Script {
 
       Collection _parseCollection(ref string fullRemainingLineText, Type expectedType, int lineNumber) {
         IList list = new ArrayList();
-        Collection collection;
-        Type collectionItemType;
-        // TODO: Impliment these as modular collection builders.
-        if(expectedType.GenericTypeArguments.First().Equals(typeof(String))) {
-          collectionItemType = typeof(String);
-          collection = new Collection<String>(Program, list);
-        } else if(expectedType.GenericTypeArguments.First().Equals(typeof(Character))) {
-          collectionItemType = typeof(Character);
-          collection = new Collection<Character>(Program, list);
-        } else if(expectedType.GenericTypeArguments.First().Equals(typeof(Entity))) {
-          collectionItemType = typeof(Entity);
-          collection = new Collection<Entity>(Program, list);
-        } else
-          throw new NotSupportedException($"Collections of type {expectedType} are not yet supported");
+        Type collectionItemType = typeof(IParameter);
 
+        if(expectedType is not null
+          && typeof(Collection<>).IsAssignableFrom(expectedType)
+        ) {
+          collectionItemType 
+            = expectedType.GetInheritedGenericTypes(typeof(Collection<>)).FirstOrDefault();
+        }
+
+        Collection collection = new(Program, list, collectionItemType);
         string preparsed = fullRemainingLineText.Trim();
         string parsed = "";
         int collectionDepth = 0;
@@ -770,7 +1020,7 @@ namespace Overworld.Script {
         throw new ArgumentException($"Failed to parse collection.");
       }
 
-      IParameter _parseCondition(ref string fullRemainingLineText, int lineNumber) {
+      IParameter _parseCondition(ref string fullRemainingLineText, int lineNumber, IParameter left = null) {
         string preparsed = fullRemainingLineText.Trim();
         string parsed = "";
         IParameter identityCondition = null;
@@ -902,7 +1152,7 @@ namespace Overworld.Script {
           if(identityCondition is not null) {
             return identityCondition;
           } else {
-            IParameter left =
+            left ??=
               _parseParam(ref leftConditionText, typeof(IConditional), lineNumber);
             IParameter right =
               _parseParam(ref fullRemainingLineText, typeof(IConditional), lineNumber);
@@ -919,22 +1169,21 @@ namespace Overworld.Script {
         throw new ArgumentException($"Could not parse condtion: \n{preparsed}");
       }
 
-      Variable _parseExistingVariable(ref string fullRemaininglineText, string variableName) {
-        fullRemaininglineText = fullRemaininglineText[variableName.Length..].Trim();
-        return _makeExistingVariable(variableName);
+      Variable _parseExistingVariable(ref string fullRemaininglineText) {
+        string varName = fullRemaininglineText.UntilNot(c => 
+          char.IsLetterOrDigit(c)
+          || c == '_'
+          || c == '-'
+        );
+        fullRemaininglineText = fullRemaininglineText[varName.Length..].Trim();
+        return _makeExistingVariable(varName.Trim());
       }
 
       /// <summary>
       /// Make or find a symbol represeing an existing variable
       /// </summary>
       Variable _makeExistingVariable(string variableName) {
-        // check if it's a global, then program, then local character variable
-        /*if(Program.TryToGetVariableByName(variableName, out Variable variable)) {
-          return variable;
-        } // as a last resort, assume it's a char specific variable:
-        else {*/
-          return new ScopedVariable(Program, variableName);
-        /*}*/
+        return new ScopedVariable(Program, variableName);
       }
 
       /// <summary>
@@ -945,159 +1194,6 @@ namespace Overworld.Script {
         fullRemaininglineText = fullRemaininglineText[(value.Length + 2)..].Trim();
         return new String(Program, value);
       }
-
-      /*Collection _parseCollection(ref string fullRemaininglineText, Type expectedType, int lineNumber) {
-
-        IList list;
-        Collection collection;
-        Type collectionItemType;
-        // TODO: Impliment these as modular collection builders.
-        if(expectedType.GenericTypeArguments.First().Equals(typeof(String))) {
-          collectionItemType = typeof(String);
-          list = new List<String>();
-          collection = new Collection<String>(Program, list);
-        } else if(expectedType.GenericTypeArguments.First().Equals(typeof(Character))) {
-          collectionItemType = typeof(Character);
-          list = new List<Character>();
-          collection = new Collection<Character>(Program, list as IList<Character>);
-        } else if(expectedType.GenericTypeArguments.First().Equals(typeof(Entity))) {
-          collectionItemType = typeof(Entity);
-          list = new List<Entity>();
-          collection = new Collection<Entity>(Program, list as IList<Entity>);
-        } else
-          throw new NotSupportedException($"Collections of type {expectedType} are not yet supported");
-
-        // if it doesn't start with a collection symbol, it's a lone item
-        if(!fullRemaininglineText.StartsWith(CollectionStartSymbol)) {
-          list.Add(
-            _parseParam(ref fullRemaininglineText, collectionItemType, lineNumber)
-          );
-          return collection;
-        } /// tokenize each collection element
-        else {
-          // trim off the start symbol
-          fullRemaininglineText = fullRemaininglineText.Substring(1).Trim();
-
-          /*string potentialInitialCommand = fullRemaininglineText.UntilAny(new string[] {
-            FunctionSeperatorSymbol.ToString(),
-            ((char)Comparitors.AND).ToString(),
-            $" {Comparitors.AND} ",
-          }, out string seperator);
-
-          if(seperator != null) {
-            if(Program.Context.Commands.ContainsKey(potentialInitialCommand.Trim())) {
-
-            } else if (seperator = ) {
-
-            }
-          }*//*
-
-          string potentialAnd = string.Empty;
-          string parsedSubLine = string.Empty;
-          int skipUntilSubCollectionEndCount = 0;
-          int parsedCharacterCount = 0;
-          bool isFirst = true;
-          int skipForAll = 0;
-          bool notSyntax = false;
-
-          /// parse each char
-          foreach(char character in fullRemaininglineText) {
-            /// if it starts with the all syntax
-            // if the first char is "A" or "*"
-            if(isFirst) {
-              if(character.Equals(CollectAllSymbol)) {
-              } else if(character.Equals("A") && fullRemaininglineText.StartsWith($"{CollectAllPhrase} ")) {
-                skipForAll = 3;
-              }
-
-              collection = Program._getAllObjectsOfType(collectionItemType);
-              notSyntax = true;
-              isFirst = false;
-              parsedCharacterCount++;
-              continue;
-            }
-
-            // skip the 'LL ' in 'ALL '
-            if(skipForAll-- > 0) {
-              parsedCharacterCount++;
-              continue;
-            }
-
-            /// after checking for the all syntax:
-            // add a sub collection count
-            if(character.Equals(CollectionStartSymbol)) {
-              skipUntilSubCollectionEndCount++;
-            }
-
-            // skip sub collections
-            if(skipUntilSubCollectionEndCount > 0) {
-              if(character.Equals(CollectionEndSymbol)) {
-                skipUntilSubCollectionEndCount--;
-              }
-              parsedCharacterCount++;
-              continue;
-            }
-
-            // nonwhitespace chars
-            if(!char.IsWhiteSpace(character)) {
-              // AND or END found
-              if(character.Equals(CollectionEndSymbol)
-                || CollectionItemSeperatorSymbols.Contains(character)
-                || potentialAnd.Count() == 5
-              ) {
-                if(potentialAnd.Count() == 5) {
-                  parsedSubLine.Substring(0, parsedSubLine.Length - 5);
-                } else {
-                  parsedSubLine.Trim(CollectionItemSeperatorSymbols);
-                }
-                parsedSubLine = parsedSubLine.Trim();
-
-                if(notSyntax) {
-                  bool usingSymbol;
-                  if((usingSymbol = parsedSubLine.StartsWith((char)Comparitors.NOT)) || parsedSubLine.StartsWith(Comparitors.NOT.ToString().ToUpper() + "-")) {
-                    list.Remove(_getCollectionItemTokenForType(parsedSubLine, collectionItemType));
-                  } else
-                    throw new NotSupportedException($"The ALL Syntax (*), can only be used Alone or with AND + NOT Syntax. EX: (*&!VAR)");
-                } else {
-                  list.Add(_parseParam(ref parsedSubLine, collectionItemType, lineNumber));
-                }
-
-                potentialAnd = string.Empty;
-                parsedSubLine = string.Empty;
-
-                // if this is the end
-                if(character.Equals(CollectionEndSymbol)) {
-                  break;
-                }
-              } // part of an AND being built found 
-              else if(
-                potentialAnd.Count() == 1 && character.Equals("A")
-                || potentialAnd.Count() == 2 && character.Equals("N")
-                || potentialAnd.Count() == 3 && character.Equals("D")
-              ) {
-                potentialAnd += character;
-              } // if the AND broke:
-              else if(potentialAnd.Any()) {
-                potentialAnd = string.Empty;
-              }
-            } // for text based & it needs to be built starting with and ending with a space
-            else {
-              if(potentialAnd.Count() == 0 || potentialAnd.Count() == 4) {
-                potentialAnd += character;
-              }
-            }
-
-            // add char to parsed
-            parsedCharacterCount++;
-            parsedSubLine += character;
-          }
-
-          fullRemaininglineText = fullRemaininglineText
-            .Substring(parsedCharacterCount, fullRemaininglineText.Length).Trim();
-
-          return collection;
-        }
-      }*/
 
       /// <summary>
       /// Gets a collection token for an object, based on a string
