@@ -9,6 +9,12 @@ namespace Overworld.Script {
   public static partial class Ows {
 
     /// <summary>
+    /// The name for the variable that represents what object the given script is attached to. 
+    /// </summary>
+    public const string AttachedToEntityVariableName
+      = "ENTITY-THIS-SCRIPT-IS-ATTACHED-TO";
+
+    /// <summary>
     /// An executable ows program
     /// </summary>
     public partial class Program {
@@ -115,6 +121,59 @@ namespace Overworld.Script {
         Variable @return = _executeAllStartingAtLine(
           startingLine,
           character
+        );
+
+        return @return is ReturnAllResult allResult
+          ? allResult.Value
+          : @return;
+      }
+
+      /// <summary>
+      /// Execute this program as a specific character
+      /// TODO: Runs should be wrapped in an object.
+      /// </summary>
+      public Variable ExecuteFrom(
+        Data.Entity attachedTo,
+        Data.Character executor, 
+        Dictionary<string, IParameter> extraParameters = null, 
+        string startLabel = StartLabel
+      ) {
+        Command.Context context = new(null, executor, overrideProgram: this);
+        int startingLine = TryToGetLineNumberForLabel(startLabel ?? StartLabel, context)
+          ?? StartLine;
+
+        Variable @return = _executeAllStartingAtLine(
+          startingLine,
+          executor,
+          scopedVariables: new VariableMap(
+            this, 
+            (extraParameters ?? new Dictionary<string, IParameter>())
+              .Append(AttachedToEntityVariableName, new Entity(
+                this,
+                attachedTo, 
+                AttachedToEntityVariableName
+              ))
+          )
+        );
+
+        return @return is ReturnAllResult allResult
+          ? allResult.Value
+          : @return;
+      }
+
+      /// <summary>
+      /// Execute this program as a specific character
+      /// TODO: Runs should be wrapped in an object.
+      /// </summary>
+      public Variable ExecuteWith(Data.Character character, VariableMap variables, string startLabel = StartLabel) {
+        Command.Context context = new(null, character, overrideProgram: this);
+        int startingLine = TryToGetLineNumberForLabel(startLabel ?? StartLabel, context)
+          ?? StartLine;
+
+        Variable @return = _executeAllStartingAtLine(
+          startingLine,
+          character,
+          scopedVariables: variables
         );
 
         return @return is ReturnAllResult allResult

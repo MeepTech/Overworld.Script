@@ -19,11 +19,6 @@
         Value = value;
       }
 
-      public bool IsCharacterSpecific {
-        get;
-        internal set;
-      }
-
       /// <summary>
       /// Make a new named variable of the right basic type
       /// </summary>

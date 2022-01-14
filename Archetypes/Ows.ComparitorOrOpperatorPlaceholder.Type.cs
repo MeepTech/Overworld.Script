@@ -60,30 +60,30 @@ namespace Overworld.Script {
             || @operator == Opperators.PLUS.ToString();
 
           return left is Number
-            ? Command.Types.Get<MathOpperator.Type>().Make(context.Command.Program,
-              new IParameter[] {
+            ? global::Overworld.Script.Ows.Command.Types.Get<global::Overworld.Script.Ows.MathOpperator.Type>().Make(context.Command.Program,
+              new global::Overworld.Script.Ows.IParameter[] {
                 left,
                 right
-              }, isPositive ? Opperators.PLUS : Opperators.MINUS)
-            : left is String
-              ? Command.Types.Get<MathOpperator.Type>().Make(context.Command.Program,
-                new IParameter[] {
+              }, isPositive ? global::Overworld.Script.Ows.Opperators.PLUS : global::Overworld.Script.Ows.Opperators.MINUS)
+            : left is global::Overworld.Script.Ows.String
+              ? global::Overworld.Script.Ows.Command.Types.Get<global::Overworld.Script.Ows.MathOpperator.Type>().Make(context.Command.Program,
+                new global::Overworld.Script.Ows.IParameter[] {
                   left,
                   right
-                }, isPositive ? Opperators.PLUS : throw new NotSupportedException($"There is no negative concatination using - for strings"))
-              : left is Collection
-                ? Command.Types.Get<CollectionConcatinator.Type>().Make(context.Command.Program,
-                  new IParameter[] {
+                }, isPositive ? global::Overworld.Script.Ows.Opperators.PLUS : throw new global::System.NotSupportedException($"There is no negative concatination using - for strings"))
+              : left is global::Meep.Tech.Data.Archetype.Collection
+                ? global::Overworld.Script.Ows.Command.Types.Get<global::Overworld.Script.Ows.CollectionConcatinator.Type>().Make(context.Command.Program,
+                  new global::Overworld.Script.Ows.IParameter[] {
                     left,
                     right
                   }, isPositive)
-                : left is IConditional
-                  ? Command.Types.Get<Condition.Type>().Make(context.Command.Program,
-                    new IParameter[] {
+                : left is global::Overworld.Script.Ows.IConditional
+                  ? global::Overworld.Script.Ows.Command.Types.Get<global::Overworld.Script.Ows.Condition.Type>().Make(context.Command.Program,
+                    new global::Overworld.Script.Ows.IParameter[] {
                       left,
                       right
-                    }, isPositive ? Comparitors.AND : throw new NotSupportedException($"There is no negative concatination using - for booleans"))
-                  : throw new NotSupportedException($"Could not determine types for concatination. Try adding INumeric, IConditional, or ITextual to your command:\n {left} {@operator} {right}");
+                    }, isPositive ? global::Overworld.Script.Ows.Comparitors.AND : throw new global::System.NotSupportedException($"There is no negative concatination using - for booleans"))
+                  : throw new global::System.NotSupportedException($"Could not determine types for concatination. Try adding INumeric, IConditional, or ITextual to your command:\n {left} {@operator} {right}");
         }
       }
     }

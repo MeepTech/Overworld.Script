@@ -9,7 +9,7 @@ namespace Overworld.Script {
     /// <summary>
     /// A collection of named variables.
     /// </summary>
-    internal class VariableMap : Variable {
+    public class VariableMap : Variable {
 
       public new Dictionary<string, IParameter> Value {
         get
@@ -19,7 +19,7 @@ namespace Overworld.Script {
           => base.Value = value;
       }
 
-      internal VariableMap(Program program, Dictionary<string, IParameter> values = null)
+      public VariableMap(Program program, Dictionary<string, IParameter> values = null)
         : base(program, values ?? new Dictionary<string, IParameter>()) {
       }
 

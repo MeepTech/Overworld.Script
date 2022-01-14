@@ -19,9 +19,9 @@ namespace Overworld.Script {
       /// <summary>
       /// All registered command types
       /// </summary>
-      public static Command.Type.ArchetypeCollection Types {
+      public static Command.Type.Collection Types {
         get;
-      } = new Archetype<Command, Type>.ArchetypeCollection();
+      } = new Archetype<Command, Type>.Collection();
 
       /// <summary>
       /// The type of archetype

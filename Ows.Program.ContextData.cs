@@ -13,47 +13,24 @@ namespace Overworld.Script {
       public class ContextData {
 
         /// <summary>
-        /// components attached to this context data
-        /// </summary>
-        public object[] Components {
-          get;
-        }
-
-        /// <summary>
         /// The commands within this context
         /// </summary>
-        public virtual IReadOnlyDictionary<string, Command.Type> Commands
+        public virtual Dictionary<string, Command.Type> Commands
           => _commands;
         readonly Dictionary<string, Command.Type> _commands;
 
         /// <summary>
         /// The characters in the world of thdis script
         /// </summary>
-        public IReadOnlyDictionary<string, Data.Character> Characters 
+        public Dictionary<string, Data.Character> Characters 
           => _characters;
         readonly Dictionary<string, Data.Character> _characters;
         
         /// <summary>
         /// The entities in the world of this script
-        public IReadOnlyDictionary<string, Data.Entity> Entities
+        public Dictionary<string, Data.Entity> Entities
           => _entities;
         readonly Dictionary<string, Data.Entity> _entities;
-
-        /// <summary>
-        /// Create a context for a new program
-        /// </summary>
-        public ContextData(
-          Dictionary<string, Command.Type> commands, 
-          Dictionary<string, Data.Entity> entities,
-          Dictionary<string, Data.Character> characters,
-          params object[] components
-        ) {
-          Components = components ?? new object[0];
-          _commands = commands?.MergeIn(Ows.DefaultCommands) 
-            ?? new Dictionary<string, Command.Type>(Ows.DefaultCommands);
-          _entities = entities ?? new Dictionary<string, Data.Entity>();
-          _characters = characters ?? new Dictionary<string, Data.Character>();
-        }
 
         /// <summary>
         /// Create a context for a new program
@@ -63,9 +40,8 @@ namespace Overworld.Script {
           Dictionary<string, Data.Entity> entities = null,
           Dictionary<string, Data.Character> characters = null
         ) {
-          Components = new object[0];
-          _commands = commands?.MergeIn(Ows.DefaultCommands)
-            ?? new Dictionary<string, Command.Type>(Ows.DefaultCommands);
+          _commands = commands ?? new Dictionary<string, Command.Type>();
+          Ows.DefaultCommands.ForEach(defaultCommand => _commands.Append(defaultCommand.Key, defaultCommand.Value));
           _entities = entities ?? new Dictionary<string, Data.Entity>();
           _characters = characters ?? new Dictionary<string, Data.Character>();
         }

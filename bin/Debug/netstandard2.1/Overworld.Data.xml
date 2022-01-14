@@ -1,0 +1,731 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>Overworld.Data</name>
+    </assembly>
+    <members>
+        <member name="T:Overworld.Data.Character">
+            <summary>
+            A player controlled entity
+            </summary>
+        </member>
+        <member name="M:Overworld.Data.Character.Type.#ctor(System.String,Overworld.Data.Entity.Type.Identity)">
+            <summary>
+            For X Bam
+            </summary>
+            <param name="id"></param>
+        </member>
+        <member name="P:Overworld.Data.Character.UniqueName">
+            <summary>
+            The unique, human readable name of a character. Like their username
+            </summary>
+        </member>
+        <member name="M:Overworld.Data.Character.#ctor(Meep.Tech.Data.IBuilder{Overworld.Data.Entity})">
+            <summary>
+            X Bam Builder
+            </summary>
+            <param name="builder"></param>
+        </member>
+        <member name="M:Overworld.Data.Character.#ctor(System.String,System.String)">
+            <summary>
+            Make a new character
+            </summary>
+        </member>
+        <member name="T:Overworld.Data.Entity.Animation">
+            <summary>
+            A sprite animation.
+            </summary>
+        </member>
+        <member name="T:Overworld.Data.Entity.Animation.Type">
+            <summary>
+            Types of entity animation.
+            These can be built by files
+            </summary>
+        </member>
+        <member name="P:Overworld.Data.Entity.Animation.Type.Name">
+            <summary>
+            The animation's unique name
+            </summary>
+        </member>
+        <member name="P:Overworld.Data.Entity.Animation.Type.Version">
+            <summary>
+            The version of this animation.
+            If this is different then the name of the compiled *.anim file then it will be recompiles.
+            </summary>
+        </member>
+        <member name="P:Overworld.Data.Entity.Animation.Type.Namespace">
+            <summary>
+            The animation's namespace
+            </summary>
+        </member>
+        <member name="P:Overworld.Data.Entity.Animation.Type.Clip">
+            <summary>
+            The unity animation clip that is played
+            </summary>
+        </member>
+        <member name="P:Overworld.Data.Entity.Animation.Type.Tags">
+            <summary>
+            The tags that apply to this sprite animation
+            </summary>
+        </member>
+        <member name="P:Overworld.Data.Entity.Animation.Type.Layer">
+            <summary>
+            The layer this animation acts on.
+            Defults to 0 (BaseBody)
+            </summary>
+        </member>
+        <member name="P:Overworld.Data.Entity.Animation.Type.Dimensions">
+            <summary>
+            The dimensions of the sprite animation in px
+            </summary>
+        </member>
+        <member name="P:Overworld.Data.Entity.Animation.Type.IsBuildFromAnAssembly">
+            <summary>
+            If this animation type was built by an assembly/class rather than though the auto-loader
+            </summary>
+        </member>
+        <member name="P:Overworld.Data.Entity.Animation.Type.ShouldScaleToFitEntityByDefault">
+            <summary>
+            The default "scale to fit entity" setting of animations of this type
+            </summary>
+        </member>
+        <member name="P:Overworld.Data.Entity.Animation.Type.ResourceKey">
+            <summary>
+            The key for this resource
+            </summary>
+        </member>
+        <member name="P:Overworld.Data.Entity.Animation.Type.PackageName">
+            <summary>
+            The package name that this came from.
+            </summary>
+        </member>
+        <member name="P:Overworld.Data.Entity.Animation.Type.DefaultPackageName">
+            <summary>
+            The package name that this came from.
+            </summary>
+        </member>
+        <member name="M:Overworld.Data.Entity.Animation.Type.#ctor(Overworld.Data.Entity.Animation.Type.Identity)">
+            <summary>
+            XBAM Base Constructors
+            </summary>
+        </member>
+        <member name="M:Overworld.Data.Entity.Animation.Type.#ctor(System.String,Newtonsoft.Json.Linq.JObject,UnityEngine.AnimationClip,System.Collections.Generic.IEnumerable{Overworld.Data.Entity.Animation.Tag})">
+            <summary>
+            Import constructor
+            </summary>
+        </member>
+        <member name="M:Overworld.Data.Entity.Animation.Type.ConfigureModel(Meep.Tech.Data.IBuilder{Overworld.Data.Entity.Animation},Overworld.Data.Entity.Animation)">
+            <summary>
+            Build a model from this animation type
+            </summary>
+        </member>
+        <member name="T:Overworld.Data.Entity.Animation.Tag">
+            <summary>
+            Tags used to find animations
+            </summary>
+        </member>
+        <member name="T:Overworld.Data.Entity.Animation.Tag.JsonConverter">
+            <summary>
+            Used to convert tags to strings and back by default
+            </summary>
+        </member>
+        <member name="F:Overworld.Data.Entity.Animation.Tag.Icon">
+            <summary>
+            Used for the entity's icon.
+            </summary>
+        </member>
+        <member name="F:Overworld.Data.Entity.Animation.Tag.North">
+            <summary>
+            Indicates North Facing Sprite Animation
+            </summary>
+        </member>
+        <member name="F:Overworld.Data.Entity.Animation.Tag.South">
+            <summary>
+            Indicates South Facing Sprite Animation
+            </summary>
+        </member>
+        <member name="F:Overworld.Data.Entity.Animation.Tag.East">
+            <summary>
+            Indicates Eastward Facing Sprite Animation
+            </summary>
+        </member>
+        <member name="F:Overworld.Data.Entity.Animation.Tag.West">
+            <summary>
+            Indicates Westward Facing Sprite Animation
+            </summary>
+        </member>
+        <member name="F:Overworld.Data.Entity.Animation.Tag.Animated">
+            <summary>
+            Represents a sprite that is animated
+            </summary>
+        </member>
+        <member name="F:Overworld.Data.Entity.Animation.Tag.Still">
+            <summary>
+            Represents a single framed sprite or A non-moving one
+            </summary>
+        </member>
+        <member name="F:Overworld.Data.Entity.Animation.Tag.Move">
+            <summary>
+            Represents a sprite action used to move a number of tiles from your current position.
+            For animation that stay in the same place but have motion, see "Animated"
+            </summary>
+        </member>
+        <member name="F:Overworld.Data.Entity.Animation.Tag.Walk">
+            <summary>
+            Represents walking
+            </summary>
+        </member>
+        <member name="F:Overworld.Data.Entity.Animation.Tag.Run">
+            <summary>
+            Represents running
+            </summary>
+        </member>
+        <member name="F:Overworld.Data.Entity.Animation.Tag.Jump">
+            <summary>
+            Represents jumping
+            </summary>
+        </member>
+        <member name="T:Overworld.Data.Entity.Animation.Layer">
+            <summary>
+            The layer of the entity an animation applies to
+            </summary>
+        </member>
+        <member name="P:Overworld.Data.Entity.Animation.ScaleToFitEntity">
+            <summary>
+            If this animation should scale to fit the entity it's applied to
+            </summary>
+        </member>
+        <member name="P:Overworld.Data.Entity.Animation.CustomTags">
+            <summary>
+            Custom Entity-Setable tags for this animation. 
+            This allows you to customize the tags of an animation on an entity.
+            </summary>
+        </member>
+        <member name="P:Overworld.Data.Entity.Animation.CustomTagWeights">
+            <summary>
+            Custom Entity-Setable weights for each tag applied to this animation.
+            This allows you to customize the weight of different tags in animations for different entities.
+            </summary>
+        </member>
+        <member name="T:Overworld.Data.Entity.Type">
+            <summary>
+            A type of entity
+            </summary>
+        </member>
+        <member name="P:Overworld.Data.Entity.Type.PackageName">
+            <summary>
+            The package name that this came from.
+            </summary>
+        </member>
+        <member name="P:Overworld.Data.Entity.Type.DefaultPackageName">
+            <summary>
+            The package name that this came from.
+            </summary>
+        </member>
+        <member name="T:Overworld.Data.Entity.Type.Identity">
+            <summary>
+            Ids for entity types
+            </summary>
+        </member>
+        <member name="P:Overworld.Data.Entity.Id">
+            <summary>
+            Unique entity id
+            </summary>
+        </member>
+        <member name="P:Overworld.Data.Entity.Name">
+            <summary>
+            The display name of an entity
+            </summary>
+        </member>
+        <member name="P:Overworld.Data.Entity.Animations">
+            <summary>
+            Availible sprite animations by tag
+            </summary>
+        </member>
+        <member name="M:Overworld.Data.Entity.#ctor(Meep.Tech.Data.IBuilder{Overworld.Data.Entity})">
+            <summary>
+            X Bam Builder
+            </summary>
+            <param name="builder"></param>
+        </member>
+        <member name="M:Overworld.Data.Entity.#ctor(System.String,System.String)">
+            <summary>
+            Make a new entity
+            </summary>
+        </member>
+        <member name="T:Overworld.Data.Tile.Type">
+            <summary>
+            Archetypes for tiles.
+            </summary>
+        </member>
+        <member name="P:Overworld.Data.Tile.Type.AllowInitializationsAfterLoaderFinalization">
+            <summary>
+            <inheritdoc/>
+            </summary>
+        </member>
+        <member name="P:Overworld.Data.Tile.Type.DefaultPackageName">
+            <summary>
+            The default package name for archetyps of this type
+            </summary>
+        </member>
+        <member name="P:Overworld.Data.Tile.Type.ResourceKey">
+            <summary>
+            The unique resource key of this type
+            </summary>
+        </member>
+        <member name="P:Overworld.Data.Tile.Type.BackgroundImageHashKey">
+            <summary>
+            The hash key of the image
+            </summary>
+        </member>
+        <member name="P:Overworld.Data.Tile.Type.PackageName">
+            <summary>
+            The package name that this came from.
+            </summary>
+        </member>
+        <member name="P:Overworld.Data.Tile.Type.DefaultBackground">
+            <summary>
+            The background tile this tile is using
+            </summary>
+        </member>
+        <member name="P:Overworld.Data.Tile.Type.DefaultHeight">
+            <summary>
+            The tile height
+            </summary>
+        </member>
+        <member name="P:Overworld.Data.Tile.Type.Description">
+            <summary>
+            The tile height
+            </summary>
+        </member>
+        <member name="P:Overworld.Data.Tile.Type.UseDefaultBackgroundAsInWorldTileImage">
+            <summary>
+            If the default background should be used as the tile image in world.
+            If false, the DefaultBackground image is just for use in the editor ui.
+            </summary>
+        </member>
+        <member name="M:Overworld.Data.Tile.Type.#ctor(System.String,System.String,System.String,UnityEngine.Tilemaps.Tile,System.Nullable{UnityEngine.Hash128},System.Nullable{System.Single})">
+            <summary>
+            Used to make new tiles via import.
+            </summary>
+        </member>
+        <member name="P:Overworld.Data.Tile.Archetype">
+            <summary>
+            The archetype originally used to make this tile.
+            A tile can be modified around it, and then reset to it as well.
+            </summary>
+        </member>
+        <member name="P:Overworld.Data.Tile.Background">
+            <summary>
+            The background tile this tile is using
+            </summary>
+        </member>
+        <member name="P:Overworld.Data.Tile.Height">
+            <summary>
+            The tile height
+            </summary>
+        </member>
+        <member name="P:Overworld.Data.Tile._backgroundOverride">
+            <summary>
+            can be used to reference a type who's background should be used instead.
+            </summary>
+        </member>
+        <member name="M:Overworld.Data.Tile.ResetForCurrentArchetype">
+            <summary>
+            Resets this tile to it's current archetype's setting
+            </summary>
+        </member>
+        <member name="M:Overworld.Data.Tile.OverrideBackgroundTo(Overworld.Data.Tile.Type)">
+            <summary>
+            Override the background to another type's background image
+            </summary>
+        </member>
+        <member name="M:Overworld.Data.Tile._initializeFor(Overworld.Data.Tile.Type)">
+            <summary>
+            Initialize this for a new archetype
+            </summary>
+            <param name="archetype"></param>
+        </member>
+        <member name="T:Overworld.Data.Tile.Porter.BackgroundImageImportMode">
+            <summary>
+            The config specified import mode
+            </summary>
+        </member>
+        <member name="F:Overworld.Data.Tile.Porter.PixelsPerTileOption">
+            <summary>
+            option for pixels per tile.
+            Takes an int.
+            </summary>
+        </member>
+        <member name="F:Overworld.Data.Tile.Porter.ProvidedSheetDimensionsOption">
+            <summary>
+            option for dimensions in tiles instead of pixels during import.
+            Takes an int.
+            </summary>
+        </member>
+        <!-- Badly formed XML comment ignored for member "F:Overworld.Data.Tile.Porter.InPlaceTileCallbackOption" -->
+        <member name="F:Overworld.Data.Tile.Porter.NameConfigKey">
+            <summary>
+            Key for the name value in the config
+            </summary>
+        </member>
+        <member name="P:Overworld.Data.Tile.Porter.DefaultPackageName">
+            <summary>
+            The package name that this came from.
+            </summary>
+        </member>
+        <member name="M:Overworld.Data.Tile.Porter._importUnityTilesFrom(System.String,System.Nullable{System.Int32},System.Boolean,System.Nullable{UnityEngine.Vector2})">
+            <summary>
+            Import a collection of tiles from an image location
+            </summary>
+        </member>
+        <member name="T:Overworld.Data.TileExtensions">
+            <summary>
+            Extensions for Unity Tiles
+            </summary>
+        </member>
+        <member name="M:Overworld.Data.TileExtensions.GetTileHash(UnityEngine.Tilemaps.Tile)">
+            <summary>
+            Gets a tile's hash code from it's image
+            </summary>
+        </member>
+        <member name="P:Overworld.Data.User.UniqueName">
+            <summary>
+            The unique, human readable name of a User. The username
+            </summary>
+        </member>
+        <member name="P:Overworld.Data.IO.ArchetypePorter`1.DefaultPackageName">
+            <summary>
+            The default package name for archetyps of this type
+            </summary>
+        </member>
+        <member name="F:Overworld.Data.IO.ArchetypePorter`1._cachedResources">
+            <summary>
+            The cached archetypes of this kind, by resource id
+            </summary>
+        </member>
+        <member name="F:Overworld.Data.IO.ArchetypePorter`1._cachedResourcesByPackage">
+            <summary>
+            The cached archetypes of this kind, by package name then resource id.
+            </summary>
+        </member>
+        <member name="P:Overworld.Data.IO.ArchetypePorter`1.CurrentUser">
+            <summary>
+            The user in control of the current game, and imports.
+            </summary>
+        </member>
+        <member name="M:Overworld.Data.IO.ArchetypePorter`1._serializeArchetypeToModFiles(`0,System.String)">
+            <summary>
+            Serialize this archetype to a set of files in the mod folder.
+            </summary>
+            <param name="archetype">The archetype to serialize into a file or files</param>
+            <param name="packageDirectoryPath">The root path to save files to for this archetype</param>
+            <returns>The newly serialized file's locations</returns>
+        </member>
+        <member name="M:Overworld.Data.IO.ArchetypePorter`1.TryToGetGetCachedArchetype(System.String)">
+            <summary>
+            Try to get an existing archetype
+            </summary>
+        </member>
+        <member name="M:Overworld.Data.IO.ArchetypePorter`1.GetCachedArchetype(System.String)">
+            <summary>
+            get an existing archetype
+            </summary>
+        </member>
+        <member name="M:Overworld.Data.IO.ArchetypePorter`1.TryToFindArchetypeAndLoadFromModFolder(System.String,System.Collections.Generic.Dictionary{System.String,System.Object})">
+            <summary>
+            Try to get an existing archetype from the compiled mod folder files.
+            This doesn't throw if it finds no files, but may throw if the found files are invalid, or the archetype already exists.
+            Returns null on failure to find.
+            </summary>
+        </member>
+        <member name="M:Overworld.Data.IO.ArchetypePorter`1.LoadArchetypeFromModFolder(System.String,System.Collections.Generic.Dictionary{System.String,System.Object})">
+            <summary>
+            get an existing archetype from the compiled mod folder files
+            </summary>
+        </member>
+        <member name="M:Overworld.Data.IO.ArchetypePorter`1.ImportAndBuildNewArchetypeFromFile(System.String,System.Collections.Generic.Dictionary{System.String,System.Object})">
+            <summary>
+            Import a new archetype from the external file location.
+            </summary>
+        </member>
+        <member name="M:Overworld.Data.IO.ArchetypePorter`1.ImportAndBuildNewArchetypeFromFolder(System.String,System.Collections.Generic.Dictionary{System.String,System.Object})">
+            <summary>
+            Import a new archetype from the external folder location.
+            </summary>
+        </member>
+        <member name="M:Overworld.Data.IO.ArchetypePorter`1.ImportAndBuildNewArchetypeFromFiles(System.String[],System.Collections.Generic.Dictionary{System.String,System.Object})">
+            <summary>
+            Import a new archetype from the external folder location.
+            </summary>
+        </member>
+        <member name="M:Overworld.Data.IO.ArchetypePorter`1._getNewResourceKeyFromFileNameAndSettings(System.String,System.String,System.String@)">
+            <summary>
+            Used to make a new key for a new resouce made by the current user
+            </summary>
+        </member>
+        <member name="F:Overworld.Data.IPorter.ModFolderName">
+            <summary>
+            The base mod folder name
+            </summary>
+        </member>
+        <member name="F:Overworld.Data.IPorter.ImportFolderName">
+            <summary>
+            The imports folder name
+            </summary>
+        </member>
+        <member name="F:Overworld.Data.IPorter.FinishedImportsFolderName">
+            <summary>
+            The finished imports folder name.
+            </summary>
+        </member>
+        <member name="F:Overworld.Data.IPorter.NameOverrideSetting">
+            <summary>
+            Option parameter to override the object name
+            </summary>
+        </member>
+        <member name="F:Overworld.Data.IPorter.MoveFinishedFilesToFinishedImportsFolderSetting">
+            <summary>
+            Option parameter to Move the imported files to the finished imports folder.
+            Accepts a bool
+            </summary>
+        </member>
+        <member name="F:Overworld.Data.IPorter.NoPackageName">
+            <summary>
+            Option parameter to indicate there's no package name
+            Accepts a bool
+            </summary>
+        </member>
+        <member name="F:Overworld.Data.IPorter.ConfigFileName">
+            <summary>
+            The name of the config json file.
+            </summary>
+        </member>
+        <member name="T:BasicHeightMapTile">
+            <summary>
+            Used to make height map tiles.
+            </summary>
+        </member>
+        <member name="P:BasicHeightMapTile.Types">
+            <summary>
+            <inheritdoc/>
+            </summary>
+        </member>
+        <member name="P:BasicHeightMapTile.TypesByHeight">
+            <summary>
+            <inheritdoc/>
+            </summary>
+        </member>
+        <member name="P:BasicHeightMapTile.UseDefaultBackgroundAsInWorldTileImage">
+            <summary>
+            <inheritdoc/>
+            </summary>
+        </member>
+        <member name="M:BasicHeightMapTile.#ctor(System.Single,UnityEngine.Tilemaps.Tile)">
+            <summary>
+            Make a base height tile for a new height value.
+            This will throw if you try to create type for a height that already has a type.
+            </summary>
+        </member>
+        <member name="M:DicEx.AddToValueCollection``2(System.Collections.Generic.IDictionary{``0,System.Collections.Generic.ICollection{``1}},``0,``1)">
+            <summary>
+            Add an item to a ICollection within a dictionary at the given key
+            </summary>
+        </member>
+        <member name="M:DicEx.ValueCollectionContains``2(System.Collections.Generic.IDictionary{``0,System.Collections.Generic.ICollection{``1}},``0,``1)">
+            <summary>
+            Add an item to a ICollection within a dictionary at the given key
+            </summary>
+        </member>
+        <member name="M:DicEx.AddToHashSet``2(System.Collections.Generic.IDictionary{``0,System.Collections.Generic.HashSet{``1}},``0,``1)">
+            <summary>
+            Add an item to a ICollection within a dictionary at the given key
+            </summary>
+        </member>
+        <member name="M:DicEx.RemoveFromValueCollection``2(System.Collections.Generic.IDictionary{``0,System.Collections.Generic.ICollection{``1}},``0,``1)">
+            <summary>
+            Remove an item from an ICollection within a dictionary at the given key
+            </summary>
+        </member>
+        <member name="T:TagedCollection`2">
+            <summary>
+            A collection of Values indexed by multiple non-unique tags
+            </summary>
+            <typeparam name="TTag">Assumed to have a unique hash code</typeparam>
+            <typeparam name="TValue">The stored values</typeparam>
+        </member>
+        <member name="P:TagedCollection`2.Values">
+            <summary>
+            All distinct values
+            </summary>
+        </member>
+        <member name="P:TagedCollection`2.Tags">
+            <summary>
+            All distinct tags
+            </summary>
+        </member>
+        <member name="M:TagedCollection`2.Add(`1,`0[])">
+            <summary>
+            Add a new value with as many tags as you want
+            </summary>
+        </member>
+        <member name="M:TagedCollection`2.Add(System.Collections.Generic.IEnumerable{`0},`1)">
+            <summary>
+            Add a new value with multiple tags
+            </summary>
+        </member>
+        <member name="M:TagedCollection`2.Remove(`1)">
+            <summary>
+            Remove a value
+            </summary>
+        </member>
+        <member name="M:TagedCollection`2.RemoveValuesFor(`0)">
+            <summary>
+            Remove all values for the given tag
+            </summary>
+        </member>
+        <member name="M:TagedCollection`2.FindWeightedMatches(System.Int32,`0[])">
+            <summary>
+            Find the best matches, taking into account tag order
+            </summary>
+        </member>
+        <member name="M:TagedCollection`2.FindWeightedMatches(`0[])">
+            <summary>
+            Find the best matches, taking into account tag order with the default weight multiplier
+            </summary>
+        </member>
+        <member name="M:TagedCollection`2.FindWeightedMatches(System.Collections.Generic.IEnumerable{`0},System.Int32)">
+            <summary>
+            Find the best matches, taking into account tag order with the default weight multiplier
+            </summary>
+        </member>
+        <member name="M:TagedCollection`2.FindWeightedMatches(System.ValueTuple{`0,System.Int32}[])">
+            <summary>
+            Find matches given tags with specified weights
+            The higher the weight, the more wanted the tag
+            </summary>
+        </member>
+        <member name="M:TagedCollection`2.FindWeightedMatches(System.Collections.Generic.IEnumerable{System.ValueTuple{`0,System.Int32}})">
+            <summary>
+            Find matches given tags with specified weights
+            The higher the weight, the more wanted the tag
+            </summary>
+        </member>
+        <member name="M:TagedCollection`2.FindBestMatches(`0[])">
+            <summary>
+            Find the values that match the most tags in order
+            </summary>
+        </member>
+        <member name="M:TagedCollection`2.FindBestMatches(System.Collections.Generic.IEnumerable{`0})">
+            <summary>
+            Find the values that match the most tags in order
+            </summary>
+        </member>
+        <member name="M:TagedCollection`2.SelectMatches(`0[])">
+            <summary>
+            Find the values that match any of the tags, unordered
+            </summary>
+        </member>
+        <member name="M:TagedCollection`2.SelectMatches(System.Collections.Generic.IEnumerable{`0})">
+            <summary>
+            Find the values that match any of the tags, unordered
+            </summary>
+        </member>
+        <member name="M:TagedCollection`2.FirstWithTagsOrDefault(`0[])">
+            <summary>
+            Find the first value with the tags, or a default one with the best match
+            </summary>
+        </member>
+        <member name="M:TagedCollection`2.FirstWithTagsOrDefault(System.Collections.Generic.IEnumerable{`0})">
+            <summary>
+            Find the first value with the tags, or a default one with the best match
+            </summary>
+        </member>
+        <member name="M:TagedCollection`2.SelectWeightedMatches(System.Int32,`0[])">
+            <summary>
+            Select the best matches, taking into account tag order
+            Slower than Find due to the cast
+            </summary>
+        </member>
+        <member name="M:TagedCollection`2.SelectWeightedMatches(`0[])">
+            <summary>
+            Select the best matches, taking into account tag order with the default weight multiplier
+            Slower than Find due to the cast
+            </summary>
+        </member>
+        <member name="M:TagedCollection`2.SelectWeightedMatches(System.Collections.Generic.IEnumerable{`0},System.Int32)">
+            <summary>
+            Select the best matches, taking into account tag order with the default weight multiplier.
+            Slower than Find due to the cast
+            </summary>
+        </member>
+        <member name="M:TagedCollection`2.SelectWeightedMatches(System.ValueTuple{`0,System.Int32}[])">
+            <summary>
+            Select matches given tags with specified weights
+            The higher the weight, the more wanted the tag
+            Slower than Find due to the cast
+            </summary>
+        </member>
+        <member name="M:TagedCollection`2.SelectWeightedMatches(System.Collections.Generic.IEnumerable{System.ValueTuple{`0,System.Int32}})">
+            <summary>
+            Select matches given tags with specified weights
+            The higher the weight, the more wanted the tag
+            Slower than Find due to the cast
+            </summary>
+        </member>
+        <member name="M:TagedCollection`2.SelectBestMatches(`0[])">
+            <summary>
+            Select the values that match the most tags in order
+            Slower than Find due to the cast
+            </summary>
+        </member>
+        <member name="M:TagedCollection`2.SelectBestMatches(System.Collections.Generic.IEnumerable{`0})">
+            <summary>
+            Select the values that match the most tags in order
+            Slower than Find due to the cast
+            </summary>
+        </member>
+        <member name="M:TagedCollection`2.GetAllSortedByWeight(System.Int32,`0[])">
+            <summary>
+            Find the best matches, taking into account tag order
+            </summary>
+        </member>
+        <member name="M:TagedCollection`2.GetAllSortedByWeight(`0[])">
+            <summary>
+            Find the best matches, taking into account tag order with the default weight multiplier
+            </summary>
+        </member>
+        <member name="M:TagedCollection`2.GetAllSortedByWeight(System.Collections.Generic.IEnumerable{`0})">
+            <summary>
+            Find the best matches, taking into account tag order with the default weight multiplier
+            </summary>
+        </member>
+        <member name="M:TagedCollection`2.GetAllSortedByWeight(System.Collections.Generic.IList{`0},System.Int32)">
+            <summary>
+            Find the best matches, taking into account tag order with the default weight multiplier
+            </summary>
+        </member>
+        <member name="M:TagedCollection`2.GetAllSortedByWeight(System.ValueTuple{`0,System.Int32}[])">
+            <summary>
+            Find matches given tags with specified weights
+            The higher the weight, the more wanted the tag
+            </summary>
+        </member>
+        <member name="M:TagedCollection`2.GetAllSortedByWeight(System.Collections.Generic.IEnumerable{System.ValueTuple{`0,System.Int32}})">
+            <summary>
+            Find matches given tags with specified weights
+            The higher the weight, the more wanted the tag
+            </summary>
+        </member>
+        <member name="M:TagedCollection`2.GetAllSortedByBestMatch(`0[])">
+            <summary>
+            Find the values that match the most tags
+            </summary>
+        </member>
+        <member name="M:TagedCollection`2.GetAllSortedByBestMatch(System.Collections.Generic.IEnumerable{`0})">
+            <summary>
+            Find the values that match the most tags
+            </summary>
+        </member>
+    </members>
+</doc>

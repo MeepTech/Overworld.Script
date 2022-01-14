@@ -48,6 +48,11 @@ namespace Overworld.Script {
         /// </summary>
         public readonly Data.Character Executor;
 
+        /// <summary>
+        /// The entity this script is attached to.
+        /// </summary>
+        public Data.Entity AttachedTo
+          => (TryToGetFirstVariable(AttachedToEntityVariableName) as Entity)?.Value;
 
         internal readonly VariableMap _temporaryScopedVariables;
         internal readonly Index _indexReplacement;
@@ -163,7 +168,7 @@ namespace Overworld.Script {
         /// then charachter specific
         /// then global
         /// </summary>
-        public Variable TryToGetFirstVariable(string name, string charachterId) {
+        public Variable TryToGetFirstVariable(string name, string charachterId = null) {
           Variable found;
           if((found = TryToGetTempScopedVariable(name)) != null) {
             return found;
