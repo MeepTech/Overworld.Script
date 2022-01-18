@@ -1373,7 +1373,7 @@
             The base class for modular data holders for models and archetypes
             </summary>
             <summary>
-            The base class for modular data holders for models and archetypes
+            The base interface for components without branching archet
             </summary>
             <summary>
             The base class for modular data holders for models and archetypes
@@ -3326,6 +3326,11 @@
             </summary>
         </member>
         <member name="M:Meep.Tech.Data.DictionaryExtensions.Append``1(System.Collections.Generic.HashSet{``0},``0)">
+            <summary>
+            Append a value to a dictionary and return the collection
+            </summary>
+        </member>
+        <member name="M:Meep.Tech.Data.DictionaryExtensions.Append(System.Collections.Generic.HashSet{System.Func{Meep.Tech.Data.IBuilder,Meep.Tech.Data.IModel.IComponent}},System.Func{Meep.Tech.Data.IBuilder,Meep.Tech.Data.IModel.IComponent})">
             <summary>
             Append a value to a dictionary and return the collection
             </summary>
