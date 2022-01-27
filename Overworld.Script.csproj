@@ -13,7 +13,7 @@
 	</Target>
 
 	<ItemGroup>
-	  <ProjectReference Include="..\..\..\Meep.Tech.ECSBAMF\Meep.Tech.ECSBAM.csproj" />
+    <ProjectReference Include="..\..\..\ECSBAM\Meep.Tech.Data\Meep.Tech.Data.csproj" />
 	  <ProjectReference Include="..\Overworld.Data\Overworld.Data.csproj" />
 	</ItemGroup>
 

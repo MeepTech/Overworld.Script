@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <doc>
     <assembly>
-        <name>Meep.Tech.ECSBAM</name>
+        <name>Meep.Tech.Data</name>
     </assembly>
     <members>
         <member name="T:Meep.Tech.Data.Archetype">
@@ -89,16 +89,6 @@
             helper for getting the builder constructor from the non-generic base class
             </summary>
             <returns></returns>
-        </member>
-        <member name="T:Meep.Tech.Data.Archetype.ToKeyStringConverter`1">
-            <summary>
-            Used to convert an Archetype to a general string for storage
-            </summary>
-        </member>
-        <member name="T:Meep.Tech.Data.Archetype.ToKeyStringConverter">
-            <summary>
-            Used to convert an Archetype to a general string for storage
-            </summary>
         </member>
         <member name="M:Meep.Tech.Data.Archetype.ConfigureModel(Meep.Tech.Data.IBuilder,Meep.Tech.Data.IModel)">
             <summary>
@@ -476,7 +466,8 @@
         </member>
         <member name="P:Meep.Tech.Data.Archetype`2.ModelBaseType">
             <summary>
-            The most basic model that this archetype family tree can produce
+            The most basic model that this archetype can produce.d
+            This is used to generat the default model constructor.
             </summary>
         </member>
         <member name="P:Meep.Tech.Data.Archetype`2.Id">
@@ -701,16 +692,6 @@
         <member name="M:Meep.Tech.Data.Archetype`2.BuildModel(Meep.Tech.Data.IBuilder{`0})">
             <summary>
             Build the model with the builder.
-            </summary>
-        </member>
-        <member name="T:Meep.Tech.Data.Archetype`2.ToKeyStringConverter">
-            <summary>
-            Used to convert an Archetype to a general string for storage
-            </summary>
-        </member>
-        <member name="M:Meep.Tech.Data.Archetype`2.ToKeyStringConverter.#ctor">
-            <summary>
-            <inheritdoc/>
             </summary>
         </member>
         <member name="T:Meep.Tech.Data.Archetype`2.Collection">
@@ -938,14 +919,27 @@
             Settings for the loader
             </summary>
         </member>
-        <!-- Badly formed XML comment ignored for member "T:Meep.Tech.Data.Configuration.Loader.Settings.BranchAttribute" -->
+        <member name="T:Meep.Tech.Data.Configuration.Loader.Settings.BranchAttribute">
+            <summary>
+            Used as shorthand for an archetype that produces a different model via the Model constructor
+            This will just set the model constructor of the archetype to the basic activator for the parameterless ctor of TNewBaseModel, or the declaring type of the current type.     
+            </summary>
+        </member>
         <member name="P:Meep.Tech.Data.Configuration.Loader.Settings.BranchAttribute.NewBaseModelType">
             <summary>
             The new base model this archetype branches for
             </summary>
         </member>
-        <!-- Badly formed XML comment ignored for member "T:Meep.Tech.Data.Configuration.Loader.Settings.DoNotBuildInInitialLoadAttribute" -->
-        <!-- Badly formed XML comment ignored for member "T:Meep.Tech.Data.Configuration.Loader.Settings.DoNotBuildThisOrChildrenInInitialLoadAttribute" -->
+        <member name="T:Meep.Tech.Data.Configuration.Loader.Settings.DoNotBuildInInitialLoadAttribute">
+            <summary>
+            Prevents a type that inherits from Archetype or IModel from being built as an archetype during initial loading. this is NOT inherited.
+            </summary>
+        </member>
+        <member name="T:Meep.Tech.Data.Configuration.Loader.Settings.DoNotBuildThisOrChildrenInInitialLoadAttribute">
+            <summary>
+            Prevents a type that inherits from Archetype or IModel and it's inherited types from being built into an archetype during initial loading.
+            </summary>
+        </member>
         <member name="P:Meep.Tech.Data.Configuration.Loader.Settings.PreLoadAssemblies">
             <summary>
             Assemblies that should be included in the loading that are built in.
@@ -1075,7 +1069,7 @@
             Externally fetched assemblies for loading
             </summary>
         </member>
-        <member name="P:Meep.Tech.Data.Configuration.Loader._orderedAssemblyFiles">
+        <member name="F:Meep.Tech.Data.Configuration.Loader._orderedAssemblyFiles">
             <summary>
             The assemblies from Options.PreOrderedAssemblyFiles along with order.json combined and ready to use
             </summary>
@@ -1099,11 +1093,6 @@
         <member name="M:Meep.Tech.Data.Configuration.Loader._initializeModelSerializerSettings">
             <summary>
             Initialize the model serializer
-            </summary>
-        </member>
-        <member name="M:Meep.Tech.Data.Configuration.Loader._finalizeModelSerializerSettings">
-            <summary>
-            load the dbcontext settings from the info we've gotten from all the models
             </summary>
         </member>
         <member name="M:Meep.Tech.Data.Configuration.Loader._loadModLoadOrderFromJson">
@@ -1135,7 +1124,7 @@
             </summary>
         </member>
         <member name="M:Meep.Tech.Data.Configuration.Loader._registerModelType(System.Type)">
-            <summary>
+            <summary>sd
             Register a new type of model.
             </summary>
         </member>
@@ -1235,6 +1224,12 @@
         <member name="M:Meep.Tech.Data.Configuration.Modifications.#ctor(Meep.Tech.Data.Universe)">
             <summary>
             Base Ctor, override and keep hidden.
+            </summary>
+        </member>
+        <member name="P:Meep.Tech.Data.Configuration.Modifications.Dependencies">
+            <summary>
+            (Optional) ECSBAM Assemblies this one depends on.
+            TOOD: impliment for this, and for archetypes.
             </summary>
         </member>
         <member name="M:Meep.Tech.Data.Configuration.Modifications.Initialize">
@@ -1377,6 +1372,11 @@
             </summary>
             <summary>
             The base class for modular data holders for models and archetypes
+            </summary>
+        </member>
+        <member name="T:Meep.Tech.Data.IComponent`1.BuilderFactory">
+            <summary>
+            General Base Builder Factory for Components.
             </summary>
         </member>
         <member name="P:Meep.Tech.Data.IComponent`1.BuilderFactory.Key">
@@ -1789,6 +1789,11 @@
             in the static constructor, or the Setup(Universe) override
             </summary>
         </member>
+        <member name="P:Meep.Tech.Data.IModel`1.BuilderFactory`1.ModelBaseType">
+            <summary>
+            Used for Buidler Factories to easily change the base type
+            </summary>
+        </member>
         <member name="P:Meep.Tech.Data.IModel`1.BuilderFactory`1.Meep#Tech#Data#IFactory#ModelConstructor">
             <summary>
             <inheritdoc/>
@@ -1974,11 +1979,6 @@
         <member name="M:Meep.Tech.Data.IReadableComponentStorage.HasComponent(Meep.Tech.Data.IComponent,Meep.Tech.Data.IComponent@)">
             <summary>
             Get a component if this has that given component
-            </summary>
-        </member>
-        <member name="T:Meep.Tech.Data.IReadableComponentStorage.ComponentsToJsonCollectionValueConverter">
-            <summary>
-            Used to convert a collection of components to and from a json array
             </summary>
         </member>
         <member name="T:Meep.Tech.Data.IReadableComponentStorage.ComponentsToJsonConverter">
@@ -2290,32 +2290,6 @@
             Make a new serializer for a universe
             </summary>
         </member>
-        <member name="T:Meep.Tech.Data.Model.Serializer.DbContext">
-            <summary>
-            The default db context class for the model serializer.
-            If you use your own, make sure to call modelBuilder.SetUpEcsbamModels();
-            </summary>
-        </member>
-        <member name="P:Meep.Tech.Data.Model.Serializer.DbContext._universe">
-            <summary>
-            The universe this is for
-            </summary>
-        </member>
-        <member name="M:Meep.Tech.Data.Model.Serializer.DbContext.#ctor(Microsoft.EntityFrameworkCore.DbContextOptions{Meep.Tech.Data.Model.Serializer.DbContext},Meep.Tech.Data.Universe,System.Action{Microsoft.EntityFrameworkCore.DbContextOptionsBuilder})">
-            <summary>
-            <inheritdoc/>
-            </summary>
-        </member>
-        <member name="M:Meep.Tech.Data.Model.Serializer.DbContext.OnModelCreating(Microsoft.EntityFrameworkCore.ModelBuilder)">
-            <summary>
-            <inheritdoc/>
-            </summary>
-        </member>
-        <member name="M:Meep.Tech.Data.Model.Serializer.DbContext.OnConfiguring(Microsoft.EntityFrameworkCore.DbContextOptionsBuilder)">
-            <summary>
-            <inheritdoc/>
-            </summary>
-        </member>
         <member name="T:Meep.Tech.Data.Model.Serializer.DefaultContractResolver">
             <summary>
             The default contract resolver class used for json serialization by ECSBAM
@@ -2364,32 +2338,6 @@
         <member name="P:Meep.Tech.Data.Model.Serializer.Settings.ModelJsonSerializerSettings">
             <summary>
             Compiled model serializer from the settings config function
-            </summary>
-        </member>
-        <member name="P:Meep.Tech.Data.Model.Serializer.Settings.DbContext">
-            <summary>
-            The db context used by the serializer
-            </summary>
-        </member>
-        <member name="P:Meep.Tech.Data.Model.Serializer.Settings.TryToSetUpDbContext">
-            <summary>
-            Whether or not ECSBAM should set up the models with a db context
-            </summary>
-        </member>
-        <member name="P:Meep.Tech.Data.Model.Serializer.Settings.ModelsMustOptInToEfCoreUsingAttribute">
-            <summary>
-            If this is true, models must have the [Table] attribute to be set up by ecsbam using efcore by default.
-            </summary>
-        </member>
-        <member name="P:Meep.Tech.Data.Model.Serializer.Settings.GetDefaultDbContextForModelSerialization">
-            <summary>
-            The default entity framework db serializer context
-            </summary>
-        </member>
-        <member name="P:Meep.Tech.Data.Model.Serializer.Settings.TypesToMapToDbContext">
-            <summary>
-            The types to map to the db context.
-            You can provide a config function if you want, but don't have to.
             </summary>
         </member>
         <member name="P:Meep.Tech.Data.Model.Serializer.Settings.PropertiesMustOptOutForJsonSerialization">
@@ -2451,6 +2399,18 @@
         <member name="M:Meep.Tech.Data.Enumeration`1.#ctor(System.Object,Meep.Tech.Data.Universe)">
             <summary>
             Ctor add to all.
+            </summary>
+        </member>
+        <member name="T:Meep.Tech.Data.ArchetypePropertyAttribute">
+            <summary>
+            Marks a model property field as the Archetype field.
+            Used for serialization methods
+            </summary>
+        </member>
+        <member name="T:Meep.Tech.Data.ModelComponentsProperty">
+            <summary>
+            Marks a model property field as the Archetype field.
+            Used for serialization methods
             </summary>
         </member>
         <member name="M:Meep.Tech.Data.BuilderExtensions.GetParam``1(Meep.Tech.Data.IBuilder,Meep.Tech.Data.IModel.Builder.Param,``0)">
@@ -3124,6 +3084,16 @@
             Get a loaded universe by it's unique name key
             </summary>
         </member>
+        <member name="M:Meep.Tech.Data.Universe.SetExtraContext``1(``0)">
+            <summary>
+            Get an extra context item that was assigned to this universe.
+            </summary>
+        </member>
+        <member name="M:Meep.Tech.Data.Universe.GetExtraContext``1">
+            <summary>
+            Get an extra context item that was assigned to this universe.
+            </summary>
+        </member>
         <member name="T:Meep.Tech.Data.Universe.EnumerationData">
             <summary>
             Data pertaining to enumerations
@@ -3165,6 +3135,11 @@
             Get the enumerations of the given type with the given external id
             </summary>
         </member>
+        <member name="T:Meep.Tech.Data.Universe.ExtraContext">
+            <summary>
+            A Type that can be added as context to a universe.
+            </summary>
+        </member>
         <member name="F:Meep.Tech.Data.Universe.ModelsData._baseTypes">
             <summary>
             Cached model base types
@@ -3180,7 +3155,7 @@
             The collection of all base model BuilderFactories.
             </summary>
         </member>
-        <member name="F:Meep.Tech.Data.Universe.ModelsData._universe">
+        <member name="P:Meep.Tech.Data.Universe.ModelsData.Universe">
             <summary>
             Link to the parent universe
             </summary>
@@ -3219,11 +3194,6 @@
             <summary>
             Set the builder factory for a type of component.
             TODO: Must be doen during init
-            </summary>
-        </member>
-        <member name="M:Meep.Tech.Data.Universe.ModelsData.ModifyEfCoreBuilderFor``1(System.Action{Microsoft.EntityFrameworkCore.Metadata.Builders.EntityTypeBuilder})">
-            <summary>
-            Update the EFCore entity builder for this model type
             </summary>
         </member>
         <member name="M:Meep.Tech.Data.Universe.ModelsData.GetModelTypeProducedBy(Meep.Tech.Data.Archetype)">
@@ -3280,29 +3250,6 @@
             Valid CTORS:
              - public|private|protected Model(IBuilder builder)
              - public|private|protected Model()
-            </summary>
-        </member>
-        <member name="T:Meep.Tech.Data.IsArchetypePropertyAttribute">
-            <summary>
-            Marks a model property field as the Archetype field.
-            Can also be used for general Archetype [de]serialization with EF core.
-            </summary>
-        </member>
-        <member name="T:Meep.Tech.Data.IsModelComponentsProperty">
-            <summary>
-            Marks a model property field as the Archetype field.
-            Can also be used for general Archetype [de]serialization with EF core.
-            </summary>
-        </member>
-        <member name="T:Meep.Tech.Data.UseCustomConverterAttribute">
-            <summary>
-            Can be used to set a custom converter for a field on an Ecsbam Model.
-            You can use the functions in ModelBuilderExtensions to set this up on your DbContext
-            </summary>
-        </member>
-        <member name="P:Meep.Tech.Data.UseCustomConverterAttribute.CustomConverterType">
-            <summary>
-            The custom type converter
             </summary>
         </member>
         <member name="M:Meep.Tech.Data.DictionaryExtensions.AddToValueCollection``2(System.Collections.Generic.IDictionary{``0,System.Collections.Generic.ICollection{``1}},``0,``1)">
@@ -3382,26 +3329,6 @@
             Deep copy lookup as a dictionary
             </summary>
             <returns></returns>
-        </member>
-        <member name="M:Meep.Tech.Data.ModelBuilderExtensions.SetUpEcsbamModels(Microsoft.EntityFrameworkCore.ModelBuilder,Meep.Tech.Data.Universe)">
-            <summary>
-            Used to set up Ecsbam settings needed for general models in your custom DbContext class.
-            </summary>
-        </member>
-        <member name="M:Meep.Tech.Data.ModelBuilderExtensions.UseCustomValueConverters(Microsoft.EntityFrameworkCore.ModelBuilder)">
-            <summary>
-            Can be used in DBContext to set up the custom value converters
-            </summary>
-        </member>
-        <member name="M:Meep.Tech.Data.ModelBuilderExtensions.UseValueConverterForType``1(Microsoft.EntityFrameworkCore.ModelBuilder,Microsoft.EntityFrameworkCore.Storage.ValueConversion.ValueConverter)">
-            <summary>
-            Use a custom value converter for all properties of a type
-            </summary>
-        </member>
-        <member name="M:Meep.Tech.Data.ModelBuilderExtensions.UseValueConverterForType(Microsoft.EntityFrameworkCore.ModelBuilder,System.Type,Microsoft.EntityFrameworkCore.Storage.ValueConversion.ValueConverter)">
-            <summary>
-            Use a custom value converter for all properties of a type
-            </summary>
         </member>
         <member name="T:Meep.Tech.Data.TypeExtensions">
             <summary>

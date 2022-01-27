@@ -56,6 +56,12 @@
             A For Loop
             </summary>
         </member>
+        <member name="T:Overworld.Script.Ows.Command.FOR_EACH">
+            <summary>
+            A loop that executes on each item in a object collection.
+            You can substitute in 'LOOP-OBJECT' for any of the params of the command that will be called for it to execute on the current loop object.
+            </summary>
+        </member>
         <member name="T:Overworld.Script.Ows.Command.GOTO">
             <summary>
             Go To a Line of Code (alias)

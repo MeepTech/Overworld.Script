@@ -224,38 +224,16 @@
             If this animation should scale to fit the entity it's applied to
             </summary>
         </member>
-        <member name="T:Overworld.Data.Entity.Component">
-            <summary>
-            A component that can be added to an entity.
-            </summary>
-        </member>
-        <member name="T:Overworld.Data.Entity.Component.IType">
-            <summary>
-            There can only be one component per type attached to an entity.
-            </summary>
-        </member>
         <member name="T:Overworld.Data.Entity.Component`1">
             <summary>
             A component that can be added to an entity.
             </summary>
             <typeparam name="TEntityComponentBaseType">Only one component of each base type can be added to a model.</typeparam>
         </member>
-        <member name="P:Overworld.Data.Entity.Component`1.IsEnabled">
+        <member name="M:Overworld.Data.Entity.Component`1.#cctor">
             <summary>
-            If this component is enabled.
+             on init, set the builder factory for each subtype:
             </summary>
-        </member>
-        <member name="M:Overworld.Data.Entity.Component`1.#ctor">
-            <summary>
-            For making a new type of component.
-            </summary>
-        </member>
-        <member name="M:Overworld.Data.Entity.Component`1.UpdateFromUxFieldChange(Overworld.Ux.Simple.UxView,System.String)">
-            <summary>
-            Update from a ux.
-            </summary>
-            <param name="ux">The ux for this component</param>
-            <param name="updatedFieldKey">(optional) a field that was changed.</param>
         </member>
         <member name="T:Overworld.Data.Entity.Component`1.Type">
             <summary>
@@ -288,6 +266,34 @@
             </summary>
             <returns></returns>
         </member>
+        <member name="P:Overworld.Data.Entity.Component`1.IsEnabled">
+            <summary>
+            If this component is enabled.
+            Also used to enable and disable.
+            </summary>
+        </member>
+        <member name="M:Overworld.Data.Entity.Component`1.#ctor">
+            <summary>
+            For making a new type of component.
+            </summary>
+        </member>
+        <member name="M:Overworld.Data.Entity.Component`1.OnDisabled">
+            <summary>
+            Callback for on-deacivated/disabled
+            </summary>
+        </member>
+        <member name="M:Overworld.Data.Entity.Component`1.OnEnabled">
+            <summary>
+            Callback for on-acivated/enabled
+            </summary>
+        </member>
+        <member name="M:Overworld.Data.Entity.Component`1.UpdateFromUxFieldChange(Overworld.Ux.Simple.UxView,System.String)">
+            <summary>
+            Update from a ux.
+            </summary>
+            <param name="ux">The ux for this component</param>
+            <param name="updatedFieldKey">(optional) a field that was changed.</param>
+        </member>
         <member name="T:Overworld.Data.Entity.Type">
             <summary>
             A type of entity
@@ -316,6 +322,16 @@
         <member name="T:Overworld.Data.Entity.Type.Identity">
             <summary>
             Ids for entity types
+            </summary>
+        </member>
+        <member name="T:Overworld.Data.Entity.Component">
+            <summary>
+            A component that can be added to an entity.
+            </summary>
+        </member>
+        <member name="T:Overworld.Data.Entity.Component.IType">
+            <summary>
+            There can only be one component per type attached to an entity.
             </summary>
         </member>
         <member name="P:Overworld.Data.Entity.Id">
@@ -616,6 +632,31 @@
             Gets a tile's hash code from it's image
             </summary>
         </member>
+        <member name="T:Overworld.Data.DateAndTime">
+            <summary>
+            A date and time in the game world.
+            </summary>
+        </member>
+        <member name="F:Overworld.Data.DateAndTime.Date">
+            <summary>
+            The numerical date in the game world.
+            </summary>
+        </member>
+        <member name="F:Overworld.Data.DateAndTime.Time">
+            <summary>
+            The numeric time in the game world.
+            </summary>
+        </member>
+        <member name="M:Overworld.Data.DateAndTime.#ctor(System.Int32,System.Single)">
+            <summary>
+            Make a date with an optional time
+            </summary>
+        </member>
+        <member name="P:Overworld.Data.DateAndTime.Local">
+            <summary>
+            The local date and time of the current world
+            </summary>
+        </member>
         <member name="T:Overworld.Data.Executeable">
             <summary>
             An item that can be added to a component signifying logic that can be executed.
@@ -643,9 +684,221 @@
             </summary>
             <param name="id"></param>
         </member>
+        <member name="M:Overworld.Data.CardinalDirectionExtensions.TurnClockwise(Overworld.Data.World.CardinalDirection)">
+            <summary>
+            Get the direction if you turn clockwise 90 degrees from this one.
+            </summary>
+        </member>
+        <member name="M:Overworld.Data.CardinalDirectionExtensions.TurnCounterClockwise(Overworld.Data.World.CardinalDirection)">
+            <summary>
+            Get the direction if you turn counter-clockwise 90 degrees from this one.
+            </summary>
+        </member>
+        <member name="M:Overworld.Data.CardinalDirectionExtensions.TurnClockwise(Overworld.Data.World.CardinalCorner)">
+            <summary>
+            Get the direction if you turn clockwise 90 degrees from this one.
+            </summary>
+        </member>
+        <member name="M:Overworld.Data.CardinalDirectionExtensions.TurnCounterClockwise(Overworld.Data.World.CardinalCorner)">
+            <summary>
+            Get the direction if you turn counter-clockwise 90 degrees from this one.
+            </summary>
+        </member>
+        <member name="T:Overworld.Data.Entities.Components.BasicPhysicalStats">
+            <summary>
+            Some basic physical stats for all characters
+            </summary>
+        </member>
+        <member name="P:Overworld.Data.Entities.Components.BasicPhysicalStats.Height">
+            <summary>
+            Height, in "Tiles" (1.75 is average)
+            </summary>
+        </member>
+        <member name="P:Overworld.Data.Entities.Components.BasicPhysicalStats.Width">
+            <summary>
+            Width, in "Tiles" (0.75 is average)
+            </summary>
+        </member>
+        <member name="P:Overworld.Data.Entities.Components.BasicPhysicalStats.Weight">
+            <summary>
+            Weight in "Units", used for physics and some other things.
+            175u is average.
+            </summary>
+        </member>
+        <member name="M:Overworld.Data.Entities.Components.BasicPhysicalStats.AddHeightChangeFunc(System.String,System.Func{System.Single,System.Single,System.Single})">
+            <summary>
+            Add an Func to be executed when the height is changed.
+            </summary>
+            <param name="key">The key of the Func, so it can be removed potentially</param>
+            <param name="onHeightChange">The Func to execute.
+            Params:
+            old height,
+            new height.
+            Returns:
+            extra height to add.
+            </param>
+        </member>
+        <member name="M:Overworld.Data.Entities.Components.BasicPhysicalStats.AddWeightChangeFunc(System.String,System.Func{System.Single,System.Single,System.Single})">
+            <summary>
+            Add an Func to be executed when the weight is changed.
+            </summary>
+            <param name="key">The key of the Func, so it can be removed potentially</param>
+            <param name="onWeightChange">The Func to execute.
+            Params:
+            old weight,
+            new weight.
+            Returns:
+            extra weight to add.
+            </param>
+        </member>
+        <member name="M:Overworld.Data.Entities.Components.BasicPhysicalStats.AddWidthChangeFunc(System.String,System.Func{System.Single,System.Single,System.Single})">
+            <summary>
+            Add an Func to be executed when the width is changed.
+            </summary>
+            <param name="key">The key of the Func, so it can be removed potentially</param>
+            <param name="onWidthChange">The Func to execute.
+            Params:
+            old width,
+            new width.
+            Returns:
+            extra width to add.
+            </param>
+        </member>
+        <member name="M:Overworld.Data.Entities.Components.BasicPhysicalStats.RemoveWidthChangeFunc(System.String,System.Func{System.Single,System.Single,System.Single}@)">
+            <summary>
+            Remove a width change Func
+            </summary>
+        </member>
+        <member name="M:Overworld.Data.Entities.Components.BasicPhysicalStats.RemoveHeightChangeFunc(System.String,System.Func{System.Single,System.Single,System.Single}@)">
+            <summary>
+            Remove a height change Func
+            </summary>
+        </member>
+        <member name="M:Overworld.Data.Entities.Components.BasicPhysicalStats.RemoveWeightChangeFunc(System.String,System.Func{System.Single,System.Single,System.Single}@)">
+            <summary>
+            Remove a weight change Func
+            </summary>
+        </member>
+        <member name="T:Overworld.Data.TileBoard">
+            <summary>
+            A collection of tiles for a board.
+            </summary>
+        </member>
+        <member name="F:Overworld.Data.TileBoard.PitDepth">
+            <summary>
+            The height/depth for tiles that are just bottomless pits/nothing/etc.
+            </summary>
+        </member>
+        <member name="P:Overworld.Data.TileBoard.Dimensions">
+            <summary>
+            The dimensions of the board, in tiles.
+            </summary>
+        </member>
+        <member name="P:Overworld.Data.TileBoard.Bounds">
+            <summary>
+            The tile board boundaries
+            </summary>
+        </member>
+        <member name="P:Overworld.Data.TileBoard.RequiredTileTypes">
+            <summary>
+            Required tile archetypes needed to load this board.
+            </summary>
+        </member>
+        <member name="F:Overworld.Data.TileBoard._tiles">
+            <summary>
+            The raw tile data for this board
+            </summary>
+        </member>
+        <member name="P:Overworld.Data.TileBoard.Item(UnityEngine.Vector2Int)">
+            <summary>
+            Get a tile via world location from above
+            </summary>
+        </member>
+        <member name="P:Overworld.Data.TileBoard.Item(System.Int32,System.Int32)">
+            <summary>
+            Get a tile via world location from above
+            </summary>
+        </member>
+        <member name="M:Overworld.Data.TileBoard.#ctor(UnityEngine.Vector2Int)">
+            <summary>
+            Create a new tileboard of the given size.
+            </summary>
+        </member>
         <member name="P:Overworld.Data.User.UniqueName">
             <summary>
             The unique, human readable name of a User. The username
+            </summary>
+        </member>
+        <member name="T:Overworld.Data.World">
+            <summary>
+            A Game world, consisting of multuiple tile boards
+            </summary>
+        </member>
+        <member name="T:Overworld.Data.World.CardinalDirection">
+            <summary>
+            The 4 cardinal directions.
+            </summary>
+        </member>
+        <member name="T:Overworld.Data.World.CardinalCorner">
+            <summary>
+            The 4 cardinal corner directions.
+            </summary>
+        </member>
+        <member name="F:Overworld.Data.World.Origin">
+            <summary>
+            The world origin of tileboards in (XZ) space
+            </summary>
+        </member>
+        <member name="F:Overworld.Data.World.CardinalOffsets">
+            <summary>
+            The 4 cardinal directions offsets
+            </summary>
+        </member>
+        <member name="P:Overworld.Data.World.Options">
+            <summary>
+            The owner-set options for this world.
+            </summary>
+        </member>
+        <member name="P:Overworld.Data.World.Entities">
+            <summary>
+            All of the entities in the current world by id
+            </summary>
+        </member>
+        <member name="P:Overworld.Data.World.Boards">
+            <summary>
+            The editor specific data.
+            This should be lazy loaded when the editor is opened for a world.
+            </summary>
+        </member>
+        <member name="P:Overworld.Data.World.Bounds">
+            <summary>
+            The world boundaries
+            </summary>
+        </member>
+        <member name="T:Overworld.Data.World.Settings">
+            <summary>
+            creator/owner specified settings for a world
+            </summary>
+        </member>
+        <member name="P:Overworld.Data.World.Settings.TileWidthInPixels">
+            <summary>
+            The witdth of a tile in pixesls in this world
+            </summary>
+        </member>
+        <member name="P:Overworld.Data.World.Settings.AllowDragging">
+            <summary>
+            Allow players to drag the screen in this world.
+            Always enabled in editor mode.
+            </summary>
+        </member>
+        <member name="P:Overworld.Data.World.Settings.Dimensions">
+            <summary>
+            The dimensions of the world, in tiles.
+            </summary>
+        </member>
+        <member name="P:Overworld.Data.World.Settings.ZoomLimit">
+            <summary>
+            The zoom in and out limits for the in-game camera.
             </summary>
         </member>
         <member name="T:Overworld.Data.IO.ArchetypePorter`1">
@@ -882,9 +1135,33 @@
             This returns false if the file exists already, meaning there's already an archetype with the given key.
             </summary>
         </member>
+        <member name="T:Overworld.Ux.Simple.CannotBeNegative">
+            <summary>
+            Denotes a field that should not be negative.
+            Overriden by range slider attribute.
+            </summary>
+        </member>
+        <member name="T:Overworld.Ux.Simple.MaximumValueAttribute">
+            <summary>
+            Denotes a numeric field restricted to a minimum value.
+            Overriden by range slider attribute.
+            </summary>
+        </member>
+        <member name="T:Overworld.Ux.Simple.MinimumValueAttribute">
+            <summary>
+            Denotes a numeric field restricted to a minimum value.
+            Overriden by range slider attribute.
+            </summary>
+        </member>
         <member name="T:Overworld.Ux.Simple.RangeSliderAttribute">
             <summary>
             Denotes a numeric field that should appear as a range slider in the UI
+            </summary>
+        </member>
+        <member name="T:Overworld.Ux.Simple.RestrictToRangeAttribute">
+            <summary>
+            Denotes a numeric field restricted to a range of values.
+            Overriden by range slider attribute.
             </summary>
         </member>
         <member name="T:Overworld.Ux.Simple.SelectableAttribute">
@@ -895,6 +1172,26 @@
         <member name="T:Overworld.Ux.Simple.TooltipAttribute">
             <summary>
             Adds a tooltip to the field.
+            </summary>
+        </member>
+        <member name="T:Overworld.Ux.Simple.SimpleButtonAttribute">
+            <summary>
+            Denotes a method that should be auto rendered as a button.
+            A valid method takes either no parameters, or a UxSimpleButton(the one clicked on) and a UXPannel as parameters.
+            TODO: impliment
+            </summary>
+        </member>
+        <member name="T:Overworld.Ux.Simple.ValidationAttribute">
+            <summary>
+            Denotes how the field should be validated.
+            You can name a method that takes one argument and returns a bool,
+            or for numbers you can provide (int min, int max) as a tuple.
+            </summary>
+        </member>
+        <member name="T:Overworld.Ux.Simple.EnableIfAttribute">
+            <summary>
+            Denotes another field that indicates when this field should be enabled.
+            The other field must have a boolean type and be a property of field.
             </summary>
         </member>
         <member name="T:Overworld.Ux.Simple.IUxViewElement">
@@ -915,7 +1212,7 @@
             Columns cannot contain other columns, but Columns can contain rows.
             </summary>
         </member>
-        <member name="P:Overworld.Ux.Simple.UxColumn.Label">
+        <member name="P:Overworld.Ux.Simple.UxColumn.Title">
             <summary>
             The label for this row.
             </summary>
@@ -990,7 +1287,7 @@
             Used to determine if the field should be enabled.
             </summary>
         </member>
-        <member name="M:Overworld.Ux.Simple.UxDataField.#ctor(Overworld.Ux.Simple.UxDataField.DisplayType,System.String,System.String,System.Object,System.String,System.Boolean,System.Func{Overworld.Ux.Simple.UxPannel,System.Boolean},System.Object)">
+        <member name="M:Overworld.Ux.Simple.UxDataField.#ctor(Overworld.Ux.Simple.UxDataField.DisplayType,System.String,System.String,System.Object,System.String,System.Boolean,System.Func{Overworld.Ux.Simple.UxDataField,Overworld.Ux.Simple.UxPannel,System.Boolean},System.Object)">
             <summary>
             Make a new data field for a Simple Ux.
             </summary>
@@ -1000,7 +1297,7 @@
             <param name="value">default/current value of the field</param>
             <param name="dataKey">Used to get the value of this field from the view</param>
             <param name="isReadOnly">Some read only fields may be formatted differently (like Text). try passing '() => false' to enable if you want a blured out input field instead.</param>
-            <param name="enable">A function to determine if this field should be enabled currently or not</param>
+            <param name="enable">A function to determine if this field should be enabled currently or not. Parameters are this field, and the parent pannel.</param>
             <param name="validation">USed differently for different fields to validate data. Can be overriden with a null, or a Func(object Value)</param>
         </member>
         <!-- Badly formed XML comment ignored for member "M:Overworld.Ux.Simple.UxDataField.TryToSetValue(System.Object,System.String@)" -->
@@ -1013,22 +1310,66 @@
         <member name="M:Overworld.Ux.Simple.UxDataField.Overworld#Ux#Simple#IUxViewElement#Copy">
             <summary><inheritdoc/></summary>
         </member>
+        <member name="T:Overworld.Ux.Simple.UxDataSet">
+            <summary>
+            Represents a key value set in a ui
+            </summary>
+        </member>
+        <member name="P:Overworld.Ux.Simple.UxDataSet.DataType">
+            <summary>
+            The type of data this set holds.
+            </summary>
+        </member>
+        <member name="M:Overworld.Ux.Simple.UxDataSet.#ctor(System.String,System.Type,System.Collections.Generic.IEnumerable{System.Attribute},System.String,System.Collections.ArrayList,System.String,System.Boolean,System.Func{Overworld.Ux.Simple.UxDataField,Overworld.Ux.Simple.UxPannel,System.Boolean},System.Func{System.Int32,System.Object,System.Boolean})">
+            <summary>
+            Make a key value set to display in a ux.
+            </summary>
+            <param name="dataType">The type of data the list will accept</param>
+            <param name="childFieldAttributes">Add attributes to each generated child input</param>
+            <param name="rowValues">The default/current list values</param>
+        </member>
+        <member name="M:Overworld.Ux.Simple.UxDataSet._update(System.Collections.Generic.KeyValuePair{System.Int32,System.Object})">
+            <summary>
+            Used to update the colletction
+            </summary>
+        </member>
+        <member name="M:Overworld.Ux.Simple.UxDataSet._removeLast">
+            <summary>
+            remove the last item from the collection
+            </summary>
+        </member>
+        <member name="M:Overworld.Ux.Simple.UxDataSet._remove(System.Int32)">
+            <summary>
+            remove the item at the collection index
+            </summary>
+        </member>
         <member name="T:Overworld.Ux.Simple.UxKeyValueSet">
             <summary>
             Represents a key value set in a ui
             </summary>
         </member>
-        <member name="M:Overworld.Ux.Simple.UxKeyValueSet.#ctor(Overworld.Ux.Simple.UxDataField.DisplayType,System.String,System.String,System.Collections.Generic.Dictionary{System.String,System.Object},System.String,System.Boolean,System.Func{Overworld.Ux.Simple.UxPannel,System.Boolean},System.Func{System.Collections.Generic.KeyValuePair{System.String,System.Object},System.Boolean})">
+        <member name="M:Overworld.Ux.Simple.UxKeyValueSet.#ctor(System.String,System.String,System.Collections.Generic.Dictionary{System.String,System.Object},System.Collections.Generic.IEnumerable{System.Attribute},System.String,System.Boolean,System.Func{Overworld.Ux.Simple.UxDataField,Overworld.Ux.Simple.UxPannel,System.Boolean},System.Func{System.Collections.Generic.KeyValuePair{System.String,System.Object},System.Boolean})">
             <summary>
             Make a key value set to display in a ux.
             </summary>
             <param name="extraEntryValidation">Add validation other than the built in key validation</param>
+            <param name="childFieldAttributes">Add attributes to each generated child input</param>
         </member>
         <member name="M:Overworld.Ux.Simple.UxKeyValueSet._update(System.Collections.Generic.KeyValuePair{System.String,System.Object})">
             <summary>
             Used to update the colletction
             </summary>
             <param name="pair"></param>
+        </member>
+        <member name="M:Overworld.Ux.Simple.UxKeyValueSet._removeLast">
+            <summary>
+            remove the last item from the collection
+            </summary>
+        </member>
+        <member name="M:Overworld.Ux.Simple.UxKeyValueSet._remove(System.String)">
+            <summary>
+            remove the item at the collection index
+            </summary>
         </member>
         <member name="T:Overworld.Ux.Simple.UxPannel">
             <summary>
@@ -1089,6 +1430,11 @@
             The label for this row.
             </summary>
         </member>
+        <member name="P:Overworld.Ux.Simple.UxRow.LabelTooltip">
+            <summary>
+            Info tooltip for the row label
+            </summary>
+        </member>
         <member name="M:Overworld.Ux.Simple.UxRow.GetEnumerator">
             <summary>
             <inheritdoc/>
@@ -1103,6 +1449,54 @@
             </summary>
         </member>
         <member name="M:Overworld.Ux.Simple.UxRow.Overworld#Ux#Simple#IUxViewElement#Copy">
+            <summary><inheritdoc/></summary>
+        </member>
+        <member name="T:Overworld.Ux.Simple.UxSimpleButton">
+            <summary>
+            Represents a simple button in a ui
+            </summary>
+        </member>
+        <member name="M:Overworld.Ux.Simple.UxSimpleButton.#ctor(System.String,Overworld.Data.Executeable,System.String,System.String,System.Boolean,System.Func{Overworld.Ux.Simple.UxDataField,Overworld.Ux.Simple.UxPannel,System.Boolean})">
+            <summary>
+            Make a clickable UI button that does something on click.
+            </summary>
+        </member>
+        <member name="M:Overworld.Ux.Simple.UxSimpleButton.Click">
+            <summary>
+            Used to update the colletction
+            </summary>
+        </member>
+        <member name="T:Overworld.Ux.Simple.UxTitle">
+            <summary>
+            A title that takes up it's own row, or can be added to a row or column to prefix it.
+            </summary>
+        </member>
+        <member name="T:Overworld.Ux.Simple.UxTitle.FontSize">
+            <summary>
+            Title Size
+            </summary>
+        </member>
+        <member name="F:Overworld.Ux.Simple.UxTitle.Text">
+            <summary>
+            The tile text
+            </summary>
+        </member>
+        <member name="F:Overworld.Ux.Simple.UxTitle.Tooltip">
+            <summary>
+            The tile tooltip
+            </summary>
+        </member>
+        <member name="P:Overworld.Ux.Simple.UxTitle.Size">
+            <summary>
+            The title size
+            </summary>
+        </member>
+        <member name="M:Overworld.Ux.Simple.UxTitle.#ctor(System.String,System.String,Overworld.Ux.Simple.UxTitle.FontSize)">
+            <summary>
+            Make a title for a UX.
+            </summary>
+        </member>
+        <member name="M:Overworld.Ux.Simple.UxTitle.Copy">
             <summary><inheritdoc/></summary>
         </member>
         <member name="T:Overworld.Ux.Simple.UxView">
@@ -1200,12 +1594,12 @@
             Add a formatted row of controls, inputs, or Ux items.
             </summary>
         </member>
-        <member name="M:Overworld.Ux.Simple.UxViewBuilder.AddRow(System.String,Overworld.Ux.Simple.UxDataField[])">
+        <member name="M:Overworld.Ux.Simple.UxViewBuilder.AddRow(Overworld.Ux.Simple.UxTitle,Overworld.Ux.Simple.UxDataField[])">
             <summary>
             Add a formatted row of controls, inputs, or Ux items. Give it a label to the left:
             </summary>
         </member>
-        <member name="M:Overworld.Ux.Simple.UxViewBuilder.AddRow(System.Collections.Generic.IEnumerable{Overworld.Ux.Simple.UxDataField},System.String)">
+        <member name="M:Overworld.Ux.Simple.UxViewBuilder.AddRow(System.Collections.Generic.IEnumerable{Overworld.Ux.Simple.UxDataField},Overworld.Ux.Simple.UxTitle)">
             <summary>
             Add a formatted row of controls, inputs, or Ux items.
             You can also give it a label to the left:
@@ -1216,12 +1610,12 @@
             Add a formatted column of controls, inputs, or Ux items.
             </summary>
         </member>
-        <member name="M:Overworld.Ux.Simple.UxViewBuilder.AddColumn(System.String,Overworld.Ux.Simple.IUxViewElement[])">
+        <member name="M:Overworld.Ux.Simple.UxViewBuilder.AddColumn(Overworld.Ux.Simple.UxTitle,Overworld.Ux.Simple.IUxViewElement[])">
             <summary>
             Add a formatted column of controls, inputs, or Ux items. Give it a label to the left:
             </summary>
         </member>
-        <member name="M:Overworld.Ux.Simple.UxViewBuilder.AddColumn(System.Collections.Generic.IEnumerable{Overworld.Ux.Simple.IUxViewElement},System.String)">
+        <member name="M:Overworld.Ux.Simple.UxViewBuilder.AddColumn(System.Collections.Generic.IEnumerable{Overworld.Ux.Simple.IUxViewElement},Overworld.Ux.Simple.UxTitle)">
             <summary>
             Add a formatted column of controls, inputs, or Ux items.
             You can also give it a label to the left:
@@ -1274,22 +1668,28 @@
             This will throw if you try to create type for a height that already has a type.
             </summary>
         </member>
-        <member name="M:DicEx.AddToValueCollection``2(System.Collections.Generic.IDictionary{``0,System.Collections.Generic.ICollection{``1}},``0,``1)">
+        <member name="T:DelegateCollection`1">
+            <summary>
+            An ordered collection of delegates
+            </summary>
+            <typeparam name="TAction"></typeparam>
+        </member>
+        <member name="M:DictionaryExtensions.AddToValueCollection``2(System.Collections.Generic.IDictionary{``0,System.Collections.Generic.ICollection{``1}},``0,``1)">
             <summary>
             Add an item to a ICollection within a dictionary at the given key
             </summary>
         </member>
-        <member name="M:DicEx.ValueCollectionContains``2(System.Collections.Generic.IDictionary{``0,System.Collections.Generic.ICollection{``1}},``0,``1)">
+        <member name="M:DictionaryExtensions.ValueCollectionContains``2(System.Collections.Generic.IDictionary{``0,System.Collections.Generic.ICollection{``1}},``0,``1)">
             <summary>
             Add an item to a ICollection within a dictionary at the given key
             </summary>
         </member>
-        <member name="M:DicEx.AddToHashSet``2(System.Collections.Generic.IDictionary{``0,System.Collections.Generic.HashSet{``1}},``0,``1)">
+        <member name="M:DictionaryExtensions.AddToHashSet``2(System.Collections.Generic.IDictionary{``0,System.Collections.Generic.HashSet{``1}},``0,``1)">
             <summary>
             Add an item to a ICollection within a dictionary at the given key
             </summary>
         </member>
-        <member name="M:DicEx.RemoveFromValueCollection``2(System.Collections.Generic.IDictionary{``0,System.Collections.Generic.ICollection{``1}},``0,``1)">
+        <member name="M:DictionaryExtensions.RemoveFromValueCollection``2(System.Collections.Generic.IDictionary{``0,System.Collections.Generic.ICollection{``1}},``0,``1)">
             <summary>
             Remove an item from an ICollection within a dictionary at the given key
             </summary>
