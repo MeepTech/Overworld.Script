@@ -1024,6 +1024,11 @@
             Once this is true, you cannot modify archetypes or their collections anymore.
             </summary>
         </member>
+        <member name="P:Meep.Tech.Data.Configuration.Loader.Failures">
+            <summary>
+            Types that failed to initialize and their exceptions.
+            </summary>
+        </member>
         <member name="F:Meep.Tech.Data.Configuration.Loader._assemblyTypesToBuild">
             <summary>
             The assembly types that will be built in order

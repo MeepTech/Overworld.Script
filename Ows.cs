@@ -20,8 +20,8 @@ namespace Overworld.Script {
       AND = '&',
       OR = '|',
       EQUALS = '=',
-      GREATER_THAN = '>',
-      LESS_THAN = '<'
+      IS_GREATER_THAN = '>',
+      IS_LESS_THAN = '<'
     }
 
     public static string NotComparitorPrefixPhrase {
@@ -81,6 +81,12 @@ namespace Overworld.Script {
         = 'X';
 
     /// <summary>
+    /// An extra symbol used to check for divided by opperations.
+    /// </summary>
+     public const char DivisionOpperatorExtraSymbol 
+        = '÷';
+
+    /// <summary>
     /// Symbols used for number maths in code
     /// </summary>
     public static char[] NumberOpperatorSymbols {
@@ -88,7 +94,10 @@ namespace Overworld.Script {
     } = ((Opperators[])Enum.GetValues(typeof(Opperators))).Where(
       // The squared symbol isn't used:
       v => v != Opperators.SQUARED
-    ).Select(v => ((char)v)).Append(TimesOpperatorExtraSymbol).ToArray();
+    ).Select(v => ((char)v))
+      .Append(TimesOpperatorExtraSymbol)
+      .Append(DivisionOpperatorExtraSymbol)
+      .ToArray();
 
     /// <summary>
     /// Words used for number maths in code

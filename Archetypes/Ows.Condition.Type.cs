@@ -58,7 +58,7 @@ namespace Overworld.Script {
               bool equality1 = left2.Equals(right2);
 
               return new Boolean(context.Command.Program, equality || equality1);
-            case Comparitors.LESS_THAN:
+            case Comparitors.IS_LESS_THAN:
               if(context.OrderedParameters[0] is Number left && context.OrderedParameters[1] is Number right) {
                 return new Boolean(
                   context.Command.Program,
@@ -66,7 +66,7 @@ namespace Overworld.Script {
                 );
               } else
                 throw new ArgumentException($"Condition of type {condition.Comparitor} requires two Number parameters");
-            case Comparitors.GREATER_THAN:
+            case Comparitors.IS_GREATER_THAN:
               if(context.OrderedParameters[0] is Number left1 && context.OrderedParameters[1] is Number right1) {
                 return new Boolean(
                   context.Command.Program,

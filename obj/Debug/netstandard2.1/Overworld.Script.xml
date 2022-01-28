@@ -626,6 +626,11 @@
             This is not reserved as a variable name, it shouldn't need to be for how it's used.
             </summary>
         </member>
+        <member name="F:Overworld.Script.Ows.DivisionOpperatorExtraSymbol">
+            <summary>
+            An extra symbol used to check for divided by opperations.
+            </summary>
+        </member>
         <member name="P:Overworld.Script.Ows.NumberOpperatorSymbols">
             <summary>
             Symbols used for number maths in code

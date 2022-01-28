@@ -831,6 +831,12 @@ namespace Overworld.Script {
             if(foundPrefix[0].Equals((char)Comparitors.AND)) {
               opperation = Opperators.PLUS;
             }
+            if(foundPrefix[0].Equals(TimesOpperatorExtraSymbol)) {
+              opperation = Opperators.TIMES;
+            }
+            if(foundPrefix[0].Equals(DivisionOpperatorExtraSymbol)) {
+              opperation = Opperators.DIVIDED_BY;
+            }
             else
               opperation = (Opperators)foundPrefix[0];
           }

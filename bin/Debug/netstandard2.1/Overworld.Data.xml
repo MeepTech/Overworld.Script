@@ -725,60 +725,9 @@
             175u is average.
             </summary>
         </member>
-        <member name="M:Overworld.Data.Entities.Components.BasicPhysicalStats.AddHeightChangeFunc(System.String,System.Func{System.Single,System.Single,System.Single})">
-            <summary>
-            Add an Func to be executed when the height is changed.
-            </summary>
-            <param name="key">The key of the Func, so it can be removed potentially</param>
-            <param name="onHeightChange">The Func to execute.
-            Params:
-            old height,
-            new height.
-            Returns:
-            extra height to add.
-            </param>
-        </member>
-        <member name="M:Overworld.Data.Entities.Components.BasicPhysicalStats.AddWeightChangeFunc(System.String,System.Func{System.Single,System.Single,System.Single})">
-            <summary>
-            Add an Func to be executed when the weight is changed.
-            </summary>
-            <param name="key">The key of the Func, so it can be removed potentially</param>
-            <param name="onWeightChange">The Func to execute.
-            Params:
-            old weight,
-            new weight.
-            Returns:
-            extra weight to add.
-            </param>
-        </member>
-        <member name="M:Overworld.Data.Entities.Components.BasicPhysicalStats.AddWidthChangeFunc(System.String,System.Func{System.Single,System.Single,System.Single})">
-            <summary>
-            Add an Func to be executed when the width is changed.
-            </summary>
-            <param name="key">The key of the Func, so it can be removed potentially</param>
-            <param name="onWidthChange">The Func to execute.
-            Params:
-            old width,
-            new width.
-            Returns:
-            extra width to add.
-            </param>
-        </member>
-        <member name="M:Overworld.Data.Entities.Components.BasicPhysicalStats.RemoveWidthChangeFunc(System.String,System.Func{System.Single,System.Single,System.Single}@)">
-            <summary>
-            Remove a width change Func
-            </summary>
-        </member>
-        <member name="M:Overworld.Data.Entities.Components.BasicPhysicalStats.RemoveHeightChangeFunc(System.String,System.Func{System.Single,System.Single,System.Single}@)">
-            <summary>
-            Remove a height change Func
-            </summary>
-        </member>
-        <member name="M:Overworld.Data.Entities.Components.BasicPhysicalStats.RemoveWeightChangeFunc(System.String,System.Func{System.Single,System.Single,System.Single}@)">
-            <summary>
-            Remove a weight change Func
-            </summary>
-        </member>
+        <!-- Badly formed XML comment ignored for member "F:Overworld.Data.Entities.Components.BasicPhysicalStats.OnWidthChangeFuncs" -->
+        <!-- Badly formed XML comment ignored for member "F:Overworld.Data.Entities.Components.BasicPhysicalStats.OnWeightChangeFuncs" -->
+        <!-- Badly formed XML comment ignored for member "F:Overworld.Data.Entities.Components.BasicPhysicalStats.OnHeightChangeFuncs" -->
         <member name="T:Overworld.Data.TileBoard">
             <summary>
             A collection of tiles for a board.
@@ -1141,6 +1090,12 @@
             Overriden by range slider attribute.
             </summary>
         </member>
+        <member name="T:Overworld.Ux.Simple.EnableIfAttribute">
+            <summary>
+            Denotes another field that indicates when this field should be enabled.
+            The other field must have a boolean type and be a property of field, or the field could be a Func[UxField, UxView]
+            </summary>
+        </member>
         <member name="T:Overworld.Ux.Simple.MaximumValueAttribute">
             <summary>
             Denotes a numeric field restricted to a minimum value.
@@ -1169,16 +1124,16 @@
             Used to indicate a field where you can select one of a set of options.
             </summary>
         </member>
-        <member name="T:Overworld.Ux.Simple.TooltipAttribute">
-            <summary>
-            Adds a tooltip to the field.
-            </summary>
-        </member>
         <member name="T:Overworld.Ux.Simple.SimpleButtonAttribute">
             <summary>
             Denotes a method that should be auto rendered as a button.
             A valid method takes either no parameters, or a UxSimpleButton(the one clicked on) and a UXPannel as parameters.
             TODO: impliment
+            </summary>
+        </member>
+        <member name="T:Overworld.Ux.Simple.TooltipAttribute">
+            <summary>
+            Adds a tooltip to the field.
             </summary>
         </member>
         <member name="T:Overworld.Ux.Simple.ValidationAttribute">
@@ -1188,20 +1143,20 @@
             or for numbers you can provide (int min, int max) as a tuple.
             </summary>
         </member>
-        <member name="T:Overworld.Ux.Simple.EnableIfAttribute">
-            <summary>
-            Denotes another field that indicates when this field should be enabled.
-            The other field must have a boolean type and be a property of field.
-            </summary>
-        </member>
         <member name="T:Overworld.Ux.Simple.IUxViewElement">
             <summary>
             An element of a Simple Ux View.
             </summary>
         </member>
-        <member name="M:Overworld.Ux.Simple.IUxViewElement.Copy">
+        <member name="P:Overworld.Ux.Simple.IUxViewElement.View">
+            <summary>
+            The view this element is in.
+            </summary>
+        </member>
+        <member name="M:Overworld.Ux.Simple.IUxViewElement.Copy(Overworld.Ux.Simple.UxView)">
             <summary>
             Make a copy of the element and it's state.
+            Provide the new view if there is one, if not, it will be set on setting in the builder.
             </summary>
         </member>
         <member name="T:Overworld.Ux.Simple.UxColumn">
@@ -1210,6 +1165,11 @@
             A pannel can have up to 3 columns, but 3 is the reccomended.
             Columns can have labels at the top.
             Columns cannot contain other columns, but Columns can contain rows.
+            </summary>
+        </member>
+        <member name="P:Overworld.Ux.Simple.UxColumn.View">
+            <summary>
+            The view this field is in.
             </summary>
         </member>
         <member name="P:Overworld.Ux.Simple.UxColumn.Title">
@@ -1225,17 +1185,22 @@
         <member name="M:Overworld.Ux.Simple.UxColumn.System#Collections#IEnumerable#GetEnumerator">
             <summary><inheritdoc/></summary>
         </member>
-        <member name="M:Overworld.Ux.Simple.UxColumn.Copy">
+        <member name="M:Overworld.Ux.Simple.UxColumn.Copy(Overworld.Ux.Simple.UxView)">
             <summary>
             Copy this column and it's contents
             </summary>
         </member>
-        <member name="M:Overworld.Ux.Simple.UxColumn.Overworld#Ux#Simple#IUxViewElement#Copy">
+        <member name="M:Overworld.Ux.Simple.UxColumn.Overworld#Ux#Simple#IUxViewElement#Copy(Overworld.Ux.Simple.UxView)">
             <summary><inheritdoc/></summary>
         </member>
         <member name="T:Overworld.Ux.Simple.UxDataField">
             <summary>
             A data field for input or display in a simple ux pannel/view
+            </summary>
+        </member>
+        <member name="P:Overworld.Ux.Simple.UxDataField.View">
+            <summary>
+            The view this field is in.
             </summary>
         </member>
         <member name="T:Overworld.Ux.Simple.UxDataField.DisplayType">
@@ -1251,7 +1216,7 @@
         <member name="P:Overworld.Ux.Simple.UxDataField.Validation">
             <summary>
             Used differently for different kinds of fields.
-            Can also be replaced with a Func[Value: obj] to override default behaviours
+            Can also be replaced with a Func that takes the current value as an object and returns a bool, or (bool success, string message) tuple to override default behaviours
             </summary>
         </member>
         <member name="P:Overworld.Ux.Simple.UxDataField.Value">
@@ -1287,7 +1252,7 @@
             Used to determine if the field should be enabled.
             </summary>
         </member>
-        <member name="M:Overworld.Ux.Simple.UxDataField.#ctor(Overworld.Ux.Simple.UxDataField.DisplayType,System.String,System.String,System.Object,System.String,System.Boolean,System.Func{Overworld.Ux.Simple.UxDataField,Overworld.Ux.Simple.UxPannel,System.Boolean},System.Object)">
+        <member name="M:Overworld.Ux.Simple.UxDataField.#ctor(Overworld.Ux.Simple.UxDataField.DisplayType,System.String,System.String,System.Object,System.String,System.Boolean,System.Func{Overworld.Ux.Simple.UxDataField,Overworld.Ux.Simple.UxView,System.Boolean},System.Object)">
             <summary>
             Make a new data field for a Simple Ux.
             </summary>
@@ -1300,14 +1265,19 @@
             <param name="enable">A function to determine if this field should be enabled currently or not. Parameters are this field, and the parent pannel.</param>
             <param name="validation">USed differently for different fields to validate data. Can be overriden with a null, or a Func(object Value)</param>
         </member>
-        <!-- Badly formed XML comment ignored for member "M:Overworld.Ux.Simple.UxDataField.TryToSetValue(System.Object,System.String@)" -->
-        <member name="M:Overworld.Ux.Simple.UxDataField.Copy">
+        <member name="M:Overworld.Ux.Simple.UxDataField.TryToSetValue(System.Object,System.String@)">
+            <summary>
+            Try to update the field value to a new one.
+            Checks validations and returns an error message if there is one.
+            </summary>
+        </member>
+        <member name="M:Overworld.Ux.Simple.UxDataField.Copy(Overworld.Ux.Simple.UxView)">
             <summary>
             Memberwise clone to copy
             </summary>
             <returns></returns>
         </member>
-        <member name="M:Overworld.Ux.Simple.UxDataField.Overworld#Ux#Simple#IUxViewElement#Copy">
+        <member name="M:Overworld.Ux.Simple.UxDataField.Overworld#Ux#Simple#IUxViewElement#Copy(Overworld.Ux.Simple.UxView)">
             <summary><inheritdoc/></summary>
         </member>
         <member name="T:Overworld.Ux.Simple.UxDataSet">
@@ -1320,7 +1290,7 @@
             The type of data this set holds.
             </summary>
         </member>
-        <member name="M:Overworld.Ux.Simple.UxDataSet.#ctor(System.String,System.Type,System.Collections.Generic.IEnumerable{System.Attribute},System.String,System.Collections.ArrayList,System.String,System.Boolean,System.Func{Overworld.Ux.Simple.UxDataField,Overworld.Ux.Simple.UxPannel,System.Boolean},System.Func{System.Int32,System.Object,System.Boolean})">
+        <member name="M:Overworld.Ux.Simple.UxDataSet.#ctor(System.String,System.Type,System.Collections.Generic.IEnumerable{System.Attribute},System.String,System.Collections.ArrayList,System.String,System.Boolean,System.Func{Overworld.Ux.Simple.UxDataField,Overworld.Ux.Simple.UxView,System.Boolean},System.Func{System.Int32,System.Object,System.Boolean})">
             <summary>
             Make a key value set to display in a ux.
             </summary>
@@ -1348,7 +1318,7 @@
             Represents a key value set in a ui
             </summary>
         </member>
-        <member name="M:Overworld.Ux.Simple.UxKeyValueSet.#ctor(System.String,System.String,System.Collections.Generic.Dictionary{System.String,System.Object},System.Collections.Generic.IEnumerable{System.Attribute},System.String,System.Boolean,System.Func{Overworld.Ux.Simple.UxDataField,Overworld.Ux.Simple.UxPannel,System.Boolean},System.Func{System.Collections.Generic.KeyValuePair{System.String,System.Object},System.Boolean})">
+        <member name="M:Overworld.Ux.Simple.UxKeyValueSet.#ctor(System.String,System.String,System.Collections.Generic.Dictionary{System.String,System.Object},System.Collections.Generic.IEnumerable{System.Attribute},System.String,System.Boolean,System.Func{Overworld.Ux.Simple.UxDataField,Overworld.Ux.Simple.UxView,System.Boolean},System.Func{System.Collections.Generic.KeyValuePair{System.String,System.Object},System.Boolean})">
             <summary>
             Make a key value set to display in a ux.
             </summary>
@@ -1376,41 +1346,63 @@
             Display data for a component.
             </summary>
         </member>
+        <member name="P:Overworld.Ux.Simple.UxPannel.Key">
+            <summary>
+            The tab data for this pannel
+            </summary>
+        </member>
+        <member name="P:Overworld.Ux.Simple.UxPannel.View">
+            <summary>
+            The view this field is in.
+            </summary>
+        </member>
         <member name="P:Overworld.Ux.Simple.UxPannel.Elements">
             <summary>
             The fiels in this model, by key.
             </summary>
         </member>
-        <member name="M:Overworld.Ux.Simple.UxPannel.Copy">
+        <member name="M:Overworld.Ux.Simple.UxPannel.Copy(Overworld.Ux.Simple.UxView)">
             <summary>
             Copy this pannels UI scheme.
             </summary>
-            <returns></returns>
         </member>
-        <member name="M:Overworld.Ux.Simple.UxPannel.Overworld#Ux#Simple#IUxViewElement#Copy">
+        <member name="M:Overworld.Ux.Simple.UxPannel.Overworld#Ux#Simple#IUxViewElement#Copy(Overworld.Ux.Simple.UxView)">
             <summary><inheritdoc/></summary>
         </member>
-        <member name="T:Overworld.Ux.Simple.UxPannel.TabData">
+        <member name="M:Overworld.Ux.Simple.UxPannel.GetEnumerator">
+            <summary><inheritdoc/></summary>
+        </member>
+        <member name="T:Overworld.Ux.Simple.UxPannel.Tab">
             <summary>
             A tab used to switch between pannels of a simple ux.
             </summary>
         </member>
-        <member name="F:Overworld.Ux.Simple.UxPannel.TabData.Key">
+        <member name="P:Overworld.Ux.Simple.UxPannel.Tab.View">
+            <summary>
+            The view this is attached to
+            </summary>
+        </member>
+        <member name="P:Overworld.Ux.Simple.UxPannel.Tab.Pannel">
+            <summary>
+            The pannel for this tab:
+            </summary>
+        </member>
+        <member name="F:Overworld.Ux.Simple.UxPannel.Tab.Key">
             <summary>
             Tab optional key, name is used by default
             </summary>
         </member>
-        <member name="F:Overworld.Ux.Simple.UxPannel.TabData.Name">
+        <member name="F:Overworld.Ux.Simple.UxPannel.Tab.Name">
             <summary>
             Tab display name
             </summary>
         </member>
-        <member name="F:Overworld.Ux.Simple.UxPannel.TabData.ImageLocationWithinModPackageFolder">
+        <member name="F:Overworld.Ux.Simple.UxPannel.Tab.ImageLocationWithinModPackageFolder">
             <summary>
             If you want an icon, an can be placed in your mod package containing this Ux Pannel, and the url after mods/$PackageName$/ should go here.
             </summary>
         </member>
-        <member name="M:Overworld.Ux.Simple.UxPannel.TabData.#ctor(System.String,System.String,System.String)">
+        <member name="M:Overworld.Ux.Simple.UxPannel.Tab.#ctor(System.String,System.String,System.String)">
             <summary>
             Make a new set of tab data
             </summary>
@@ -1418,11 +1410,21 @@
             <param name="key"></param>
             <param name="imageLocationWithinModPackageFolder"></param>
         </member>
+        <member name="M:Overworld.Ux.Simple.UxPannel.Tab.Copy(Overworld.Ux.Simple.UxView)">
+            <summary>
+            Copy this tab.
+            </summary>
+        </member>
         <member name="T:Overworld.Ux.Simple.UxRow">
             <summary>
             A Row of UX items.
             Can't contain columns or other rows.
             Can have a label.
+            </summary>
+        </member>
+        <member name="P:Overworld.Ux.Simple.UxRow.View">
+            <summary>
+            The view this field is in.
             </summary>
         </member>
         <member name="P:Overworld.Ux.Simple.UxRow.Label">
@@ -1443,12 +1445,12 @@
         <member name="M:Overworld.Ux.Simple.UxRow.System#Collections#IEnumerable#GetEnumerator">
             <summary><inheritdoc/></summary>
         </member>
-        <member name="M:Overworld.Ux.Simple.UxRow.Copy">
+        <member name="M:Overworld.Ux.Simple.UxRow.Copy(Overworld.Ux.Simple.UxView)">
             <summary>
             Copy this row and it's contents
             </summary>
         </member>
-        <member name="M:Overworld.Ux.Simple.UxRow.Overworld#Ux#Simple#IUxViewElement#Copy">
+        <member name="M:Overworld.Ux.Simple.UxRow.Overworld#Ux#Simple#IUxViewElement#Copy(Overworld.Ux.Simple.UxView)">
             <summary><inheritdoc/></summary>
         </member>
         <member name="T:Overworld.Ux.Simple.UxSimpleButton">
@@ -1456,7 +1458,7 @@
             Represents a simple button in a ui
             </summary>
         </member>
-        <member name="M:Overworld.Ux.Simple.UxSimpleButton.#ctor(System.String,Overworld.Data.Executeable,System.String,System.String,System.Boolean,System.Func{Overworld.Ux.Simple.UxDataField,Overworld.Ux.Simple.UxPannel,System.Boolean})">
+        <member name="M:Overworld.Ux.Simple.UxSimpleButton.#ctor(System.String,Overworld.Data.Executeable,System.String,System.String,System.Boolean,System.Func{Overworld.Ux.Simple.UxDataField,Overworld.Ux.Simple.UxView,System.Boolean})">
             <summary>
             Make a clickable UI button that does something on click.
             </summary>
@@ -1469,6 +1471,11 @@
         <member name="T:Overworld.Ux.Simple.UxTitle">
             <summary>
             A title that takes up it's own row, or can be added to a row or column to prefix it.
+            </summary>
+        </member>
+        <member name="P:Overworld.Ux.Simple.UxTitle.View">
+            <summary>
+            The view this title is in.
             </summary>
         </member>
         <member name="T:Overworld.Ux.Simple.UxTitle.FontSize">
@@ -1496,7 +1503,7 @@
             Make a title for a UX.
             </summary>
         </member>
-        <member name="M:Overworld.Ux.Simple.UxTitle.Copy">
+        <member name="M:Overworld.Ux.Simple.UxTitle.Copy(Overworld.Ux.Simple.UxView)">
             <summary><inheritdoc/></summary>
         </member>
         <member name="T:Overworld.Ux.Simple.UxView">
@@ -1524,17 +1531,17 @@
             The number of tabs/pannels
             </summary>
         </member>
-        <member name="M:Overworld.Ux.Simple.UxView.GetPannel(Overworld.Ux.Simple.UxPannel.TabData)">
+        <member name="M:Overworld.Ux.Simple.UxView.GetPannel(Overworld.Ux.Simple.UxPannel.Tab)">
             <summary>
             Get the pannel at the given tab
             </summary>
         </member>
-        <member name="M:Overworld.Ux.Simple.UxView.GetPannel(System.String,Overworld.Ux.Simple.UxPannel.TabData@)">
+        <member name="M:Overworld.Ux.Simple.UxView.GetPannel(System.String,Overworld.Ux.Simple.UxPannel.Tab@)">
             <summary>
             Get the pannel at the given tab
             </summary>
         </member>
-        <member name="M:Overworld.Ux.Simple.UxView.GetPannel(System.Int32,Overworld.Ux.Simple.UxPannel.TabData@)">
+        <member name="M:Overworld.Ux.Simple.UxView.GetPannel(System.Int32,Overworld.Ux.Simple.UxPannel.Tab@)">
             <summary>
             Get the pannel at the given tab
             </summary>
@@ -1544,9 +1551,24 @@
             Get the pannel at the given tab
             </summary>
         </member>
+        <member name="M:Overworld.Ux.Simple.UxView.GetTab(System.Int32)">
+            <summary>
+            Get the pannel at the given tab
+            </summary>
+        </member>
+        <member name="M:Overworld.Ux.Simple.UxView.GetTab(System.String)">
+            <summary>
+            Get the pannel at the given tab
+            </summary>
+        </member>
         <member name="M:Overworld.Ux.Simple.UxView.Copy">
             <summary>
             Copy this view layout and current values.
+            </summary>
+        </member>
+        <member name="M:Overworld.Ux.Simple.UxView.GetEnumerator">
+            <summary>
+            <inheritdoc/>
             </summary>
         </member>
         <member name="T:Overworld.Ux.Simple.UxViewBuilder">
@@ -1555,6 +1577,11 @@
             </summary>
         </member>
         <member name="P:Overworld.Ux.Simple.UxViewBuilder.CurrentPannelTab">
+            <summary>
+            The current panel tab this builder is working on
+            </summary>
+        </member>
+        <member name="P:Overworld.Ux.Simple.UxViewBuilder.CurrentColumnLabel">
             <summary>
             The current panel tab this builder is working on
             </summary>
@@ -1621,10 +1648,30 @@
             You can also give it a label to the left:
             </summary>
         </member>
-        <member name="M:Overworld.Ux.Simple.UxViewBuilder.StartNewPannel(Overworld.Ux.Simple.UxPannel.TabData)">
+        <member name="M:Overworld.Ux.Simple.UxViewBuilder.StartNewColumn(Overworld.Ux.Simple.UxTitle)">
+            <summary>
+            Starts a new column. Label is optional.
+            </summary>
+        </member>
+        <member name="M:Overworld.Ux.Simple.UxViewBuilder.AddPannel(Overworld.Ux.Simple.UxPannel.Tab)">
+            <summary>
+            Adds a whole pre-built pannel after the current one (or first if this is starting).
+            </summary>
+        </member>
+        <member name="M:Overworld.Ux.Simple.UxViewBuilder.StartNewPannel(Overworld.Ux.Simple.UxPannel.Tab)">
             <summary>
             Starts a new pannel with the given name.
             If this isn't called first, everuthing before is put in a default pannel has the main tilte's name.
+            </summary>
+        </member>
+        <member name="M:Overworld.Ux.Simple.UxViewBuilder.SetCurrentPannelTab(Overworld.Ux.Simple.UxPannel.Tab)">
+            <summary>
+            Sets the current pannel tab's data if there isn't any
+            </summary>
+        </member>
+        <member name="M:Overworld.Ux.Simple.UxViewBuilder.SetCurrentColumnHeader(Overworld.Ux.Simple.UxTitle)">
+            <summary>
+            Sets the current columns header if there isn't one already set
             </summary>
         </member>
         <member name="M:Overworld.Ux.Simple.UxViewBuilder.Build">
