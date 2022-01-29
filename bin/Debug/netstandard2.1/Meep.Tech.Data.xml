@@ -3317,6 +3317,16 @@
             do on each
             </summary>
         </member>
+        <member name="M:Meep.Tech.Data.EnumerableExtensions.Reverse``1(System.Collections.Generic.IList{``0})">
+            <summary>
+            Reverse the list.
+            </summary>
+        </member>
+        <member name="M:Meep.Tech.Data.EnumerableExtensions.Until``1(System.Collections.Generic.IEnumerable{``0},System.Int32)">
+            <summary>
+            Get the values until the desired index. Not including it.
+            </summary>
+        </member>
         <member name="T:Meep.Tech.Data.Utility.Map`2">
             <summary>
             Source: https://github.com/farlee2121/BidirectionalMap/blob/main/BidirectionalMap/BiMap.cs

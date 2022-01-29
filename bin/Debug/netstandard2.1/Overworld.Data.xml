@@ -1143,56 +1143,6 @@
             or for numbers you can provide (int min, int max) as a tuple.
             </summary>
         </member>
-        <member name="T:Overworld.Ux.Simple.IUxViewElement">
-            <summary>
-            An element of a Simple Ux View.
-            </summary>
-        </member>
-        <member name="P:Overworld.Ux.Simple.IUxViewElement.View">
-            <summary>
-            The view this element is in.
-            </summary>
-        </member>
-        <member name="M:Overworld.Ux.Simple.IUxViewElement.Copy(Overworld.Ux.Simple.UxView)">
-            <summary>
-            Make a copy of the element and it's state.
-            Provide the new view if there is one, if not, it will be set on setting in the builder.
-            </summary>
-        </member>
-        <member name="T:Overworld.Ux.Simple.UxColumn">
-            <summary>
-            A column in a simple Ux.
-            A pannel can have up to 3 columns, but 3 is the reccomended.
-            Columns can have labels at the top.
-            Columns cannot contain other columns, but Columns can contain rows.
-            </summary>
-        </member>
-        <member name="P:Overworld.Ux.Simple.UxColumn.View">
-            <summary>
-            The view this field is in.
-            </summary>
-        </member>
-        <member name="P:Overworld.Ux.Simple.UxColumn.Title">
-            <summary>
-            The label for this row.
-            </summary>
-        </member>
-        <member name="M:Overworld.Ux.Simple.UxColumn.GetEnumerator">
-            <summary>
-            <inheritdoc/>
-            </summary>
-        </member>
-        <member name="M:Overworld.Ux.Simple.UxColumn.System#Collections#IEnumerable#GetEnumerator">
-            <summary><inheritdoc/></summary>
-        </member>
-        <member name="M:Overworld.Ux.Simple.UxColumn.Copy(Overworld.Ux.Simple.UxView)">
-            <summary>
-            Copy this column and it's contents
-            </summary>
-        </member>
-        <member name="M:Overworld.Ux.Simple.UxColumn.Overworld#Ux#Simple#IUxViewElement#Copy(Overworld.Ux.Simple.UxView)">
-            <summary><inheritdoc/></summary>
-        </member>
         <member name="T:Overworld.Ux.Simple.UxDataField">
             <summary>
             A data field for input or display in a simple ux pannel/view
@@ -1341,6 +1291,87 @@
             remove the item at the collection index
             </summary>
         </member>
+        <member name="T:Overworld.Ux.Simple.UxTextField">
+            <summary>
+            A Text specific Simple Ux Field.
+            Can be used for input, or Read Only for just display text.
+            </summary>
+        </member>
+        <member name="P:Overworld.Ux.Simple.UxTextField.PlaceholderText">
+            <summary>
+            Placeholder text for the input
+            </summary>
+        </member>
+        <member name="M:Overworld.Ux.Simple.UxTextField.#ctor(System.String,System.String,System.String,System.Object,System.String,System.Boolean,System.Func{Overworld.Ux.Simple.UxDataField,Overworld.Ux.Simple.UxView,System.Boolean},System.Func{System.String,System.Boolean})">
+            <summary>
+            <inheritdoc/>
+            </summary>
+        </member>
+        <member name="T:Overworld.Ux.Simple.UxToggleField">
+            <summary>
+            A boolean toggle specific Simple Ux Field.
+            </summary>
+        </member>
+        <member name="P:Overworld.Ux.Simple.UxToggleField.PlaceholderText">
+            <summary>
+            Placeholder text for the input
+            </summary>
+        </member>
+        <member name="M:Overworld.Ux.Simple.UxToggleField.#ctor(System.String,System.String,System.Object,System.String,System.Boolean,System.Func{Overworld.Ux.Simple.UxDataField,Overworld.Ux.Simple.UxView,System.Boolean},System.Func{System.Boolean,System.Boolean})">
+            <summary>
+            <inheritdoc/>
+            </summary>
+        </member>
+        <member name="T:Overworld.Ux.Simple.IUxViewElement">
+            <summary>
+            An element of a Simple Ux View.
+            </summary>
+        </member>
+        <member name="P:Overworld.Ux.Simple.IUxViewElement.View">
+            <summary>
+            The view this element is in.
+            </summary>
+        </member>
+        <member name="M:Overworld.Ux.Simple.IUxViewElement.Copy(Overworld.Ux.Simple.UxView)">
+            <summary>
+            Make a copy of the element and it's state.
+            Provide the new view if there is one, if not, it will be set on setting in the builder.
+            </summary>
+        </member>
+        <member name="T:Overworld.Ux.Simple.UxColumn">
+            <summary>
+            A column in a simple Ux.
+            A pannel can have up to 3 columns, but 3 is the reccomended.
+            Columns can have labels at the top.
+            Columns cannot contain other columns, but Columns can contain rows.
+            </summary>
+        </member>
+        <member name="P:Overworld.Ux.Simple.UxColumn.View">
+            <summary>
+            The view this field is in.
+            </summary>
+        </member>
+        <member name="P:Overworld.Ux.Simple.UxColumn.Title">
+            <summary>
+            The label for this row.
+            </summary>
+        </member>
+        <member name="M:Overworld.Ux.Simple.UxColumn.GetEnumerator">
+            <summary>
+            <inheritdoc/>
+            </summary>
+        </member>
+        <member name="M:Overworld.Ux.Simple.UxColumn.System#Collections#IEnumerable#GetEnumerator">
+            <summary><inheritdoc/></summary>
+        </member>
+        <member name="M:Overworld.Ux.Simple.UxColumn.Copy(Overworld.Ux.Simple.UxView)">
+            <summary>
+            Copy this column and it's contents
+            </summary>
+        </member>
+        <member name="M:Overworld.Ux.Simple.UxColumn.Overworld#Ux#Simple#IUxViewElement#Copy(Overworld.Ux.Simple.UxView)">
+            <summary><inheritdoc/></summary>
+        </member>
         <member name="T:Overworld.Ux.Simple.UxPannel">
             <summary>
             Display data for a component.
@@ -1397,23 +1428,28 @@
             Tab display name
             </summary>
         </member>
+        <member name="F:Overworld.Ux.Simple.UxPannel.Tab.Tooltip">
+            <summary>
+            Optional tab tooltip
+            </summary>
+        </member>
         <member name="F:Overworld.Ux.Simple.UxPannel.Tab.ImageLocationWithinModPackageFolder">
             <summary>
             If you want an icon, an can be placed in your mod package containing this Ux Pannel, and the url after mods/$PackageName$/ should go here.
             </summary>
         </member>
-        <member name="M:Overworld.Ux.Simple.UxPannel.Tab.#ctor(System.String,System.String,System.String)">
+        <member name="M:Overworld.Ux.Simple.UxPannel.Tab.#ctor(System.String,System.String,System.String,System.String)">
             <summary>
-            Make a new set of tab data
+            Make a new tab for a pannel
             </summary>
-            <param name="name"></param>
-            <param name="key"></param>
-            <param name="imageLocationWithinModPackageFolder"></param>
         </member>
         <member name="M:Overworld.Ux.Simple.UxPannel.Tab.Copy(Overworld.Ux.Simple.UxView)">
             <summary>
             Copy this tab.
             </summary>
+        </member>
+        <member name="M:Overworld.Ux.Simple.UxPannel.Tab.GetHashCode">
+            <summary><inheritdoc/></summary>
         </member>
         <member name="T:Overworld.Ux.Simple.UxRow">
             <summary>
@@ -1498,7 +1534,7 @@
             The title size
             </summary>
         </member>
-        <member name="M:Overworld.Ux.Simple.UxTitle.#ctor(System.String,System.String,Overworld.Ux.Simple.UxTitle.FontSize)">
+        <member name="M:Overworld.Ux.Simple.UxTitle.#ctor(System.String,System.String)">
             <summary>
             Make a title for a UX.
             </summary>
@@ -1653,7 +1689,7 @@
             Starts a new column. Label is optional.
             </summary>
         </member>
-        <member name="M:Overworld.Ux.Simple.UxViewBuilder.AddPannel(Overworld.Ux.Simple.UxPannel.Tab)">
+        <member name="M:Overworld.Ux.Simple.UxViewBuilder.AddPannel(Overworld.Ux.Simple.UxPannel.Tab,Overworld.Ux.Simple.UxPannel)">
             <summary>
             Adds a whole pre-built pannel after the current one (or first if this is starting).
             </summary>
