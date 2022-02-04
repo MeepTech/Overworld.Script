@@ -1,4 +1,5 @@
-﻿using Meep.Tech.Data;
+﻿using Meep.Tech.Collections.Generic;
+using Meep.Tech.Data;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -16,9 +17,11 @@ namespace Overworld.Script {
       [Branch]
       public new class Type : Command.Type {
 
+        ///<summary><inheritdoc/></summary>
         protected override Dictionary<string, object> DefaultTestParams
           => base.DefaultTestParams.Append(nameof(Operator), "AND");
 
+        ///<summary><inheritdoc/></summary>
         protected Type(Identity id)
           : base(
               id ?? new Identity("Unknown-Operator"),

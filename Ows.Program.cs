@@ -1,5 +1,6 @@
-﻿using Meep.Tech.Data;
-using Meep.Tech.Data.Utility;
+﻿using Meep.Tech.Collections;
+using Meep.Tech.Collections.Generic;
+using Meep.Tech.Data;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -368,7 +369,7 @@ namespace Overworld.Script {
       ) {
         Variable currentResult = null;
         while(line <= LineCount) {
-          while(!_commands.Contains(line) || _commands[line] is null) {
+          while(!_commands.ContainsKey(line) || _commands[line] is null) {
             line++;
             if(line > LineCount) {
               break;
@@ -567,7 +568,7 @@ namespace Overworld.Script {
           }
 
           string commandLineText = "";
-          if(_commands.Contains(line)) {
+          if(_commands.ContainsKey(line)) {
             commandLineText += _commands[line]?.ToString() ?? "";
           }
 

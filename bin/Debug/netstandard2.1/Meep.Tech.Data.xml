@@ -1154,7 +1154,7 @@
             Sets _assemblyTypesToBuild
             </summary>
         </member>
-        <member name="M:Meep.Tech.Data.Configuration.Loader._validateAssemblyCollectionExists(Meep.Tech.Data.Utility.OrderedDictionary{System.Reflection.Assembly,Meep.Tech.Data.Configuration.Loader.AssemblyBuildableTypesCollection},System.Reflection.Assembly)">
+        <member name="M:Meep.Tech.Data.Configuration.Loader._validateAssemblyCollectionExists(Meep.Tech.Collections.Generic.OrderedDictionary{System.Reflection.Assembly,Meep.Tech.Data.Configuration.Loader.AssemblyBuildableTypesCollection},System.Reflection.Assembly)">
             <summary>
             Make sure the assembly collection exists for the given assmebly. Add a new one if it doesnt.
             </summary>
@@ -1427,9 +1427,19 @@
             The param collection.
             </summary>
         </member>
+        <member name="P:Meep.Tech.Data.IComponent`1.LiteBuilder.Universe">
+            <summary>
+            The universe this builder is part of
+            </summary>
+        </member>
         <member name="M:Meep.Tech.Data.IComponent`1.LiteBuilder.Build">
             <summary>
             Build the model.
+            </summary>
+        </member>
+        <member name="M:Meep.Tech.Data.IComponent`1.LiteBuilder.ForEachParam(System.Action{System.ValueTuple{System.String,System.Object}})">
+            <summary>
+            Do something with each paramter in the builder.
             </summary>
         </member>
         <member name="T:Meep.Tech.Data.IFactory">
@@ -1576,6 +1586,11 @@
         <member name="M:Meep.Tech.Data.IModel.Builder.AsImmutable">
             <summary>
             Just make this immutible.
+            </summary>
+        </member>
+        <member name="M:Meep.Tech.Data.IModel.Builder.ForEachParam(System.Action{System.ValueTuple{System.String,System.Object}})">
+            <summary>
+            Do something with each paramter in the builder.
             </summary>
         </member>
         <member name="T:Meep.Tech.Data.IModel.Builder.DoNotBuildThisTypeException">
@@ -3257,93 +3272,15 @@
              - public|private|protected Model()
             </summary>
         </member>
-        <member name="M:Meep.Tech.Data.DictionaryExtensions.AddToValueCollection``2(System.Collections.Generic.IDictionary{``0,System.Collections.Generic.ICollection{``1}},``0,``1)">
+        <member name="M:Meep.Tech.Data.DictionaryExtensions.Append``1(System.Collections.Generic.Dictionary{System.String,``0},``0)">
             <summary>
-            Add an item to a ICollection within a dictionary at the given key
-            </summary>
-        </member>
-        <member name="M:Meep.Tech.Data.DictionaryExtensions.RemoveFromValueCollection``2(System.Collections.Generic.IDictionary{``0,System.Collections.Generic.ICollection{``1}},``0,``1)">
-            <summary>
-            Remove an item from an ICollection within a dictionary at the given key
-            </summary>
-        </member>
-        <member name="M:Meep.Tech.Data.DictionaryExtensions.AddToValueCollection``2(System.Collections.Generic.IDictionary{``0,System.Collections.Generic.IList{``1}},``0,``1)">
-            <summary>
-            Add an item to a ICollection within a dictionary at the given key
-            </summary>
-        </member>
-        <member name="M:Meep.Tech.Data.DictionaryExtensions.RemoveFromValueCollection``2(System.Collections.Generic.IDictionary{``0,System.Collections.Generic.IList{``1}},``0,``1)">
-            <summary>
-            Remove an item from an ICollection within a dictionary at the given key
-            </summary>
-        </member>
-        <member name="M:Meep.Tech.Data.DictionaryExtensions.Append``1(System.Collections.Generic.HashSet{``0},``0)">
-            <summary>
-            Append a value to a dictionary and return the collection
+            Append a component to a dictionary and return the collection
             </summary>
         </member>
         <member name="M:Meep.Tech.Data.DictionaryExtensions.Append(System.Collections.Generic.HashSet{System.Func{Meep.Tech.Data.IBuilder,Meep.Tech.Data.IModel.IComponent}},System.Func{Meep.Tech.Data.IBuilder,Meep.Tech.Data.IModel.IComponent})">
             <summary>
             Append a value to a dictionary and return the collection
             </summary>
-        </member>
-        <member name="M:Meep.Tech.Data.DictionaryExtensions.Append``2(System.Collections.Generic.Dictionary{``0,``1},``0,``1)">
-            <summary>
-            Append a value to a dictionary and return the collection
-            </summary>
-        </member>
-        <member name="M:Meep.Tech.Data.DictionaryExtensions.Append``1(System.Collections.Generic.Dictionary{System.String,``0},``0)">
-            <summary>
-            Append a component to a dictionary and return the collection
-            </summary>
-        </member>
-        <member name="M:Meep.Tech.Data.DictionaryExtensions.Merge``2(System.Collections.Generic.Dictionary{``0,``1},System.Collections.Generic.IDictionary{``0,``1}[])">
-            <summary>
-            Merge dictionaries together, overriding any values with the same key.
-            </summary>
-        </member>
-        <member name="M:Meep.Tech.Data.DictionaryExtensions.MergeIn``2(System.Collections.Generic.Dictionary{``0,``1},System.Collections.Generic.IReadOnlyDictionary{``0,``1}[])">
-            <summary>
-            Merge dictionaries together, overriding any values with the same key.
-            </summary>
-        </member>
-        <member name="M:Meep.Tech.Data.DictionaryExtensions.Merge(System.Collections.IDictionary,System.Collections.IDictionary[])">
-            <summary>
-            Merge dictionaries together, overriding any values with the same key.
-            </summary>
-        </member>
-        <member name="M:Meep.Tech.Data.EnumerableExtensions.ForEach``1(System.Collections.Generic.IEnumerable{``0},System.Action{``0})">
-            <summary>
-            do on each
-            </summary>
-        </member>
-        <member name="M:Meep.Tech.Data.EnumerableExtensions.Reverse``1(System.Collections.Generic.IList{``0})">
-            <summary>
-            Reverse the list.
-            </summary>
-        </member>
-        <member name="M:Meep.Tech.Data.EnumerableExtensions.Until``1(System.Collections.Generic.IEnumerable{``0},System.Int32)">
-            <summary>
-            Get the values until the desired index. Not including it.
-            </summary>
-        </member>
-        <member name="T:Meep.Tech.Data.Utility.Map`2">
-            <summary>
-            Source: https://github.com/farlee2121/BidirectionalMap/blob/main/BidirectionalMap/BiMap.cs
-            </summary>
-        </member>
-        <member name="T:Meep.Tech.Data.Utility.Map`2.Indexer`2">
-            <summary>
-            Publically read-only lookup to prevent inconsistent state between forward and reverse map lookups
-            </summary>
-            <typeparam name="Key"></typeparam>
-            <typeparam name="Value"></typeparam>
-        </member>
-        <member name="M:Meep.Tech.Data.Utility.Map`2.Indexer`2.ToDictionary">
-            <summary>
-            Deep copy lookup as a dictionary
-            </summary>
-            <returns></returns>
         </member>
         <member name="T:Meep.Tech.Data.TypeExtensions">
             <summary>
@@ -3372,6 +3309,480 @@
             <summary>
             Tries to cast an object to a given type. First time is expensive
             </summary>
+        </member>
+        <member name="T:Meep.Tech.Collections.Generic.DelegateCollection`1">
+            <summary>
+            An ordered collection of delegates
+            </summary>
+            <typeparam name="TAction"></typeparam>
+        </member>
+        <member name="M:Meep.Tech.Collections.Generic.DelegateCollection`1.ReDelegate``1(System.Func{`0,``0})">
+            <summary>
+            Change all the delegates and return a new collection
+            </summary>
+        </member>
+        <member name="M:Meep.Tech.Collections.Generic.DictionaryExtensions.AddToValueCollection``2(System.Collections.Generic.IDictionary{``0,System.Collections.Generic.ICollection{``1}},``0,``1)">
+            <summary>
+            Add an item to a ICollection within a dictionary at the given key
+            </summary>
+        </member>
+        <member name="M:Meep.Tech.Collections.Generic.DictionaryExtensions.RemoveFromValueCollection``2(System.Collections.Generic.IDictionary{``0,System.Collections.Generic.ICollection{``1}},``0,``1)">
+            <summary>
+            Remove an item from an ICollection within a dictionary at the given key
+            </summary>
+        </member>
+        <member name="M:Meep.Tech.Collections.Generic.DictionaryExtensions.AddToValueCollection``2(System.Collections.Generic.IDictionary{``0,System.Collections.Generic.IList{``1}},``0,``1)">
+            <summary>
+            Add an item to a ICollection within a dictionary at the given key
+            </summary>
+        </member>
+        <member name="M:Meep.Tech.Collections.Generic.DictionaryExtensions.AddToHashSet``2(System.Collections.Generic.IDictionary{``0,System.Collections.Generic.HashSet{``1}},``0,``1)">
+            <summary>
+            Add an item to a ICollection within a dictionary at the given key
+            </summary>
+        </member>
+        <member name="M:Meep.Tech.Collections.Generic.DictionaryExtensions.RemoveFromValueCollection``2(System.Collections.Generic.IDictionary{``0,System.Collections.Generic.IList{``1}},``0,``1)">
+            <summary>
+            Remove an item from an ICollection within a dictionary at the given key
+            </summary>
+        </member>
+        <member name="M:Meep.Tech.Collections.Generic.DictionaryExtensions.Append``1(System.Collections.Generic.HashSet{``0},``0)">
+            <summary>
+            Append a value to a dictionary and return the collection
+            </summary>
+        </member>
+        <member name="M:Meep.Tech.Collections.Generic.DictionaryExtensions.Append``2(System.Collections.Generic.IDictionary{``0,``1},``0,``1)">
+            <summary>
+            Append a value to a dictionary and return the collection
+            </summary>
+        </member>
+        <member name="M:Meep.Tech.Collections.Generic.DictionaryExtensions.Append``2(System.Collections.Generic.Dictionary{``0,``1},``0,``1)">
+            <summary>
+            Append a value to a dictionary and return the collection
+            </summary>
+        </member>
+        <member name="M:Meep.Tech.Collections.Generic.DictionaryExtensions.Append``1(Meep.Tech.Collections.Generic.DelegateCollection{``0},System.String,``0)">
+            <summary>
+            Append a value to a dictionary and return the collection
+            </summary>
+        </member>
+        <member name="M:Meep.Tech.Collections.Generic.DictionaryExtensions.Append``2(Meep.Tech.Collections.Generic.OrderedDictionary{``0,``1},``0,``1)">
+            <summary>
+            Append a value to a dictionary and return the collection
+            </summary>
+        </member>
+        <member name="M:Meep.Tech.Collections.Generic.DictionaryExtensions.Append``3(``0,``1,``2)">
+            <summary>
+            Append a value to a dictionary and return the collection
+            </summary>
+        </member>
+        <member name="M:Meep.Tech.Collections.Generic.DictionaryExtensions.Merge``2(System.Collections.Generic.Dictionary{``0,``1},System.Collections.Generic.IDictionary{``0,``1}[])">
+            <summary>
+            Merge dictionaries together, overriding any values with the same key.
+            </summary>
+        </member>
+        <member name="M:Meep.Tech.Collections.Generic.DictionaryExtensions.MergeInReadonly``2(System.Collections.Generic.Dictionary{``0,``1},System.Collections.Generic.IReadOnlyDictionary{``0,``1}[])">
+            <summary>
+            Merge dictionaries together, overriding any values with the same key.
+            </summary>
+        </member>
+        <member name="M:Meep.Tech.Collections.Generic.DictionaryExtensions.Merge(System.Collections.IDictionary,System.Collections.IDictionary[])">
+            <summary>
+            Merge dictionaries together, overriding any values with the same key.
+            </summary>
+        </member>
+        <member name="M:Meep.Tech.Collections.Generic.EnumerableExtensions.AsSingleItemEnumerable``1(``0)">
+            <summary>
+            Turn one item into an enumerable contaiing itself.
+            </summary>
+        </member>
+        <member name="M:Meep.Tech.Collections.Generic.EnumerableExtensions.ForEach``1(System.Collections.Generic.IEnumerable{``0},System.Action{``0})">
+            <summary>
+            do on each
+            </summary>
+        </member>
+        <member name="M:Meep.Tech.Collections.Generic.EnumerableExtensions.Reverse``1(System.Collections.Generic.IList{``0})">
+            <summary>
+            Reverse the list.
+            </summary>
+        </member>
+        <member name="M:Meep.Tech.Collections.Generic.EnumerableExtensions.Until``1(System.Collections.Generic.IEnumerable{``0},System.Int32)">
+            <summary>
+            Get the values until the desired index. Not including it.
+            </summary>
+        </member>
+        <member name="T:Meep.Tech.Collections.Generic.IOrderedDictionary`2">
+            <summary>
+            A collection of items, each indexed by a key and in list order by an index.
+            Read + Writeable
+            </summary>
+        </member>
+        <member name="M:Meep.Tech.Collections.Generic.IOrderedDictionary`2.SetByIndex(System.Int32,`1)">
+            <summary>
+            Sets the value at the index specified, maintaining the same key that's currently pointing at this index.
+            </summary>
+        </member>
+        <member name="M:Meep.Tech.Collections.Generic.IOrderedDictionary`2.SetByKey(`0,`1)">
+            <summary>
+            set a value by it's key, adding a new entry if the key isn't present at the end of the list.
+            </summary>
+        </member>
+        <member name="M:Meep.Tech.Collections.Generic.IOrderedDictionary`2.InsertByIndex(System.Int32,`0,`1)">
+            <summary>
+            Insert an item into the collection at an existing index.
+            </summary>
+        </member>
+        <member name="M:Meep.Tech.Collections.Generic.IOrderedDictionary`2.RemoveAt(System.Int32)">
+            <summary>
+            Remove the value at the given index.
+            </summary>
+        </member>
+        <member name="M:Meep.Tech.Collections.Generic.IOrderedDictionary`2.RemoveByKey(`0)">
+            <summary>
+             Remove using the key.
+             This can help as an alternative to Remove if the key is an int
+             </summary>
+        </member>
+        <member name="T:Meep.Tech.Collections.Generic.IReadOnlyKeyedSet`2">
+            <summary>
+            A Keyed Set, but readonly.
+            </summary>
+        </member>
+        <member name="T:Meep.Tech.Collections.Generic.IReadOnlyOrderedDictionary`2">
+            <summary>
+            A Read only ordered dictionary.
+            </summary>
+        </member>
+        <member name="P:Meep.Tech.Collections.Generic.IReadOnlyOrderedDictionary`2.Item(System.Int32)">
+            <summary>
+            Get the item at the given ordered index.
+            </summary>
+        </member>
+        <member name="M:Meep.Tech.Collections.Generic.IReadOnlyOrderedDictionary`2.GetValueAtIndex(System.Int32)">
+            <summary>
+            Get the item at the given ordered index.
+            </summary>
+        </member>
+        <member name="M:Meep.Tech.Collections.Generic.IReadOnlyOrderedDictionary`2.GetKeyAtIndex(System.Int32)">
+            <summary>
+            Get the key at the given index
+            </summary>
+        </member>
+        <member name="M:Meep.Tech.Collections.Generic.IReadOnlyOrderedDictionary`2.GetPairAtIndex(System.Int32)">
+            <summary>
+            Get the item at the given ordered index.
+            </summary>
+        </member>
+        <member name="M:Meep.Tech.Collections.Generic.IReadOnlyOrderedDictionary`2.TryToGetPairAtIndex(System.Int32,System.Collections.Generic.KeyValuePair{`0,`1}@)">
+            <summary>
+            Try to get the item at the given ordered index.
+            </summary>
+            <param name="value">The found value, or default if not found.</param>
+        </member>
+        <member name="M:Meep.Tech.Collections.Generic.IReadOnlyOrderedDictionary`2.TryToGetPairAtIndex(System.Int32)">
+            <summary>
+            Get the item at the given ordered index.
+            </summary>
+            <returns>The value, or Default if not found.</returns>
+        </member>
+        <member name="M:Meep.Tech.Collections.Generic.IReadOnlyOrderedDictionary`2.GetValueWithKey(`0)">
+            <summary>
+            Get the item with the given key.
+            </summary>
+        </member>
+        <member name="M:Meep.Tech.Collections.Generic.IReadOnlyOrderedDictionary`2.TryGetValueAtIndex(System.Int32,`1@)">
+            <summary>
+            Try to get the item at the given ordered index.
+            </summary>
+            <param name="value">The found value, or default if not found.</param>
+        </member>
+        <member name="M:Meep.Tech.Collections.Generic.IReadOnlyOrderedDictionary`2.TryGetValue(`0)">
+            <summary>
+            Try to get the item with the given key.
+            </summary>
+            <returns>The value, or Default if not found.</returns>
+        </member>
+        <member name="M:Meep.Tech.Collections.Generic.IReadOnlyOrderedDictionary`2.TryGetValueAtIndex(System.Int32)">
+            <summary>
+            Try to get the item at the given ordered index.
+            </summary>
+            <returns>The value, or Default if not found.</returns>
+        </member>
+        <member name="M:Meep.Tech.Collections.Generic.IReadOnlyOrderedDictionary`2.Contains(System.Collections.Generic.KeyValuePair{`0,`1})">
+            <summary>
+            Check if this contains both the key and value pair.
+            </summary>
+        </member>
+        <member name="M:Meep.Tech.Collections.Generic.IReadOnlyOrderedDictionary`2.ContainsValue(`1)">
+            <summary>
+            Check if this contains the value
+            </summary>
+        </member>
+        <member name="M:Meep.Tech.Collections.Generic.IReadOnlyOrderedDictionary`2.IndexOf(`0)">
+            <summary>
+            Get the index of the given key
+            </summary>
+            <param name="key"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Meep.Tech.Collections.Generic.IReadOnlyOrderedDictionary`2.TryGetKeyAtIndex(System.Int32)">
+            <summary>
+             Try to get the key at the given index.
+             </summary>
+             <returns>The key, or Default if not found.</returns>
+        </member>
+        <member name="M:Meep.Tech.Collections.Generic.IReadOnlyOrderedDictionary`2.TryGetKeyAtIndex(System.Int32,`0@)">
+            <summary>
+             Try to get the key at the given index.
+             </summary>
+             <param name="value">The found key, or default if not found.</param>
+        </member>
+        <member name="T:Meep.Tech.Collections.Generic.KeyedSet`2">
+            <summary>
+            A Keyed collection that uses a lambda for key fetching.
+            </summary>
+        </member>
+        <member name="M:Meep.Tech.Collections.Generic.KeyedSet`2.#ctor(System.Func{`1,`0})">
+            <summary>
+            Make a keyed set that uses the function to fetch it's items.
+            </summary>
+        </member>
+        <member name="M:Meep.Tech.Collections.Generic.KeyedSet`2.#ctor(System.Func{`1,`0},System.Collections.Generic.IEqualityComparer{`0})">
+            <summary>
+            Make a keyed set that uses the function to fetch it's items.
+            </summary>
+        </member>
+        <member name="M:Meep.Tech.Collections.Generic.KeyedSet`2.GetKeyForItem(`1)">
+            <summary><inheritdoc/></summary>
+        </member>
+        <member name="T:Meep.Tech.Collections.Generic.Map`2">
+            <summary>
+            A better, home made version of the 2 way map.
+            </summary>
+        </member>
+        <member name="P:Meep.Tech.Collections.Generic.Map`2.Forward">
+            <summary>
+            The forward key value set
+            </summary>
+        </member>
+        <member name="P:Meep.Tech.Collections.Generic.Map`2.Reverse">
+            <summary>
+            The reversed key value set
+            </summary>
+        </member>
+        <member name="M:Meep.Tech.Collections.Generic.Map`2.Add(`0,`1)">
+            <summary>
+            Add a pair of keys.
+            This throws if there is already a key in either collection with the given values.
+            </summary>
+        </member>
+        <member name="M:Meep.Tech.Collections.Generic.Map`2.Add(System.Collections.Generic.KeyValuePair{`0,`1})">
+            <summary>
+            Add a pair of keys.
+            This throws if there is already a key in either collection with the given values.
+            </summary>
+        </member>
+        <member name="M:Meep.Tech.Collections.Generic.Map`2.Add(System.ValueTuple{`0,`1})">
+            <summary>
+            Add a pair of keys.
+            This throws if there is already a key in either collection with the given values.
+            </summary>
+        </member>
+        <member name="M:Meep.Tech.Collections.Generic.Map`2.Update(`0,`1)">
+            <summary>
+            Update both links to point to eachother, removing any current links for the values.
+            </summary>
+        </member>
+        <member name="M:Meep.Tech.Collections.Generic.Map`2.Update(System.Collections.Generic.KeyValuePair{`0,`1})">
+            <summary>
+            Update both links to point to eachother, removing any current links for the values.
+            </summary>
+        </member>
+        <member name="M:Meep.Tech.Collections.Generic.Map`2.Update(System.ValueTuple{`0,`1})">
+            <summary>
+            Update both links to point to eachother, removing any current links for the values.
+            </summary>
+        </member>
+        <member name="M:Meep.Tech.Collections.Generic.Map`2.Remove(`0)">
+            <summary>
+            Try to remove an entry using the forward key
+            </summary>
+        </member>
+        <member name="M:Meep.Tech.Collections.Generic.Map`2.RemoveWithReverseKey(`1)">
+            <summary>
+            Try to remove an entry using the forward key
+            </summary>
+        </member>
+        <member name="M:Meep.Tech.Collections.Generic.Map`2.Count">
+            <summary>
+            The number of entries
+            </summary>
+        </member>
+        <member name="T:Meep.Tech.Collections.Generic.OrderedDictionary`2">
+            <summary>
+            An ordered dictionary.
+            </summary>
+        </member>
+        <member name="P:Meep.Tech.Collections.Generic.OrderedDictionary`2.Keys">
+            <summary><inheritdoc/></summary>
+        </member>
+        <member name="P:Meep.Tech.Collections.Generic.OrderedDictionary`2.Values">
+            <summary><inheritdoc/></summary>
+        </member>
+        <member name="P:Meep.Tech.Collections.Generic.OrderedDictionary`2.Count">
+            <summary><inheritdoc/></summary>
+        </member>
+        <member name="P:Meep.Tech.Collections.Generic.OrderedDictionary`2.System#Collections#Generic#IReadOnlyDictionary{TKey,TValue}#Keys">
+            <summary><inheritdoc/></summary>
+        </member>
+        <member name="P:Meep.Tech.Collections.Generic.OrderedDictionary`2.System#Collections#Generic#IReadOnlyDictionary{TKey,TValue}#Values">
+            <summary><inheritdoc/></summary>
+        </member>
+        <member name="P:Meep.Tech.Collections.Generic.OrderedDictionary`2.IsReadOnly">
+            <summary>
+            If this has been marked readonly
+            </summary>
+        </member>
+        <member name="M:Meep.Tech.Collections.Generic.OrderedDictionary`2.#ctor(System.Collections.Generic.IEnumerable{System.Collections.Generic.KeyValuePair{`0,`1}})">
+            <summary>
+            Make an ordered dictionary.
+            </summary>
+        </member>
+        <member name="P:Meep.Tech.Collections.Generic.OrderedDictionary`2.Item(`0)">
+            <summary><inheritdoc/></summary>
+        </member>
+        <member name="P:Meep.Tech.Collections.Generic.OrderedDictionary`2.Item(System.Int32)">
+            <summary><inheritdoc/></summary>
+        </member>
+        <member name="M:Meep.Tech.Collections.Generic.OrderedDictionary`2.ContainsKey(`0)">
+            <summary><inheritdoc/></summary>
+        </member>
+        <member name="M:Meep.Tech.Collections.Generic.OrderedDictionary`2.System#Collections#Generic#IReadOnlyDictionary{TKey,TValue}#ContainsKey(`0)">
+            <summary><inheritdoc/></summary>
+        </member>
+        <member name="M:Meep.Tech.Collections.Generic.OrderedDictionary`2.Contains(System.Collections.Generic.KeyValuePair{`0,`1})">
+            <summary><inheritdoc/></summary>
+        </member>
+        <member name="M:Meep.Tech.Collections.Generic.OrderedDictionary`2.ContainsValue(`1)">
+            <summary><inheritdoc/></summary>
+        </member>
+        <member name="M:Meep.Tech.Collections.Generic.OrderedDictionary`2.IndexOf(`0)">
+            <summary>
+            Gets the index of the key specified.
+            </summary>
+            <returns>Returns the index of the key specified if found. -1 if the key could not be located.</returns>
+        </member>
+        <member name="M:Meep.Tech.Collections.Generic.OrderedDictionary`2.GetValueAtIndex(System.Int32)">
+            <summary>
+            Get the key at the given index
+            </summary>
+            <exception cref="T:System.IndexOutOfRangeException"/>
+        </member>
+        <member name="M:Meep.Tech.Collections.Generic.OrderedDictionary`2.GetKeyAtIndex(System.Int32)">
+            <summary>
+            Get the key at the given index
+            </summary>
+            <exception cref="T:System.IndexOutOfRangeException"/>
+        </member>
+        <member name="M:Meep.Tech.Collections.Generic.OrderedDictionary`2.GetValueWithKey(`0)">
+            <summary>
+            Get the value with the given key
+            </summary>
+            <exception cref="T:System.Collections.Generic.KeyNotFoundException"/>
+        </member>
+        <member name="M:Meep.Tech.Collections.Generic.OrderedDictionary`2.GetPairAtIndex(System.Int32)">
+            <summary>
+            Get the key value pair at the given index.
+            <exception cref="T:System.IndexOutOfRangeException"/>
+            </summary>
+        </member>
+        <member name="M:Meep.Tech.Collections.Generic.OrderedDictionary`2.TryGetValue(`0,`1@)">
+            <summary><inheritdoc/></summary>
+        </member>
+        <member name="M:Meep.Tech.Collections.Generic.OrderedDictionary`2.TryGetValue(`0)">
+            <summary>
+             Try to get the value with the given key.
+             Default if not found.
+             </summary>
+        </member>
+        <member name="M:Meep.Tech.Collections.Generic.OrderedDictionary`2.TryGetValueAtIndex(System.Int32,`1@)">
+            <summary>
+             Try to get the value at the given index.
+             Default if not found.
+             </summary>
+        </member>
+        <member name="M:Meep.Tech.Collections.Generic.OrderedDictionary`2.TryGetValueAtIndex(System.Int32)">
+            <summary>
+             Try to get the value at the given index.
+             Default if not found.
+             </summary>
+        </member>
+        <member name="M:Meep.Tech.Collections.Generic.OrderedDictionary`2.TryGetKeyAtIndex(System.Int32)">
+            <summary>
+             Try to get the key at the given index.
+             Default if not found.
+             </summary>
+        </member>
+        <member name="M:Meep.Tech.Collections.Generic.OrderedDictionary`2.TryGetKeyAtIndex(System.Int32,`0@)">
+            <summary><inheritdoc/></summary>
+        </member>
+        <member name="M:Meep.Tech.Collections.Generic.OrderedDictionary`2.TryToGetPairAtIndex(System.Int32)">
+            <summary>
+            Get the key value pair at the given index.
+            </summary>
+        </member>
+        <member name="M:Meep.Tech.Collections.Generic.OrderedDictionary`2.TryToGetPairAtIndex(System.Int32,System.Collections.Generic.KeyValuePair{`0,`1}@)">
+            <summary>
+            Get the key value pair at the given index.
+            </summary>
+        </member>
+        <member name="M:Meep.Tech.Collections.Generic.OrderedDictionary`2.AsReadOnly">
+            <summary>
+            Get as readonly
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:Meep.Tech.Collections.Generic.OrderedDictionary`2.CopyTo(System.Collections.Generic.KeyValuePair{`0,`1}[],System.Int32)">
+            <summary><inheritdoc/></summary>
+        </member>
+        <member name="M:Meep.Tech.Collections.Generic.OrderedDictionary`2.Add(`0,`1)">
+            <summary><inheritdoc/></summary>
+             <exception cref="T:System.AccessViolationException"/>
+        </member>
+        <member name="M:Meep.Tech.Collections.Generic.OrderedDictionary`2.Add(System.Collections.Generic.KeyValuePair{`0,`1})">
+            <summary><inheritdoc/></summary>
+        </member>
+        <member name="M:Meep.Tech.Collections.Generic.OrderedDictionary`2.SetByIndex(System.Int32,`1)">
+            <summary><inheritdoc/></summary>
+             <exception cref="T:System.AccessViolationException"/>
+             <exception cref="T:System.IndexOutOfRangeException"/>
+        </member>
+        <member name="M:Meep.Tech.Collections.Generic.OrderedDictionary`2.SetByKey(`0,`1)">
+            <summary><inheritdoc/></summary>
+             <exception cref="T:System.AccessViolationException"/>
+        </member>
+        <member name="M:Meep.Tech.Collections.Generic.OrderedDictionary`2.InsertByIndex(System.Int32,`0,`1)">
+            <summary><inheritdoc/></summary>
+             <exception cref="T:System.AccessViolationException"/>
+             <exception cref="T:System.IndexOutOfRangeException"/>
+        </member>
+        <member name="M:Meep.Tech.Collections.Generic.OrderedDictionary`2.RemoveAt(System.Int32)">
+            <summary><inheritdoc/></summary>
+        </member>
+        <member name="M:Meep.Tech.Collections.Generic.OrderedDictionary`2.Remove(`0)">
+            <summary><inheritdoc/></summary>
+        </member>
+        <member name="M:Meep.Tech.Collections.Generic.OrderedDictionary`2.RemoveByKey(`0)">
+            <summary><inheritdoc/></summary>
+        </member>
+        <member name="M:Meep.Tech.Collections.Generic.OrderedDictionary`2.Remove(System.Collections.Generic.KeyValuePair{`0,`1})">
+            <summary><inheritdoc/></summary>
+        </member>
+        <member name="M:Meep.Tech.Collections.Generic.OrderedDictionary`2.Clear">
+            <summary><inheritdoc/></summary>
+        </member>
+        <member name="M:Meep.Tech.Collections.Generic.OrderedDictionary`2.GetEnumerator">
+            <summary><inheritdoc/></summary>
         </member>
     </members>
 </doc>

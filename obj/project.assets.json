@@ -50,13 +50,27 @@
         "type": "project",
         "framework": ".NETStandard,Version=v2.1",
         "dependencies": {
-          "Meep.Tech.Data": "1.0.0"
+          "Meep.Tech.Data": "1.0.0",
+          "Simple.Ux.Data": "1.0.0"
         },
         "compile": {
           "bin/placeholder/Overworld.Data.dll": {}
         },
         "runtime": {
           "bin/placeholder/Overworld.Data.dll": {}
+        }
+      },
+      "Simple.Ux.Data/1.0.0": {
+        "type": "project",
+        "framework": ".NETStandard,Version=v2.1",
+        "dependencies": {
+          "Meep.Tech.Data": "1.0.0"
+        },
+        "compile": {
+          "bin/placeholder/Simple.Ux.Data.dll": {}
+        },
+        "runtime": {
+          "bin/placeholder/Simple.Ux.Data.dll": {}
         }
       }
     }
@@ -208,6 +222,11 @@
       "type": "project",
       "path": "../Overworld.Data/Overworld.Data.csproj",
       "msbuildProject": "../Overworld.Data/Overworld.Data.csproj"
+    },
+    "Simple.Ux.Data/1.0.0": {
+      "type": "project",
+      "path": "../../Simple.Ux.Data/Simple.Ux.Data.csproj",
+      "msbuildProject": "../../Simple.Ux.Data/Simple.Ux.Data.csproj"
     }
   },
   "projectFileDependencyGroups": {

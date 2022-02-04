@@ -31,3 +31,5 @@ C:\Users\super\Projects\meep-tech\libraries\c-sharp\_games\Overworld\Overworld.S
 C:\Users\super\Projects\meep-tech\libraries\c-sharp\_games\Overworld\Overworld.Script\bin\Debug\netstandard2.1\Meep.Tech.Data.dll
 C:\Users\super\Projects\meep-tech\libraries\c-sharp\_games\Overworld\Overworld.Script\bin\Debug\netstandard2.1\Meep.Tech.Data.pdb
 C:\Users\super\Projects\meep-tech\libraries\c-sharp\_games\Overworld\Overworld.Script\bin\Debug\netstandard2.1\Meep.Tech.Data.xml
+C:\Users\super\Projects\meep-tech\libraries\c-sharp\_games\Overworld\Overworld.Script\bin\Debug\netstandard2.1\Simple.Ux.Data.dll
+C:\Users\super\Projects\meep-tech\libraries\c-sharp\_games\Overworld\Overworld.Script\bin\Debug\netstandard2.1\Simple.Ux.Data.pdb

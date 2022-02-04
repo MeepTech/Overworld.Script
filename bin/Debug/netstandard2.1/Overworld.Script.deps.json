@@ -54,10 +54,19 @@
       },
       "Overworld.Data/1.0.0": {
         "dependencies": {
-          "Meep.Tech.Data": "1.0.0"
+          "Meep.Tech.Data": "1.0.0",
+          "Simple.Ux.Data": "1.0.0"
         },
         "runtime": {
           "Overworld.Data.dll": {}
+        }
+      },
+      "Simple.Ux.Data/1.0.0": {
+        "dependencies": {
+          "Meep.Tech.Data": "1.0.0"
+        },
+        "runtime": {
+          "Simple.Ux.Data.dll": {}
         }
       },
       "UnityEngine.TilemapModule/0.0.0.0": {
@@ -151,6 +160,11 @@
       "sha512": ""
     },
     "Overworld.Data/1.0.0": {
+      "type": "project",
+      "serviceable": false,
+      "sha512": ""
+    },
+    "Simple.Ux.Data/1.0.0": {
       "type": "project",
       "serviceable": false,
       "sha512": ""

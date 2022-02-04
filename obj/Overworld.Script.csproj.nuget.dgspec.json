@@ -137,6 +137,9 @@
             "projectReferences": {
               "C:\\Users\\super\\Projects\\meep-tech\\libraries\\c-sharp\\ECSBAM\\Meep.Tech.Data\\Meep.Tech.Data.csproj": {
                 "projectPath": "C:\\Users\\super\\Projects\\meep-tech\\libraries\\c-sharp\\ECSBAM\\Meep.Tech.Data\\Meep.Tech.Data.csproj"
+              },
+              "C:\\Users\\super\\Projects\\meep-tech\\libraries\\c-sharp\\_games\\Simple.Ux.Data\\Simple.Ux.Data.csproj": {
+                "projectPath": "C:\\Users\\super\\Projects\\meep-tech\\libraries\\c-sharp\\_games\\Simple.Ux.Data\\Simple.Ux.Data.csproj"
               }
             }
           }
@@ -202,6 +205,68 @@
               },
               "C:\\Users\\super\\Projects\\meep-tech\\libraries\\c-sharp\\_games\\Overworld\\Overworld.Data\\Overworld.Data.csproj": {
                 "projectPath": "C:\\Users\\super\\Projects\\meep-tech\\libraries\\c-sharp\\_games\\Overworld\\Overworld.Data\\Overworld.Data.csproj"
+              }
+            }
+          }
+        },
+        "warningProperties": {
+          "warnAsError": [
+            "NU1605"
+          ]
+        }
+      },
+      "frameworks": {
+        "netstandard2.1": {
+          "targetAlias": "netstandard2.1",
+          "imports": [
+            "net461",
+            "net462",
+            "net47",
+            "net471",
+            "net472",
+            "net48"
+          ],
+          "assetTargetFallback": true,
+          "warn": true,
+          "frameworkReferences": {
+            "NETStandard.Library": {
+              "privateAssets": "all"
+            }
+          },
+          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\6.0.100\\RuntimeIdentifierGraph.json"
+        }
+      }
+    },
+    "C:\\Users\\super\\Projects\\meep-tech\\libraries\\c-sharp\\_games\\Simple.Ux.Data\\Simple.Ux.Data.csproj": {
+      "version": "1.0.0",
+      "restore": {
+        "projectUniqueName": "C:\\Users\\super\\Projects\\meep-tech\\libraries\\c-sharp\\_games\\Simple.Ux.Data\\Simple.Ux.Data.csproj",
+        "projectName": "Simple.Ux.Data",
+        "projectPath": "C:\\Users\\super\\Projects\\meep-tech\\libraries\\c-sharp\\_games\\Simple.Ux.Data\\Simple.Ux.Data.csproj",
+        "packagesPath": "C:\\Users\\super\\.nuget\\packages\\",
+        "outputPath": "C:\\Users\\super\\Projects\\meep-tech\\libraries\\c-sharp\\_games\\Simple.Ux.Data\\obj\\",
+        "projectStyle": "PackageReference",
+        "fallbackFolders": [
+          "C:\\Program Files (x86)\\Microsoft\\Xamarin\\NuGet\\"
+        ],
+        "configFilePaths": [
+          "C:\\Users\\super\\AppData\\Roaming\\NuGet\\NuGet.Config",
+          "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config",
+          "C:\\Program Files (x86)\\NuGet\\Config\\Xamarin.Offline.config"
+        ],
+        "originalTargetFrameworks": [
+          "netstandard2.1"
+        ],
+        "sources": {
+          "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {},
+          "https://api.nuget.org/v3/index.json": {}
+        },
+        "frameworks": {
+          "netstandard2.1": {
+            "targetAlias": "netstandard2.1",
+            "projectReferences": {
+              "C:\\Users\\super\\Projects\\meep-tech\\libraries\\c-sharp\\ECSBAM\\Meep.Tech.Data\\Meep.Tech.Data.csproj": {
+                "projectPath": "C:\\Users\\super\\Projects\\meep-tech\\libraries\\c-sharp\\ECSBAM\\Meep.Tech.Data\\Meep.Tech.Data.csproj"
               }
             }
           }
