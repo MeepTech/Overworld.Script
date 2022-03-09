@@ -1,0 +1,17 @@
+<Project Sdk="Microsoft.NET.Sdk">
+	<Target Name="CopyBuiltFiles" AfterTargets="PostBuildEvent">
+    <Message Text="Copying built files (dll, pdb, xml, deps.json, etc...) to desired project locations" Importance="High" />
+
+		<Copy
+      SourceFiles="bin\Debug\netstandard2.1\$(ProjectName).dll;bin\Debug\netstandard2.1\$(ProjectName).pdb;bin\Debug\netstandard2.1\$(ProjectName).deps.json;bin\Debug\netstandard2.1\$(ProjectName).xml"
+      DestinationFolder="..\..\..\..\..\apps\unity\Overworld\Assets\Packages\$(ProjectName)\" />
+		<Copy
+      SourceFiles="bin\Debug\netstandard2.1\$(ProjectName).dll;bin\Debug\netstandard2.1\$(ProjectName).pdb;bin\Debug\netstandard2.1\$(ProjectName).deps.json;bin\Debug\netstandard2.1\$(ProjectName).xml"
+      DestinationFolder="..\..\..\..\..\apps\unity\Overworld Launcher\Assets\Packages\$(ProjectName)\" />
+		<Copy
+      SourceFiles="bin\Debug\netstandard2.1\$(ProjectName).dll;bin\Debug\netstandard2.1\$(ProjectName).pdb;bin\Debug\netstandard2.1\$(ProjectName).deps.json;bin\Debug\netstandard2.1\$(ProjectName).xml"
+      DestinationFolder="..\..\..\..\..\apps\unity\Overworld Tests\Assets\Packages\$(ProjectName)\" />
+
+    <Message Text="Copied build files" Importance="High" />
+	</Target>
+</Project>
